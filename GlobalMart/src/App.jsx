@@ -6,6 +6,7 @@ import Hero from "./components/HeroSection.jsx";
 import Gateway from "./components/MarketplaceGateway.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Categories from "./components/CategorySlider.jsx";
 
 // Home Page Component
 function HomePage() {
@@ -13,6 +14,7 @@ function HomePage() {
     <>
       <Hero />
       <Gateway />
+      <Categories />
       <Footer />
     </>
   );

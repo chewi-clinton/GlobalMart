@@ -1,0 +1,450 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap");
+
+/* ===================================
+   Category Slider Section
+   =================================== */
+.category-slider {
+  width: 100%;
+  padding: 0;
+  background: #fafafa;
+  position: relative;
+  overflow: hidden;
+}
+
+.category-slider__container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* ===================================
+   Section Header
+   =================================== */
+.category-slider__header {
+  text-align: center;
+  padding: 80px 20px 50px;
+}
+
+.category-slider__label {
+  display: inline-block;
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #ff9900;
+  margin-bottom: 16px;
+}
+
+.category-slider__title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+/* ===================================
+   Cards Container - Expanding Lens Grid
+   =================================== */
+.category-slider__cards {
+  display: flex;
+  width: 100%;
+  height: 600px;
+  position: relative;
+}
+
+/* ===================================
+   Individual Category Card
+   =================================== */
+.category-card {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  overflow: hidden;
+  cursor: pointer;
+  transition: flex 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ===================================
+   Background Image with 3D Tilt
+   =================================== */
+.category-card__image-container {
+  position: absolute;
+  top: -5%;
+  left: -5%;
+  right: -5%;
+  bottom: -5%;
+  width: 110%;
+  height: 110%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.category-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ===================================
+   Gradient Overlay
+   =================================== */
+.category-card__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.3) 40%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+  z-index: 2;
+  transition: background 0.4s ease;
+}
+
+.category-card--active .category-card__overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.05) 0%,
+    rgba(0, 0, 0, 0.2) 40%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+}
+
+/* ===================================
+   Card Content Container
+   =================================== */
+.category-card__content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 50px 40px;
+  z-index: 5;
+}
+
+/* ===================================
+   Vertical Title (Collapsed State)
+   =================================== */
+.category-card__title-vertical {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  white-space: nowrap;
+  font-family: "Inter", sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  z-index: 3;
+}
+
+/* ===================================
+   Expanded Content
+   =================================== */
+.category-card__expanded-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 400px;
+}
+
+.category-card__title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(3rem, 5vw, 4.5rem);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  line-height: 1;
+}
+
+.category-card__subtitle {
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 16px 0;
+  letter-spacing: 0.01em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+.category-card__count {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 30px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ===================================
+   Explore Button
+   =================================== */
+.category-card__button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: #ff9900;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 25px rgba(255, 153, 0, 0.35);
+}
+
+.category-card__button:hover {
+  background: #e68a00;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(255, 153, 0, 0.45);
+}
+
+.category-card__button svg {
+  font-size: 0.85rem;
+  transition: transform 0.3s ease;
+}
+
+.category-card__button:hover svg {
+  transform: translateX(4px);
+}
+
+/* ===================================
+   Decorative Elements
+   =================================== */
+.category-card__decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #ff9900 0%, #ffb84d 100%);
+  transform-origin: bottom;
+  z-index: 6;
+}
+
+.category-card__glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-left: 3px solid rgba(255, 153, 0, 0.6);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* ===================================
+   Bottom Hint
+   =================================== */
+.category-slider__hint {
+  text-align: center;
+  padding: 30px 20px 60px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  color: #888;
+  letter-spacing: 0.05em;
+}
+
+/* ===================================
+   Responsive Styles
+   =================================== */
+@media (max-width: 1200px) {
+  .category-slider__cards {
+    height: 500px;
+  }
+
+  .category-card__content {
+    padding: 40px 30px;
+  }
+
+  .category-card__title {
+    font-size: clamp(2.5rem, 4vw, 3.5rem);
+  }
+
+  .category-card__expanded-content {
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 900px) {
+  .category-slider__cards {
+    height: 450px;
+  }
+
+  .category-slider__header {
+    padding: 60px 20px 40px;
+  }
+
+  .category-card__content {
+    padding: 35px 25px;
+  }
+
+  .category-card__title-vertical {
+    font-size: 1.2rem;
+  }
+
+  .category-card__subtitle {
+    font-size: 1rem;
+  }
+
+  .category-card__button {
+    padding: 14px 26px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-slider__cards {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .category-card {
+    flex: 1;
+    min-height: 200px;
+    transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .category-card--active {
+    flex: 2.5;
+    min-height: 350px;
+  }
+
+  .category-card__title-vertical {
+    transform: translate(-50%, -50%) rotate(0deg);
+    font-size: 1.3rem;
+  }
+
+  .category-card__content {
+    padding: 30px 25px;
+  }
+
+  .category-card__title {
+    font-size: 2.5rem;
+  }
+
+  .category-card__subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  .category-card__count {
+    font-size: 0.75rem;
+    margin-bottom: 20px;
+  }
+
+  .category-card__button {
+    padding: 12px 24px;
+    font-size: 0.8rem;
+  }
+
+  .category-card__decoration {
+    width: 100%;
+    height: 4px;
+    bottom: 0;
+    left: 0;
+    transform-origin: left;
+  }
+
+  .category-card__glow {
+    border-left: none;
+    border-bottom: 3px solid rgba(255, 153, 0, 0.6);
+  }
+
+  .category-slider__header {
+    padding: 50px 20px 30px;
+  }
+
+  .category-slider__hint {
+    padding: 20px 20px 40px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-slider__header {
+    padding: 40px 16px 25px;
+  }
+
+  .category-slider__title {
+    font-size: 1.8rem;
+  }
+
+  .category-card {
+    min-height: 150px;
+  }
+
+  .category-card--active {
+    min-height: 300px;
+  }
+
+  .category-card__content {
+    padding: 25px 20px;
+  }
+
+  .category-card__title-vertical {
+    font-size: 1.1rem;
+  }
+
+  .category-card__title {
+    font-size: 2rem;
+  }
+
+  .category-card__subtitle {
+    font-size: 0.85rem;
+    margin-bottom: 10px;
+  }
+
+  .category-card__count {
+    font-size: 0.7rem;
+    margin-bottom: 16px;
+  }
+
+  .category-card__button {
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    gap: 8px;
+  }
+
+  .category-card__button svg {
+    font-size: 0.7rem;
+  }
+}
+
+/* ===================================
+   Reduced Motion Support
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+  .category-card,
+  .category-card__image,
+  .category-card__button,
+  .category-card__image-container {
+    transition: none;
+  }
+
+  .category-card--active .category-card__image-container {
+    transform: none;
+  }
+}
