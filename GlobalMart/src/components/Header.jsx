@@ -456,14 +456,14 @@ const Header = () => {
           <button
             className="main-nav__icon-btn"
             aria-label="Account"
-            onClick={() => navigate("/account")}
+            onClick={() => navigate("/login")}
           >
             <FiUser />
           </button>
           <button
             className="main-nav__icon-btn"
             aria-label="Wishlist"
-            onClick={() => navigate("/wishlist")}
+            onClick={() => navigate("/favorite")}
           >
             <FiHeart />
           </button>
@@ -561,7 +561,7 @@ const Header = () => {
               href="#"
               className="mobile-menu__link"
               onClick={() => {
-                navigate("/account");
+                navigate("/login");
                 setMobileMenuOpen(false);
               }}
             >
@@ -571,7 +571,7 @@ const Header = () => {
               href="#"
               className="mobile-menu__link"
               onClick={() => {
-                navigate("/wishlist");
+                navigate("/favorite");
                 setMobileMenuOpen(false);
               }}
             >

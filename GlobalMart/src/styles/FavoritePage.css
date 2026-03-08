@@ -1,0 +1,498 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+:root {
+  --brand-orange: #ff9900;
+  --brand-orange-light: #ffb84d;
+  --brand-orange-dark: #e68a00;
+  --brand-orange-glow: rgba(255, 153, 0, 0.35);
+  --text-primary: #1a1a1a;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --bg-white: #ffffff;
+  --bg-light: #fafafa;
+  --border-color: #e5e5e5;
+  --border-light: #f0f0f0;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 10px 40px rgba(0, 0, 0, 0.1);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ===================================
+   Page Container
+   =================================== */
+.favorites-page {
+  min-height: 100vh;
+  background: var(--bg-white);
+  padding: 40px 20px 60px;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.favorites-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ===================================
+   Header
+   =================================== */
+.favorites-header {
+  text-align: center;
+  margin-bottom: 50px;
+  padding-bottom: 30px;
+  position: relative;
+}
+
+.favorites-header::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--brand-orange),
+    transparent
+  );
+  border-radius: 2px;
+}
+
+.header-title {
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.header-count {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* ===================================
+   Masonry Grid
+   =================================== */
+.favorites-grid {
+  column-count: 4;
+  column-gap: 24px;
+}
+
+/* ===================================
+   Favorite Card
+   =================================== */
+.favorite-card {
+  break-inside: avoid;
+  margin-bottom: 24px;
+  background: var(--bg-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.favorite-card.removing {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
+}
+
+.favorite-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+/* ===================================
+   Card Image
+   =================================== */
+.card-image-container {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-light);
+}
+
+.card-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform var(--transition-slow);
+}
+
+.favorite-card:hover .card-image {
+  transform: scale(1.05);
+}
+
+/* ===================================
+   Heart Icon
+   =================================== */
+.heart-container {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.heart-icon {
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+  transition: all var(--transition-fast);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.heart-icon:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 4px 12px rgba(255, 153, 0, 0.4));
+}
+
+.heart-icon:active {
+  transform: scale(0.95);
+}
+
+/* Particle Burst */
+.particle-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 20;
+}
+
+.particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--brand-orange);
+  border-radius: 50%;
+  animation: particleBurst 0.6s ease-out forwards;
+  animation-delay: var(--particle-delay);
+}
+
+@keyframes particleBurst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(var(--particle-angle)) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) rotate(var(--particle-angle))
+      translateY(-60px);
+  }
+}
+
+/* ===================================
+   Card Overlay & Add to Cart
+   =================================== */
+.card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  transform: translateY(100%);
+  opacity: 0;
+  transition: all var(--transition-normal);
+}
+
+.favorite-card:hover .card-overlay {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.add-to-cart-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--brand-orange);
+  border: none;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 15px rgba(255, 153, 0, 0.4);
+}
+
+.add-to-cart-btn:hover {
+  background: var(--brand-orange-dark);
+  box-shadow: 0 6px 20px rgba(255, 153, 0, 0.5);
+}
+
+/* ===================================
+   Card Content
+   =================================== */
+.card-content {
+  padding: 18px 20px 20px;
+}
+
+.card-category {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.card-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--brand-orange);
+  margin: 0;
+}
+
+/* ===================================
+   Empty State
+   =================================== */
+.empty-favorites {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-lottie {
+  width: 100%;
+  max-width: 320px;
+  margin-bottom: 32px;
+}
+
+.empty-content {
+  max-width: 480px;
+}
+
+.empty-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.empty-message {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.discover-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 40px;
+  background: linear-gradient(
+    135deg,
+    var(--brand-orange),
+    var(--brand-orange-dark)
+  );
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: 0 4px 20px var(--brand-orange-glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.discover-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.discover-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ===================================
+   Responsive
+   =================================== */
+@media (max-width: 1200px) {
+  .favorites-grid {
+    column-count: 3;
+  }
+}
+@media (max-width: 900px) {
+  .favorites-grid {
+    column-count: 2;
+    column-gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .favorites-page {
+    padding: 24px 16px 40px;
+  }
+  .header-title {
+    font-size: 1.75rem;
+  }
+  .favorites-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 540px) {
+  .favorites-grid {
+    column-count: 1;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .favorite-card {
+    margin-bottom: 20px;
+  }
+  .favorite-card:hover {
+    transform: translateY(-6px) scale(1.01);
+  }
+  .empty-lottie {
+    max-width: 260px;
+  }
+  .empty-title {
+    font-size: 1.35rem;
+  }
+  .empty-message {
+    font-size: 0.95rem;
+  }
+  .discover-btn {
+    padding: 16px 32px;
+    font-size: 1rem;
+  }
+}
+
+/* ===================================
+   Touch Devices
+   =================================== */
+@media (hover: none) and (pointer: coarse) {
+  .card-overlay {
+    transform: translateY(0);
+    opacity: 1;
+    padding: 15px;
+  }
+  .favorite-card:hover {
+    transform: none;
+    box-shadow: var(--shadow-float);
+  }
+  .favorite-card:active {
+    transform: scale(0.98);
+  }
+  .heart-icon {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+}
+
+/* ===================================
+   Accessibility
+   =================================== */
+button:focus-visible,
+.add-to-cart-btn:focus-visible,
+.discover-btn:focus-visible,
+.heart-icon:focus-visible {
+  outline: 2px solid var(--brand-orange);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .favorite-card:hover {
+    transform: none;
+  }
+  .discover-btn::before,
+  .particle {
+    animation: none;
+  }
+}
+
+@media print {
+  .add-to-cart-btn,
+  .heart-container,
+  .discover-btn {
+    display: none;
+  }
+  .card-overlay {
+    display: none;
+  }
+  .favorite-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
