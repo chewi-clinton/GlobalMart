@@ -14,7 +14,6 @@ import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import "../styles/Header.css";
 
-// All country options with flags
 const countries = [
   { code: "CM", name: "Cameroon", flag: "🇨🇲" },
   { code: "US", name: "United States", flag: "🇺🇸" },
@@ -69,7 +68,6 @@ const countries = [
   { code: "MA", name: "Morocco", flag: "🇲🇦" },
 ];
 
-// Language options with flags
 const languages = [
   { code: "EN", name: "English", flag: "🇺🇸" },
   { code: "FR", name: "Français", flag: "🇫🇷" },
@@ -85,7 +83,6 @@ const languages = [
   { code: "HI", name: "हिन्दी", flag: "🇮🇳" },
 ];
 
-// Currency options with symbols
 const currencies = [
   { code: "XAF", symbol: "FCFA", name: "CFA Franc (Central)" },
   { code: "XOF", symbol: "CFA", name: "CFA Franc (West)" },
@@ -130,15 +127,13 @@ const Header = () => {
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [locationSearch, setLocationSearch] = useState("");
 
-  // User selections state
   const [userLocation, setUserLocation] = useState({
     country: "United States",
     countryCode: "US",
   });
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
-  const [selectedCurrency, setSelectedCurrency] = useState(currencies[2]); // Default to USD
+  const [selectedCurrency, setSelectedCurrency] = useState(currencies[2]);
 
-  // Auto-detect user location on mount
   useEffect(() => {
     detectUserLocation();
   }, []);
@@ -147,12 +142,10 @@ const Header = () => {
     try {
       const response = await fetch("https://ipapi.co/json/");
       const data = await response.json();
-
       if (data && data.country_name && data.country_code) {
         const detectedCountry = countries.find(
           (c) => c.code === data.country_code,
         );
-
         if (detectedCountry) {
           setUserLocation({
             country: detectedCountry.name,
@@ -164,86 +157,75 @@ const Header = () => {
             countryCode: data.country_code,
           });
         }
-
-        // Auto-set currency based on country
         const currencyMap = {
-          CM: currencies.find((c) => c.code === "XAF"), // Cameroon
-          SN: currencies.find((c) => c.code === "XOF"), // Senegal
-          CI: currencies.find((c) => c.code === "XOF"), // Ivory Coast
-          US: currencies.find((c) => c.code === "USD"),
-          GB: currencies.find((c) => c.code === "GBP"),
-          CA: currencies.find((c) => c.code === "CAD"),
-          AU: currencies.find((c) => c.code === "AUD"),
-          JP: currencies.find((c) => c.code === "JPY"),
-          CN: currencies.find((c) => c.code === "CNY"),
-          IN: currencies.find((c) => c.code === "INR"),
-          NG: currencies.find((c) => c.code === "NGN"),
-          BR: currencies.find((c) => c.code === "BRL"),
-          MX: currencies.find((c) => c.code === "MXN"),
-          DE: currencies.find((c) => c.code === "EUR"),
-          FR: currencies.find((c) => c.code === "EUR"),
-          IT: currencies.find((c) => c.code === "EUR"),
-          ES: currencies.find((c) => c.code === "EUR"),
-          NL: currencies.find((c) => c.code === "EUR"),
-          BE: currencies.find((c) => c.code === "EUR"),
-          AT: currencies.find((c) => c.code === "EUR"),
-          PT: currencies.find((c) => c.code === "EUR"),
-          GR: currencies.find((c) => c.code === "EUR"),
-          FI: currencies.find((c) => c.code === "EUR"),
-          IE: currencies.find((c) => c.code === "EUR"),
-          SK: currencies.find((c) => c.code === "EUR"),
-          SI: currencies.find((c) => c.code === "EUR"),
-          LU: currencies.find((c) => c.code === "EUR"),
-          LV: currencies.find((c) => c.code === "EUR"),
-          EE: currencies.find((c) => c.code === "EUR"),
-          LT: currencies.find((c) => c.code === "EUR"),
-          CY: currencies.find((c) => c.code === "EUR"),
-          MT: currencies.find((c) => c.code === "EUR"),
-          SG: currencies.find((c) => c.code === "SGD"),
-          HK: currencies.find((c) => c.code === "HKD"),
-          KR: currencies.find((c) => c.code === "KRW"),
-          CH: currencies.find((c) => c.code === "CHF"),
-          SE: currencies.find((c) => c.code === "SEK"),
-          NO: currencies.find((c) => c.code === "NOK"),
-          DK: currencies.find((c) => c.code === "DKK"),
-          AE: currencies.find((c) => c.code === "AED"),
-          SA: currencies.find((c) => c.code === "SAR"),
-          ZA: currencies.find((c) => c.code === "ZAR"),
-          TR: currencies.find((c) => c.code === "TRY"),
-          RU: currencies.find((c) => c.code === "RUB"),
-          PL: currencies.find((c) => c.code === "PLN"),
-          TH: currencies.find((c) => c.code === "THB"),
-          ID: currencies.find((c) => c.code === "IDR"),
-          MY: currencies.find((c) => c.code === "MYR"),
-          PH: currencies.find((c) => c.code === "PHP"),
-          GH: currencies.find((c) => c.code === "GHS"),
-          KE: currencies.find((c) => c.code === "KES"),
-          MA: currencies.find((c) => c.code === "MAD"),
+          CM: "XAF",
+          SN: "XOF",
+          CI: "XOF",
+          US: "USD",
+          GB: "GBP",
+          CA: "CAD",
+          AU: "AUD",
+          JP: "JPY",
+          CN: "CNY",
+          IN: "INR",
+          NG: "NGN",
+          BR: "BRL",
+          MX: "MXN",
+          DE: "EUR",
+          FR: "EUR",
+          IT: "EUR",
+          ES: "EUR",
+          NL: "EUR",
+          BE: "EUR",
+          AT: "EUR",
+          PT: "EUR",
+          GR: "EUR",
+          FI: "EUR",
+          IE: "EUR",
+          SK: "EUR",
+          SI: "EUR",
+          LU: "EUR",
+          LV: "EUR",
+          EE: "EUR",
+          LT: "EUR",
+          CY: "EUR",
+          MT: "EUR",
+          SG: "SGD",
+          HK: "HKD",
+          KR: "KRW",
+          CH: "CHF",
+          SE: "SEK",
+          NO: "NOK",
+          DK: "DKK",
+          AE: "AED",
+          SA: "SAR",
+          ZA: "ZAR",
+          TR: "TRY",
+          RU: "RUB",
+          PL: "PLN",
+          TH: "THB",
+          ID: "IDR",
+          MY: "MYR",
+          PH: "PHP",
+          GH: "GHS",
+          KE: "KES",
+          MA: "MAD",
         };
-
-        const detectedCurrency = currencyMap[data.country_code];
-        if (detectedCurrency) {
-          setSelectedCurrency(detectedCurrency);
-        }
+        const code = currencyMap[data.country_code];
+        const detectedCurrency = currencies.find((c) => c.code === code);
+        if (detectedCurrency) setSelectedCurrency(detectedCurrency);
       }
     } catch (error) {
       console.log("Could not detect location, using defaults");
     }
   };
 
-  // Handle navigation to NotFound page
-  const handleNavigation = () => {
-    navigate("/not-found");
-  };
-
-  // Close all dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
       setLocationDropdownOpen(false);
       setLanguageDropdownOpen(false);
       setCurrencyDropdownOpen(false);
     };
-
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
@@ -256,75 +238,65 @@ const Header = () => {
     setDropdown((prev) => !prev);
   };
 
-  // Filter countries based on search
   const filteredCountries = countries.filter(
     (country) =>
       country.name.toLowerCase().includes(locationSearch.toLowerCase()) ||
       country.code.toLowerCase().includes(locationSearch.toLowerCase()),
   );
 
-  // Handle country selection
   const handleCountrySelect = (country) => {
-    setUserLocation({
-      country: country.name,
-      countryCode: country.code,
-    });
+    setUserLocation({ country: country.name, countryCode: country.code });
     setLocationDropdownOpen(false);
     setLocationSearch("");
-
-    // Update currency based on selected country
     const currencyMap = {
-      CM: currencies.find((c) => c.code === "XAF"), // Cameroon
-      SN: currencies.find((c) => c.code === "XOF"), // Senegal
-      CI: currencies.find((c) => c.code === "XOF"), // Ivory Coast
-      US: currencies.find((c) => c.code === "USD"),
-      GB: currencies.find((c) => c.code === "GBP"),
-      CA: currencies.find((c) => c.code === "CAD"),
-      AU: currencies.find((c) => c.code === "AUD"),
-      JP: currencies.find((c) => c.code === "JPY"),
-      CN: currencies.find((c) => c.code === "CNY"),
-      IN: currencies.find((c) => c.code === "INR"),
-      NG: currencies.find((c) => c.code === "NGN"),
-      BR: currencies.find((c) => c.code === "BRL"),
-      MX: currencies.find((c) => c.code === "MXN"),
-      DE: currencies.find((c) => c.code === "EUR"),
-      FR: currencies.find((c) => c.code === "EUR"),
-      IT: currencies.find((c) => c.code === "EUR"),
-      ES: currencies.find((c) => c.code === "EUR"),
-      NL: currencies.find((c) => c.code === "EUR"),
-      BE: currencies.find((c) => c.code === "EUR"),
-      AT: currencies.find((c) => c.code === "EUR"),
-      PT: currencies.find((c) => c.code === "EUR"),
-      GR: currencies.find((c) => c.code === "EUR"),
-      SG: currencies.find((c) => c.code === "SGD"),
-      HK: currencies.find((c) => c.code === "HKD"),
-      KR: currencies.find((c) => c.code === "KRW"),
-      CH: currencies.find((c) => c.code === "CHF"),
-      SE: currencies.find((c) => c.code === "SEK"),
-      NO: currencies.find((c) => c.code === "NOK"),
-      DK: currencies.find((c) => c.code === "DKK"),
-      AE: currencies.find((c) => c.code === "AED"),
-      SA: currencies.find((c) => c.code === "SAR"),
-      ZA: currencies.find((c) => c.code === "ZAR"),
-      TR: currencies.find((c) => c.code === "TRY"),
-      RU: currencies.find((c) => c.code === "RUB"),
-      PL: currencies.find((c) => c.code === "PLN"),
-      TH: currencies.find((c) => c.code === "THB"),
-      ID: currencies.find((c) => c.code === "IDR"),
-      MY: currencies.find((c) => c.code === "MYR"),
-      PH: currencies.find((c) => c.code === "PHP"),
-      GH: currencies.find((c) => c.code === "GHS"),
-      KE: currencies.find((c) => c.code === "KES"),
-      MA: currencies.find((c) => c.code === "MAD"),
+      CM: "XAF",
+      SN: "XOF",
+      CI: "XOF",
+      US: "USD",
+      GB: "GBP",
+      CA: "CAD",
+      AU: "AUD",
+      JP: "JPY",
+      CN: "CNY",
+      IN: "INR",
+      NG: "NGN",
+      BR: "BRL",
+      MX: "MXN",
+      DE: "EUR",
+      FR: "EUR",
+      IT: "EUR",
+      ES: "EUR",
+      NL: "EUR",
+      BE: "EUR",
+      AT: "EUR",
+      PT: "EUR",
+      GR: "EUR",
+      SG: "SGD",
+      HK: "HKD",
+      KR: "KRW",
+      CH: "CHF",
+      SE: "SEK",
+      NO: "NOK",
+      DK: "DKK",
+      AE: "AED",
+      SA: "SAR",
+      ZA: "ZAR",
+      TR: "TRY",
+      RU: "RUB",
+      PL: "PLN",
+      TH: "THB",
+      ID: "IDR",
+      MY: "MYR",
+      PH: "PHP",
+      GH: "GHS",
+      KE: "KES",
+      MA: "MAD",
     };
-
-    const newCurrency = currencyMap[country.code];
-    if (newCurrency) {
-      setSelectedCurrency(newCurrency);
-    }
+    const code = currencyMap[country.code];
+    const newCurrency = currencies.find((c) => c.code === code);
+    if (newCurrency) setSelectedCurrency(newCurrency);
   };
 
-  // Get flag for a country
   const getCountryFlag = (countryCode) => {
     const country = countries.find((c) => c.code === countryCode);
     return country ? country.flag : "🌍";
@@ -340,7 +312,7 @@ const Header = () => {
           </a>
         </div>
 
-        {/* Center: Search (PC only) */}
+        {/* Center: Search */}
         <div className="main-nav__center">
           <div className="main-nav__search">
             <FiSearch className="main-nav__search-icon" />
@@ -373,8 +345,6 @@ const Header = () => {
                 <div className="main-nav__dropdown-header">
                   <FiMapPin /> Select Your Location
                 </div>
-
-                {/* Search Input */}
                 <div className="main-nav__dropdown-search">
                   <FiSearch className="main-nav__dropdown-search-icon" />
                   <input
@@ -386,8 +356,6 @@ const Header = () => {
                     autoFocus
                   />
                 </div>
-
-                {/* Current Location */}
                 <div className="main-nav__dropdown-current">
                   <span className="main-nav__dropdown-current-label">
                     Current:
@@ -397,10 +365,7 @@ const Header = () => {
                   </span>
                   <span>{userLocation.country}</span>
                 </div>
-
                 <div className="main-nav__dropdown-divider" />
-
-                {/* Country List */}
                 <div className="main-nav__dropdown-list">
                   {filteredCountries.map((country) => (
                     <div
@@ -491,21 +456,21 @@ const Header = () => {
           <button
             className="main-nav__icon-btn"
             aria-label="Account"
-            onClick={handleNavigation}
+            onClick={() => navigate("/account")}
           >
             <FiUser />
           </button>
           <button
             className="main-nav__icon-btn"
             aria-label="Wishlist"
-            onClick={handleNavigation}
+            onClick={() => navigate("/wishlist")}
           >
             <FiHeart />
           </button>
           <button
             className="main-nav__icon-btn main-nav__icon-btn--cart"
             aria-label="Cart"
-            onClick={handleNavigation}
+            onClick={() => navigate("/cart")}
           >
             <FiShoppingCart />
             <span className="main-nav__cart-badge">0</span>
@@ -515,7 +480,6 @@ const Header = () => {
           <button
             className="main-nav__icon-btn main-nav__icon-btn--mobile"
             aria-label="Search"
-            onClick={handleNavigation}
           >
             <FiSearch />
           </button>
@@ -529,7 +493,7 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu Dropdown */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="mobile-menu">
           <div className="mobile-menu__search">
@@ -541,7 +505,6 @@ const Header = () => {
             />
           </div>
           <div className="mobile-menu__content">
-            {/* Mobile Location */}
             <div className="mobile-menu__section">
               <span className="mobile-menu__section-title">Location</span>
               <div className="mobile-menu__location-grid">
@@ -558,7 +521,6 @@ const Header = () => {
               </div>
             </div>
 
-            {/* Mobile Language Selection */}
             <div className="mobile-menu__section">
               <span className="mobile-menu__section-title">Language</span>
               <div className="mobile-menu__options">
@@ -575,7 +537,6 @@ const Header = () => {
               </div>
             </div>
 
-            {/* Mobile Currency Selection */}
             <div className="mobile-menu__section">
               <span className="mobile-menu__section-title">Currency</span>
               <div className="mobile-menu__options mobile-menu__options--currency">
@@ -596,25 +557,33 @@ const Header = () => {
 
             <div className="mobile-menu__divider" />
 
-            {/* Mobile Navigation Links */}
             <a
               href="#"
               className="mobile-menu__link"
-              onClick={handleNavigation}
+              onClick={() => {
+                navigate("/account");
+                setMobileMenuOpen(false);
+              }}
             >
               <FiUser /> Account
             </a>
             <a
               href="#"
               className="mobile-menu__link"
-              onClick={handleNavigation}
+              onClick={() => {
+                navigate("/wishlist");
+                setMobileMenuOpen(false);
+              }}
             >
               <FiHeart /> Wishlist
             </a>
             <a
               href="#"
               className="mobile-menu__link"
-              onClick={handleNavigation}
+              onClick={() => {
+                navigate("/cart");
+                setMobileMenuOpen(false);
+              }}
             >
               <FiShoppingCart /> Cart
             </a>

@@ -8,6 +8,7 @@ import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Categories from "./components/CategorySlider.jsx";
 import Login from "./pages/LoginPage.jsx";
+import Cart from "./pages/CartPage.jsx";
 import Register from "./pages/RegisterPage.jsx";
 // Home Page Component
 function HomePage() {
@@ -30,6 +31,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/cart" element={<Cart />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
