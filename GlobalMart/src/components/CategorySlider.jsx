@@ -241,9 +241,7 @@ const CategorySlider = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          Hover over a category to explore
-        </motion.p>
+        ></motion.p>
       </div>
     </section>
   );
