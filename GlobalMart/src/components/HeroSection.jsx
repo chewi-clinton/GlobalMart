@@ -1,126 +1,61 @@
-import React, { useState } from "react";
+import React from "react";
 import "../styles/HeroSection.css";
 
-// For Vite - Use import.meta.url to get proper asset URLs
-// Make sure your images are in src/assets folder
-
-// Fallback placeholder images if local images fail to load
-const placeholderImages = {
-  bag: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='220' viewBox='0 0 180 220'%3E%3Crect fill='%23f5f5f5' width='180' height='220'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-family='sans-serif' font-size='14'%3EPremium Bag%3C/text%3E%3C/svg%3E",
-  watch:
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='220' viewBox='0 0 180 220'%3E%3Crect fill='%23f5f5f5' width='180' height='220'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-family='sans-serif' font-size='14'%3ESmart Watch%3C/text%3E%3C/svg%3E",
-  headphone:
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='220' viewBox='0 0 180 220'%3E%3Crect fill='%23f5f5f5' width='180' height='220'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-family='sans-serif' font-size='14'%3EWireless Audio%3C/text%3E%3C/svg%3E",
-  camera:
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='220' viewBox='0 0 180 220'%3E%3Crect fill='%23f5f5f5' width='180' height='220'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-family='sans-serif' font-size='14'%3ECamera Pro%3C/text%3E%3C/svg%3E",
-  phone:
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='220' viewBox='0 0 180 220'%3E%3Crect fill='%23f5f5f5' width='180' height='220'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-family='sans-serif' font-size='14'%3ESmartphone X%3C/text%3E%3C/svg%3E",
-  giftbox:
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='220' viewBox='0 0 180 220'%3E%3Crect fill='%23f5f5f5' width='180' height='220'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-family='sans-serif' font-size='14'%3EGift Box%3C/text%3E%3C/svg%3E",
-};
-
-// Try to import images, use fallbacks if they fail
-let bagImg, watchImg, headphoneImg, cameraImg, phoneImg, giftboxImg;
-
-// Method 1: Try direct imports (works in most Vite setups)
-try {
-  bagImg = new URL("../assets/bag.png", import.meta.url).href;
-} catch {
-  bagImg = placeholderImages.bag;
-}
-
-try {
-  watchImg = new URL("../assets/smart_watch.jpg", import.meta.url).href;
-} catch {
-  watchImg = placeholderImages.watch;
-}
-
-try {
-  headphoneImg = new URL("../assets/headphone.jpg", import.meta.url).href;
-} catch {
-  headphoneImg = placeholderImages.headphone;
-}
-
-try {
-  cameraImg = new URL("../assets/camera.jpg", import.meta.url).href;
-} catch {
-  cameraImg = placeholderImages.camera;
-}
-
-try {
-  phoneImg = new URL("../assets/smartphone.jpg", import.meta.url).href;
-} catch {
-  phoneImg = placeholderImages.phone;
-}
-
-try {
-  giftboxImg = new URL("../assets/giftbox.jpg", import.meta.url).href;
-} catch {
-  giftboxImg = placeholderImages.giftbox;
-}
+// Import images - update paths to match your project
+import bag from "../assets/bag.png";
+import watch from "../assets/smart_watch.jpg";
+import headphone from "../assets/headphone.jpg";
+import camera from "../assets/camera.jpg";
+import phone from "../assets/smartphone.jpg";
+import giftbox from "../assets/giftbox.jpg";
 
 const GlobalMartHero = () => {
-  const [imageErrors, setImageErrors] = useState({});
-
   const products = [
     {
       id: 1,
-      image: bagImg,
+      image: bag,
       seller_tag: "@trendy_finds",
       product_name: "Premium Bag",
     },
     {
       id: 2,
-      image: watchImg,
+      image: watch,
       seller_tag: "@global_picks",
       product_name: "Smart Watch",
     },
     {
       id: 3,
-      image: headphoneImg,
+      image: headphone,
       seller_tag: null,
       product_name: "Wireless Audio",
     },
     {
       id: 4,
-      image: cameraImg,
+      image: camera,
       seller_tag: "@tech_hub",
       product_name: "Camera Pro",
     },
     {
       id: 5,
-      image: phoneImg,
+      image: phone,
       seller_tag: null,
       product_name: "Smartphone X",
     },
     {
       id: 6,
-      image: giftboxImg,
+      image: giftbox,
       seller_tag: "@seller_1",
       product_name: "Gift Box",
     },
   ];
 
-  const handleImageError = (productId, productName) => {
-    console.error(`Failed to load image for: ${productName}`);
-    setImageErrors((prev) => ({
-      ...prev,
-      [productId]: true,
-    }));
-  };
-
-  // Debug: Log image URLs
-  console.log("Image URLs:", {
-    bag: bagImg,
-    watch: watchImg,
-    headphone: headphoneImg,
-    camera: cameraImg,
-    phone: phoneImg,
-    giftbox: giftboxImg,
-  });
-
   return (
     <section className="hero">
+      {/* Animated Background Elements */}
+      <div className="hero__bg-orb hero__bg-orb--1"></div>
+      <div className="hero__bg-orb hero__bg-orb--2"></div>
+      <div className="hero__bg-orb hero__bg-orb--3"></div>
+
       <div className="hero__content">
         {/* Hero Text */}
         <div className="hero__text">
@@ -153,19 +88,9 @@ const GlobalMartHero = () => {
                 {/* Image */}
                 <div className="hero__card-image-wrapper">
                   <img
-                    src={
-                      imageErrors[product.id]
-                        ? placeholderImages[
-                            product.product_name.toLowerCase().replace(" ", "")
-                          ] || placeholderImages.bag
-                        : product.image
-                    }
+                    src={product.image}
                     alt={product.product_name}
                     className="hero__card-image"
-                    onError={() =>
-                      handleImageError(product.id, product.product_name)
-                    }
-                    loading="lazy"
                   />
                   <div className="hero__card-image-overlay"></div>
                 </div>
@@ -180,6 +105,31 @@ const GlobalMartHero = () => {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Shop Now Button */}
+        <div className="hero__button-wrapper">
+          <button className="hero__button">
+            <span className="hero__button-text">Shop Now</span>
+            <span className="hero__button-icon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </span>
+            <span className="hero__button-glow"></span>
+            <span className="hero__button-particles">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+          </button>
         </div>
 
         {/* Decorative Elements */}
