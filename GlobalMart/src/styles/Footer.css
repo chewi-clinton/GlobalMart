@@ -1,9 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
 
-/* ===================================
-   GlobalMart Footer Styles
-   =================================== */
-
 .footer {
   font-family:
     "Inter",
@@ -14,9 +10,6 @@
   position: relative;
 }
 
-/* ===================================
-   Overlapping Newsletter Card
-   =================================== */
 .footer__newsletter {
   position: relative;
   z-index: 10;
@@ -133,9 +126,6 @@
   line-height: 1.5;
 }
 
-/* ===================================
-   Dark Footer Base
-   =================================== */
 .footer__base {
   background: #0a0a0a;
   padding-top: 160px;
