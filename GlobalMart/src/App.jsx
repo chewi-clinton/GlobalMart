@@ -8,7 +8,7 @@ import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Categories from "./components/CategorySlider.jsx";
 import Login from "./pages/LoginPage.jsx";
-
+import Register from "./pages/RegisterPage.jsx";
 // Home Page Component
 function HomePage() {
   return (
@@ -30,7 +30,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

@@ -115,9 +115,7 @@ const Footer = () => {
               <li>
                 <a href="#">Seller Tools</a>
               </li>
-              <li>
-                <a href="#">Shipping Logistics</a>
-              </li>
+
               <li>
                 <a href="#">Verified Badges</a>
               </li>
@@ -131,9 +129,7 @@ const Footer = () => {
               <li>
                 <a href="#">Help Center</a>
               </li>
-              <li>
-                <a href="#">Track Order</a>
-              </li>
+
               <li>
                 <a href="#">Privacy</a>
               </li>
