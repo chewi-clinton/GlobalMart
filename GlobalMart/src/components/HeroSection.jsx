@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "../styles/HeroSection.css";
 
 // Import images - update paths to match your project
@@ -10,6 +10,21 @@ import phone from "../assets/smartphone.jpg";
 import giftbox from "../assets/giftbox.jpg";
 
 const GlobalMartHero = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Trigger spread after scrolling ~120–180px (adjust as needed)
+      setIsScrolled(window.scrollY > 140);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    // Also check immediately in case page is already scrolled on mount
+    handleScroll();
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const products = [
     {
       id: 1,
@@ -60,17 +75,23 @@ const GlobalMartHero = () => {
         {/* Hero Text */}
         <div className="hero__text">
           <h1 className="hero__title">
-            A place to buy your next{" "}
-            <span className="hero__title--accent">global find</span>
+            Discover unique products from{" "}
+            <span className="hero__title--accent">
+              trusted sellers worldwide
+            </span>
           </h1>
           <p className="hero__subtitle">
-            Discover unique products from trusted sellers worldwide
+            Explore exclusive finds from global creators you can trust
           </p>
         </div>
 
         {/* Product Cards */}
         <div className="hero__cards-wrapper">
-          <div className="hero__cards-container">
+          <div
+            className={`hero__cards-container ${
+              isScrolled ? "hero__cards-container--spread" : ""
+            }`}
+          >
             {products.map((product, index) => (
               <div
                 key={product.id}

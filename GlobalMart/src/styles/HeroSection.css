@@ -1,8 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap");
 
-/* ===================================
-   Hero Section Base
-   =================================== */
 .hero {
   min-height: 100vh;
   display: flex;
@@ -17,17 +14,13 @@
   );
   font-family:
     "Inter",
+    system-ui,
     -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
     sans-serif;
   overflow: hidden;
   position: relative;
 }
 
-/* ===================================
-   Animated Background Orbs
-   =================================== */
 .hero__bg-orb {
   position: absolute;
   border-radius: 50%;
@@ -117,31 +110,19 @@
   z-index: 1;
 }
 
-/* ===================================
-   Typography
-   =================================== */
 .hero__text {
   text-align: center;
   margin-bottom: 60px;
   z-index: 2;
-  transition:
-    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1),
-    margin-bottom 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  width: 100%;
 }
 
-/* Push text up when cards are hovered to create more space */
-.hero__cards-container:hover ~ .hero__button-wrapper {
-  transform: translateY(30px);
-  transition-delay: 0.1s;
-}
-
-.hero:has(.hero__cards-container:hover) .hero__text {
-  transform: translateY(-40px);
-}
-
+/* Original font sizes restored */
 .hero__title {
+  font-family: "Playfair Display", Georgia, serif;
   font-size: clamp(2.5rem, 6vw, 5rem);
-  font-weight: 800;
+  font-weight: 700;
   color: #1a1a1a;
   line-height: 1.1;
   margin: 0 0 20px 0;
@@ -169,17 +150,15 @@
 }
 
 .hero__subtitle {
+  font-family: "Inter", sans-serif;
   font-size: clamp(1rem, 2vw, 1.25rem);
-  color: #666;
   font-weight: 400;
+  color: #666;
   margin: 0;
   opacity: 0;
   animation: subtitleFadeIn 1s ease-out 0.3s forwards;
 }
 
-/* ===================================
-   Cards Container - Perspective Setup
-   =================================== */
 .hero__cards-wrapper {
   width: 100%;
   display: flex;
@@ -198,9 +177,6 @@
   min-height: 300px;
 }
 
-/* ===================================
-   Individual Card Styles - Visible Stacked State
-   =================================== */
 .hero__card {
   position: absolute;
   width: 180px;
@@ -220,100 +196,89 @@
   animation-delay: calc(var(--card-index) * 0.1s + 0.3s);
 }
 
-/* Initial state - cards slightly spread but all visible */
 .hero__card:nth-child(1) {
   transform: translateX(calc(-50% - 80px)) translateZ(-30px) rotateY(18deg)
     rotateX(8deg);
   z-index: 1;
 }
-
 .hero__card:nth-child(2) {
   transform: translateX(calc(-50% - 40px)) translateZ(-10px) rotateY(10deg)
     rotateX(8deg);
   z-index: 2;
 }
-
 .hero__card:nth-child(3) {
   transform: translateX(calc(-50% - 10px)) translateZ(10px) rotateY(3deg)
     rotateX(8deg);
   z-index: 3;
 }
-
 .hero__card:nth-child(4) {
   transform: translateX(calc(-50% + 10px)) translateZ(10px) rotateY(-3deg)
     rotateX(8deg);
   z-index: 3;
 }
-
 .hero__card:nth-child(5) {
   transform: translateX(calc(-50% + 40px)) translateZ(-10px) rotateY(-10deg)
     rotateX(8deg);
   z-index: 2;
 }
-
 .hero__card:nth-child(6) {
   transform: translateX(calc(-50% + 80px)) translateZ(-30px) rotateY(-18deg)
     rotateX(8deg);
   z-index: 1;
 }
 
-@keyframes cardSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(100px) translateZ(-60px)
-      rotateY(0deg) rotateX(30deg);
-  }
-}
-
-/* ===================================
-   Rainbow Semi-Circle Spread on Hover
-   =================================== */
-
-/* Card 1 - Far Left (Top of arc) */
+/* Hover spread - desktop */
 .hero__cards-container:hover .hero__card:nth-child(1) {
   transform: translateX(calc(-50% - 320px)) translateY(-120px) translateZ(20px)
     rotateY(35deg) rotateX(-5deg);
-  z-index: 1;
 }
-
-/* Card 2 - Left (Upper-middle) */
 .hero__cards-container:hover .hero__card:nth-child(2) {
   transform: translateX(calc(-50% - 190px)) translateY(-60px) translateZ(40px)
     rotateY(22deg) rotateX(-2deg);
-  z-index: 2;
 }
-
-/* Card 3 - Left Center (Lower-middle) */
 .hero__cards-container:hover .hero__card:nth-child(3) {
   transform: translateX(calc(-50% - 70px)) translateY(-15px) translateZ(50px)
     rotateY(10deg) rotateX(0deg);
-  z-index: 3;
 }
-
-/* Card 4 - Right Center (Lower-middle) */
 .hero__cards-container:hover .hero__card:nth-child(4) {
   transform: translateX(calc(-50% + 70px)) translateY(-15px) translateZ(50px)
     rotateY(-10deg) rotateX(0deg);
-  z-index: 3;
 }
-
-/* Card 5 - Right (Upper-middle) */
 .hero__cards-container:hover .hero__card:nth-child(5) {
   transform: translateX(calc(-50% + 190px)) translateY(-60px) translateZ(40px)
     rotateY(-22deg) rotateX(-2deg);
-  z-index: 2;
 }
-
-/* Card 6 - Far Right (Top of arc) */
 .hero__cards-container:hover .hero__card:nth-child(6) {
   transform: translateX(calc(-50% + 320px)) translateY(-120px) translateZ(20px)
     rotateY(-35deg) rotateX(-5deg);
-  z-index: 1;
 }
 
-/* ===================================
-   Individual Card Hover - Lift Effect
-   =================================== */
+/* Scroll spread */
+.hero__cards-container--spread .hero__card:nth-child(1) {
+  transform: translateX(calc(-50% - 380px)) translateY(-130px) translateZ(25px)
+    rotateY(35deg) rotateX(-5deg);
+}
+.hero__cards-container--spread .hero__card:nth-child(2) {
+  transform: translateX(calc(-50% - 230px)) translateY(-70px) translateZ(45px)
+    rotateY(22deg) rotateX(-2deg);
+}
+.hero__cards-container--spread .hero__card:nth-child(3) {
+  transform: translateX(calc(-50% - 85px)) translateY(-20px) translateZ(55px)
+    rotateY(10deg) rotateX(0deg);
+}
+.hero__cards-container--spread .hero__card:nth-child(4) {
+  transform: translateX(calc(-50% + 85px)) translateY(-20px) translateZ(55px)
+    rotateY(-10deg) rotateX(0deg);
+}
+.hero__cards-container--spread .hero__card:nth-child(5) {
+  transform: translateX(calc(-50% + 230px)) translateY(-70px) translateZ(45px)
+    rotateY(-22deg) rotateX(-2deg);
+}
+.hero__cards-container--spread .hero__card:nth-child(6) {
+  transform: translateX(calc(-50% + 380px)) translateY(-130px) translateZ(25px)
+    rotateY(-35deg) rotateX(-5deg);
+}
+
 .hero__card:hover {
   box-shadow:
     0 50px 80px -20px rgba(255, 153, 0, 0.35),
@@ -321,45 +286,9 @@
   z-index: 10 !important;
 }
 
-.hero__cards-container:hover .hero__card:nth-child(1):hover {
-  transform: translateX(calc(-50% - 320px)) translateY(-140px) translateZ(60px)
-    rotateY(35deg) rotateX(-8deg) scale(1.05);
-}
-
-.hero__cards-container:hover .hero__card:nth-child(2):hover {
-  transform: translateX(calc(-50% - 190px)) translateY(-80px) translateZ(60px)
-    rotateY(22deg) rotateX(-5deg) scale(1.05);
-}
-
-.hero__cards-container:hover .hero__card:nth-child(3):hover {
-  transform: translateX(calc(-50% - 70px)) translateY(-35px) translateZ(60px)
-    rotateY(10deg) rotateX(-3deg) scale(1.05);
-}
-
-.hero__cards-container:hover .hero__card:nth-child(4):hover {
-  transform: translateX(calc(-50% + 70px)) translateY(-35px) translateZ(60px)
-    rotateY(-10deg) rotateX(-3deg) scale(1.05);
-}
-
-.hero__cards-container:hover .hero__card:nth-child(5):hover {
-  transform: translateX(calc(-50% + 190px)) translateY(-80px) translateZ(60px)
-    rotateY(-22deg) rotateX(-5deg) scale(1.05);
-}
-
-.hero__cards-container:hover .hero__card:nth-child(6):hover {
-  transform: translateX(calc(-50% + 320px)) translateY(-140px) translateZ(60px)
-    rotateY(-35deg) rotateX(-8deg) scale(1.05);
-}
-
-/* ===================================
-   Card Image
-   =================================== */
 .hero__card-image-wrapper {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   border-radius: 20px;
   overflow: hidden;
   z-index: 1;
@@ -369,7 +298,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
   transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
@@ -379,10 +307,7 @@
 
 .hero__card-image-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(
     180deg,
     rgba(0, 0, 0, 0) 0%,
@@ -402,9 +327,6 @@
   );
 }
 
-/* ===================================
-   Card Inner Content
-   =================================== */
 .hero__card-inner {
   position: absolute;
   bottom: 0;
@@ -415,6 +337,7 @@
 }
 
 .hero__card-name {
+  font-family: "Inter", sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: #ffffff;
@@ -426,18 +349,11 @@
 
 .hero__card:hover .hero__card-name {
   transform: translateY(-5px);
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
 }
 
-/* ===================================
-   Card Shine Effect
-   =================================== */
 .hero__card-shine {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   border-radius: 20px;
   background: linear-gradient(
     135deg,
@@ -455,9 +371,6 @@
   opacity: 1;
 }
 
-/* ===================================
-   Seller Tags - Float Animation
-   =================================== */
 .hero__card-tag {
   position: absolute;
   top: -45px;
@@ -465,6 +378,7 @@
   transform: translateX(-50%) translateY(15px);
   background: linear-gradient(135deg, #ff9900 0%, #ffb347 100%);
   color: #ffffff;
+  font-family: "Inter", sans-serif;
   font-size: 11px;
   font-weight: 600;
   padding: 8px 16px;
@@ -490,38 +404,37 @@
   border-top: 7px solid #ffb347;
 }
 
-.hero__cards-container:hover .hero__card:nth-child(1) .hero__card-tag,
-.hero__cards-container:hover .hero__card:nth-child(2) .hero__card-tag,
-.hero__cards-container:hover .hero__card:nth-child(3) .hero__card-tag,
-.hero__cards-container:hover .hero__card:nth-child(4) .hero__card-tag,
-.hero__cards-container:hover .hero__card:nth-child(5) .hero__card-tag,
+.hero__cards-container:hover .hero__card:nth-child(1) .hero__card-tag {
+  transition-delay: 0.05s;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.hero__cards-container:hover .hero__card:nth-child(2) .hero__card-tag {
+  transition-delay: 0.1s;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.hero__cards-container:hover .hero__card:nth-child(3) .hero__card-tag {
+  transition-delay: 0.15s;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.hero__cards-container:hover .hero__card:nth-child(4) .hero__card-tag {
+  transition-delay: 0.2s;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.hero__cards-container:hover .hero__card:nth-child(5) .hero__card-tag {
+  transition-delay: 0.25s;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 .hero__cards-container:hover .hero__card:nth-child(6) .hero__card-tag {
+  transition-delay: 0.3s;
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
 
-.hero__cards-container:hover .hero__card:nth-child(1) .hero__card-tag {
-  transition-delay: 0.05s;
-}
-.hero__cards-container:hover .hero__card:nth-child(2) .hero__card-tag {
-  transition-delay: 0.1s;
-}
-.hero__cards-container:hover .hero__card:nth-child(3) .hero__card-tag {
-  transition-delay: 0.15s;
-}
-.hero__cards-container:hover .hero__card:nth-child(4) .hero__card-tag {
-  transition-delay: 0.2s;
-}
-.hero__cards-container:hover .hero__card:nth-child(5) .hero__card-tag {
-  transition-delay: 0.25s;
-}
-.hero__cards-container:hover .hero__card:nth-child(6) .hero__card-tag {
-  transition-delay: 0.3s;
-}
-
-/* ===================================
-   Shop Now Button - Super Cool Effects
-   =================================== */
 .hero__button-wrapper {
   margin-top: 60px;
   perspective: 1000px;
@@ -543,7 +456,6 @@
   border: none;
   border-radius: 60px;
   cursor: pointer;
-  overflow: visible;
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow:
     0 10px 30px -5px rgba(255, 153, 0, 0.5),
@@ -586,158 +498,16 @@
   transform: translateY(-2px) scale(1.02);
 }
 
-.hero__button-text {
-  position: relative;
-  z-index: 2;
-  letter-spacing: 0.5px;
-}
-
-.hero__button-icon {
-  position: relative;
-  z-index: 2;
+.hero__button-icon svg {
   width: 24px;
   height: 24px;
   transition: transform 0.3s ease;
 }
 
-.hero__button-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-.hero__button:hover .hero__button-icon {
+.hero__button:hover .hero__button-icon svg {
   transform: translateX(5px);
 }
 
-/* Button Glow Effect */
-.hero__button-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  transform: translate(-50%, -50%);
-  border-radius: 60px;
-  background: radial-gradient(
-    circle,
-    rgba(255, 153, 0, 0.6) 0%,
-    transparent 70%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: -1;
-  filter: blur(15px);
-}
-
-.hero__button:hover .hero__button-glow {
-  opacity: 1;
-  animation: glowPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes glowPulse {
-  0%,
-  100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 0.8;
-  }
-}
-
-/* Button Particle Effects */
-.hero__button-particles {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-.hero__button-particles span {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: #ff9900;
-  border-radius: 50%;
-  opacity: 0;
-}
-
-.hero__button:hover .hero__button-particles span {
-  animation: particleBurst 0.8s ease-out infinite;
-}
-
-.hero__button-particles span:nth-child(1) {
-  animation-delay: 0s;
-  --angle: 0deg;
-}
-
-.hero__button-particles span:nth-child(2) {
-  animation-delay: 0.1s;
-  --angle: 72deg;
-}
-
-.hero__button-particles span:nth-child(3) {
-  animation-delay: 0.2s;
-  --angle: 144deg;
-}
-
-.hero__button-particles span:nth-child(4) {
-  animation-delay: 0.3s;
-  --angle: 216deg;
-}
-
-.hero__button-particles span:nth-child(5) {
-  animation-delay: 0.4s;
-  --angle: 288deg;
-}
-
-@keyframes particleBurst {
-  0% {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
-    opacity: 1;
-    width: 6px;
-    height: 6px;
-  }
-  100% {
-    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(-60px);
-    opacity: 0;
-    width: 2px;
-    height: 2px;
-  }
-}
-
-/* Button Ripple Effect on Click */
-.hero__button::before {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition:
-    width 0.6s ease,
-    height 0.6s ease;
-}
-
-.hero__button:active::before {
-  width: 300px;
-  height: 300px;
-  opacity: 0;
-}
-
-/* ===================================
-   Decorative Elements
-   =================================== */
 .hero__decoration {
   position: absolute;
   border-radius: 50%;
@@ -757,7 +527,6 @@
   right: 5%;
   animation: floatDecoration1 10s ease-in-out infinite;
 }
-
 .hero__decoration--2 {
   width: 250px;
   height: 250px;
@@ -770,7 +539,6 @@
   left: 5%;
   animation: floatDecoration2 12s ease-in-out infinite;
 }
-
 .hero__decoration--3 {
   width: 180px;
   height: 180px;
@@ -793,7 +561,6 @@
     transform: translate(-20px, 20px) scale(1.1);
   }
 }
-
 @keyframes floatDecoration2 {
   0%,
   100% {
@@ -803,7 +570,6 @@
     transform: translate(15px, -15px) scale(1.05);
   }
 }
-
 @keyframes floatDecoration3 {
   0%,
   100% {
@@ -814,9 +580,6 @@
   }
 }
 
-/* ===================================
-   Typography Animations
-   =================================== */
 @keyframes titleFadeIn {
   from {
     opacity: 0;
@@ -827,7 +590,6 @@
     transform: translateY(0);
   }
 }
-
 @keyframes subtitleFadeIn {
   from {
     opacity: 0;
@@ -838,9 +600,16 @@
     transform: translateY(0);
   }
 }
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(100px) translateZ(-60px)
+      rotateY(0deg) rotateX(30deg);
+  }
+}
 
 /* ===================================
-   Responsive Adjustments
+   Responsive - Mobile Spread Fix
    =================================== */
 @media (max-width: 1200px) {
   .hero__card {
@@ -852,35 +621,34 @@
     transform: translateX(calc(-50% - 260px)) translateY(-100px) rotateY(35deg)
       rotateX(-5deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(2) {
     transform: translateX(calc(-50% - 155px)) translateY(-50px) rotateY(22deg)
       rotateX(-2deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(3) {
     transform: translateX(calc(-50% - 55px)) translateY(-12px) rotateY(10deg)
       rotateX(0deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(4) {
     transform: translateX(calc(-50% + 55px)) translateY(-12px) rotateY(-10deg)
       rotateX(0deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(5) {
     transform: translateX(calc(-50% + 155px)) translateY(-50px) rotateY(-22deg)
       rotateX(-2deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(6) {
     transform: translateX(calc(-50% + 260px)) translateY(-100px) rotateY(-35deg)
       rotateX(-5deg);
   }
 
-  .hero__button {
-    padding: 16px 35px;
-    font-size: 16px;
+  .hero__cards-container--spread .hero__card:nth-child(1) {
+    transform: translateX(calc(-50% - 300px)) translateY(-110px) rotateY(35deg)
+      rotateX(-5deg);
+  }
+  .hero__cards-container--spread .hero__card:nth-child(6) {
+    transform: translateX(calc(-50% + 300px)) translateY(-110px) rotateY(-35deg)
+      rotateX(-5deg);
   }
 }
 
@@ -901,59 +669,49 @@
     font-size: 12px;
   }
 
-  .hero__text {
-    margin-bottom: 50px;
-  }
-
-  .hero:has(.hero__cards-container:hover) .hero__text {
-    transform: translateY(-30px);
-  }
-
-  .hero__cards-container:hover ~ .hero__button-wrapper {
-    transform: translateY(20px);
+  .hero__card-tag {
+    font-size: 10px;
+    padding: 6px 14px;
+    top: -38px;
   }
 
   .hero__cards-container {
     padding: 50px 30px;
   }
 
+  /* Tablet spread - contained */
   .hero__cards-container:hover .hero__card:nth-child(1) {
     transform: translateX(calc(-50% - 200px)) translateY(-80px) rotateY(30deg)
       rotateX(-5deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(2) {
     transform: translateX(calc(-50% - 120px)) translateY(-40px) rotateY(20deg)
       rotateX(-2deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(3) {
     transform: translateX(calc(-50% - 45px)) translateY(-10px) rotateY(10deg)
       rotateX(0deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(4) {
     transform: translateX(calc(-50% + 45px)) translateY(-10px) rotateY(-10deg)
       rotateX(0deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(5) {
     transform: translateX(calc(-50% + 120px)) translateY(-40px) rotateY(-20deg)
       rotateX(-2deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(6) {
     transform: translateX(calc(-50% + 200px)) translateY(-80px) rotateY(-30deg)
       rotateX(-5deg);
   }
 
-  .hero__button-wrapper {
-    margin-top: 50px;
+  .hero__cards-container--spread .hero__card:nth-child(1) {
+    transform: translateX(calc(-50% - 240px)) translateY(-90px) rotateY(30deg)
+      rotateX(-5deg);
   }
-
-  .hero__button {
-    padding: 14px 30px;
-    font-size: 15px;
+  .hero__cards-container--spread .hero__card:nth-child(6) {
+    transform: translateX(calc(-50% + 240px)) translateY(-90px) rotateY(-30deg)
+      rotateX(-5deg);
   }
 }
 
@@ -963,23 +721,7 @@
   }
 
   .hero__text {
-    margin-bottom: 40px;
-  }
-
-  .hero:has(.hero__cards-container:hover) .hero__text {
-    transform: translateY(-25px);
-  }
-
-  .hero__cards-container:hover ~ .hero__button-wrapper {
-    transform: translateY(15px);
-  }
-
-  .hero__title {
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
-  }
-
-  .hero__subtitle {
-    font-size: 0.95rem;
+    margin-bottom: 50px;
   }
 
   .hero__card {
@@ -1004,57 +746,70 @@
 
   .hero__card-tag {
     font-size: 9px;
-    padding: 4px 10px;
     top: -32px;
+    padding: 5px 12px;
   }
 
   .hero__cards-container {
     padding: 40px 20px;
-    min-height: 200px;
+    min-height: 220px;
   }
 
+  /* Mobile spread - much tighter */
   .hero__cards-container:hover .hero__card:nth-child(1) {
-    transform: translateX(calc(-50% - 150px)) translateY(-60px) rotateY(28deg)
+    transform: translateX(calc(-50% - 140px)) translateY(-60px) rotateY(25deg)
       rotateX(-5deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(2) {
-    transform: translateX(calc(-50% - 90px)) translateY(-30px) rotateY(18deg)
+    transform: translateX(calc(-50% - 85px)) translateY(-30px) rotateY(15deg)
       rotateX(-2deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(3) {
-    transform: translateX(calc(-50% - 35px)) translateY(-8px) rotateY(8deg)
+    transform: translateX(calc(-50% - 30px)) translateY(-8px) rotateY(8deg)
       rotateX(0deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(4) {
-    transform: translateX(calc(-50% + 35px)) translateY(-8px) rotateY(-8deg)
+    transform: translateX(calc(-50% + 30px)) translateY(-8px) rotateY(-8deg)
       rotateX(0deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(5) {
-    transform: translateX(calc(-50% + 90px)) translateY(-30px) rotateY(-18deg)
+    transform: translateX(calc(-50% + 85px)) translateY(-30px) rotateY(-15deg)
       rotateX(-2deg);
   }
-
   .hero__cards-container:hover .hero__card:nth-child(6) {
-    transform: translateX(calc(-50% + 150px)) translateY(-60px) rotateY(-28deg)
+    transform: translateX(calc(-50% + 140px)) translateY(-60px) rotateY(-25deg)
       rotateX(-5deg);
   }
 
-  .hero__button-wrapper {
-    margin-top: 40px;
+  /* Scroll spread mobile */
+  .hero__cards-container--spread .hero__card:nth-child(1) {
+    transform: translateX(calc(-50% - 160px)) translateY(-70px) rotateY(25deg)
+      rotateX(-5deg);
+  }
+  .hero__cards-container--spread .hero__card:nth-child(2) {
+    transform: translateX(calc(-50% - 95px)) translateY(-35px) rotateY(15deg)
+      rotateX(-2deg);
+  }
+  .hero__cards-container--spread .hero__card:nth-child(3) {
+    transform: translateX(calc(-50% - 35px)) translateY(-10px) rotateY(8deg)
+      rotateX(0deg);
+  }
+  .hero__cards-container--spread .hero__card:nth-child(4) {
+    transform: translateX(calc(-50% + 35px)) translateY(-10px) rotateY(-8deg)
+      rotateX(0deg);
+  }
+  .hero__cards-container--spread .hero__card:nth-child(5) {
+    transform: translateX(calc(-50% + 95px)) translateY(-35px) rotateY(-15deg)
+      rotateX(-2deg);
+  }
+  .hero__cards-container--spread .hero__card:nth-child(6) {
+    transform: translateX(calc(-50% + 160px)) translateY(-70px) rotateY(-25deg)
+      rotateX(-5deg);
   }
 
   .hero__button {
-    padding: 14px 28px;
-    font-size: 14px;
-  }
-
-  .hero__button-icon {
-    width: 20px;
-    height: 20px;
+    padding: 14px 32px;
+    font-size: 16px;
   }
 
   .hero__decoration--1,
@@ -1065,14 +820,6 @@
 }
 
 @media (max-width: 480px) {
-  .hero:has(.hero__cards-container:hover) .hero__text {
-    transform: translateY(-20px);
-  }
-
-  .hero__cards-container:hover ~ .hero__button-wrapper {
-    transform: translateY(10px);
-  }
-
   .hero__card {
     width: 80px;
     height: 105px;
@@ -1093,68 +840,84 @@
     font-size: 9px;
   }
 
-  .hero__cards-container {
-    padding: 30px 15px;
-    min-height: 160px;
+  .hero__card-tag {
+    font-size: 8px;
+    top: -28px;
+    padding: 4px 10px;
   }
 
+  .hero__cards-container {
+    padding: 30px 15px;
+    min-height: 180px;
+  }
+
+  /* Extra small mobile - very tight spread */
   .hero__cards-container:hover .hero__card:nth-child(1) {
-    transform: translateX(calc(-50% - 120px)) translateY(-50px) rotateY(25deg)
+    transform: translateX(calc(-50% - 110px)) translateY(-50px) rotateY(20deg)
+      rotateX(-5deg);
+  }
+  .hero__cards-container:hover .hero__card:nth-child(2) {
+    transform: translateX(calc(-50% - 66px)) translateY(-25px) rotateY(12deg)
+      rotateX(-2deg);
+  }
+  .hero__cards-container:hover .hero__card:nth-child(3) {
+    transform: translateX(calc(-50% - 24px)) translateY(-6px) rotateY(6deg)
+      rotateX(0deg);
+  }
+  .hero__cards-container:hover .hero__card:nth-child(4) {
+    transform: translateX(calc(-50% + 24px)) translateY(-6px) rotateY(-6deg)
+      rotateX(0deg);
+  }
+  .hero__cards-container:hover .hero__card:nth-child(5) {
+    transform: translateX(calc(-50% + 66px)) translateY(-25px) rotateY(-12deg)
+      rotateX(-2deg);
+  }
+  .hero__cards-container:hover .hero__card:nth-child(6) {
+    transform: translateX(calc(-50% + 110px)) translateY(-50px) rotateY(-20deg)
       rotateX(-5deg);
   }
 
-  .hero__cards-container:hover .hero__card:nth-child(2) {
-    transform: translateX(calc(-50% - 72px)) translateY(-25px) rotateY(15deg)
+  .hero__cards-container--spread .hero__card:nth-child(1) {
+    transform: translateX(calc(-50% - 120px)) translateY(-55px) rotateY(20deg)
+      rotateX(-5deg);
+  }
+  .hero__cards-container--spread .hero__card:nth-child(2) {
+    transform: translateX(calc(-50% - 72px)) translateY(-28px) rotateY(12deg)
       rotateX(-2deg);
   }
-
-  .hero__cards-container:hover .hero__card:nth-child(3) {
-    transform: translateX(calc(-50% - 28px)) translateY(-6px) rotateY(6deg)
+  .hero__cards-container--spread .hero__card:nth-child(3) {
+    transform: translateX(calc(-50% - 26px)) translateY(-7px) rotateY(6deg)
       rotateX(0deg);
   }
-
-  .hero__cards-container:hover .hero__card:nth-child(4) {
-    transform: translateX(calc(-50% + 28px)) translateY(-6px) rotateY(-6deg)
+  .hero__cards-container--spread .hero__card:nth-child(4) {
+    transform: translateX(calc(-50% + 26px)) translateY(-7px) rotateY(-6deg)
       rotateX(0deg);
   }
-
-  .hero__cards-container:hover .hero__card:nth-child(5) {
-    transform: translateX(calc(-50% + 72px)) translateY(-25px) rotateY(-15deg)
+  .hero__cards-container--spread .hero__card:nth-child(5) {
+    transform: translateX(calc(-50% + 72px)) translateY(-28px) rotateY(-12deg)
       rotateX(-2deg);
   }
-
-  .hero__cards-container:hover .hero__card:nth-child(6) {
-    transform: translateX(calc(-50% + 120px)) translateY(-50px) rotateY(-25deg)
+  .hero__cards-container--spread .hero__card:nth-child(6) {
+    transform: translateX(calc(-50% + 120px)) translateY(-55px) rotateY(-20deg)
       rotateX(-5deg);
   }
 
   .hero__button {
-    padding: 12px 24px;
-    font-size: 13px;
+    padding: 12px 28px;
+    font-size: 15px;
   }
 
-  .hero__button-icon {
-    width: 18px;
-    height: 18px;
+  .hero__button-icon svg {
+    width: 20px;
+    height: 20px;
   }
 }
 
-/* ===================================
-   Reduced Motion Support
-   =================================== */
 @media (prefers-reduced-motion: reduce) {
-  .hero__title,
-  .hero__subtitle,
-  .hero__card,
-  .hero__button {
-    animation: none;
-    opacity: 1;
+  * {
+    animation: none !important;
+    transition: none !important;
   }
-
-  .hero__button {
-    animation: none;
-  }
-
   .hero__button:hover {
     transform: none;
   }
