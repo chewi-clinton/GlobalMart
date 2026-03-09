@@ -12,6 +12,7 @@ import Cart from "./pages/CartPage.jsx";
 import Favorite from "./pages/FavoritesPage.jsx";
 import Shop from "./pages/ShopePage.jsx";
 import Register from "./pages/RegisterPage.jsx";
+import ProductDetail from "./components/ProductDetailOverlay.jsx";
 // Home Page Component
 function HomePage() {
   return (
@@ -34,6 +35,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
 
+            <Route path="/Product-Detail" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/favorite" element={<Favorite />} />
