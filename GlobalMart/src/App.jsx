@@ -7,6 +7,7 @@ import Gateway from "./components/MarketplaceGateway.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Categories from "./components/CategorySlider.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Login from "./pages/LoginPage.jsx";
 import Cart from "./pages/CartPage.jsx";
 import Favorite from "./pages/FavoritesPage.jsx";
@@ -34,7 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
-
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/Product-Detail" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/shop" element={<Shop />} />

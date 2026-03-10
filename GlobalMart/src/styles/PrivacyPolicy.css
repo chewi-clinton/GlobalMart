@@ -1,0 +1,519 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap");
+
+/* ===================================
+   CSS Variables
+   =================================== */
+:root {
+  --pp-orange: #ff9900;
+  --pp-orange-soft: rgba(255, 153, 0, 0.08);
+  --pp-orange-glow: rgba(255, 153, 0, 0.8);
+  --pp-white: #ffffff;
+  --pp-text: #333333;
+  --pp-text-muted: #666666;
+  --pp-text-faint: #aaaaaa;
+  --pp-heading: #111111;
+  --pp-border: #eeeeee;
+  --pp-note-border: #ff9900;
+  --pp-font-body: "Inter", system-ui, sans-serif;
+  --pp-font-heading: "Playfair Display", Georgia, serif;
+  --pp-thread-w: 52px; /* reserved left column width */
+  --pp-toc-w: 210px;
+  --pp-radius: 10px;
+}
+
+/* ===================================
+   Reset / Base
+   =================================== */
+.pp-root *,
+.pp-root *::before,
+.pp-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.pp-root {
+  font-family: var(--pp-font-body);
+  background: var(--pp-white);
+  color: var(--pp-text);
+  min-height: 100vh;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+.pp-root a {
+  color: var(--pp-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: opacity 0.15s ease;
+}
+.pp-root a:hover {
+  opacity: 0.7;
+}
+
+/* ===================================
+   The Winding Snake Thread
+   =================================== */
+
+/*
+  The thread container is FIXED so it scrolls with the viewport,
+  not the document. We then make the SVG inside it span the full
+  document height using an absolutely-positioned inner element.
+*/
+.pp-thread {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--pp-thread-w);
+  height: 100vh; /* viewport height — the SVG inside stretches to doc */
+  pointer-events: none;
+  z-index: 50;
+  overflow: visible;
+}
+
+.pp-thread__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  /* Stretch to document height so the path covers the full scroll range.
+     We set this via JS-free approach: height is 100vh and we use
+     preserveAspectRatio="none" to stretch the viewBox vertically. */
+  height: 100vh;
+}
+
+/*
+  The node is positioned absolutely inside .pp-thread.
+  Its `top` is driven by framer-motion as a percentage of .pp-thread's
+  height (100vh). We offset by -8px (half node height) to centre it.
+*/
+.pp-thread__node {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--pp-orange);
+  box-shadow:
+    0 0 0 3px rgba(255, 153, 0, 0.2),
+    0 0 12px 4px rgba(255, 153, 0, 0.55),
+    0 0 20px 6px rgba(255, 153, 0, 0.25);
+  z-index: 51;
+}
+
+/* ===================================
+   Hero
+   =================================== */
+.pp-hero {
+  padding: 88px 56px 72px calc(var(--pp-thread-w) + 56px);
+  border-bottom: 1px solid var(--pp-border);
+}
+
+.pp-hero__inner {
+  max-width: 680px;
+}
+
+.pp-hero__eyebrow {
+  display: inline-block;
+  font-family: var(--pp-font-body);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pp-orange);
+  background: var(--pp-orange-soft);
+  border-radius: 20px;
+  padding: 4px 13px;
+  margin-bottom: 22px;
+}
+
+.pp-hero__title {
+  font-family: var(--pp-font-heading);
+  font-size: clamp(40px, 5.5vw, 62px);
+  font-weight: 800;
+  color: var(--pp-heading);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.pp-hero__meta {
+  font-family: var(--pp-font-body);
+  font-size: 12.5px;
+  color: var(--pp-text-faint);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: 30px;
+}
+
+.pp-hero__intro {
+  font-family: var(--pp-font-body);
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: var(--pp-text-muted);
+  max-width: 620px;
+}
+
+/* ===================================
+   Layout
+   =================================== */
+.pp-layout {
+  display: flex;
+  align-items: flex-start;
+  padding-left: calc(var(--pp-thread-w) + 0px);
+}
+
+.pp-main {
+  flex: 1;
+  min-width: 0;
+  padding: 72px 56px 96px 56px;
+  max-width: 740px;
+}
+
+/* ===================================
+   Sections
+   =================================== */
+.pp-section {
+  margin-bottom: 88px;
+  scroll-margin-top: 96px;
+}
+
+/* Orange left rule that decorates the section title */
+.pp-section__title {
+  font-family: var(--pp-font-heading);
+  font-size: clamp(24px, 3.2vw, 32px);
+  font-weight: 700;
+  color: var(--pp-heading);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1.5px solid var(--pp-border);
+  position: relative;
+}
+
+/* Subtle orange underline accent on section title */
+.pp-section__title::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--pp-orange);
+  border-radius: 2px;
+}
+
+/* ── Body copy ── */
+.pp-section__body {
+  font-family: var(--pp-font-body);
+  font-size: 15.5px;
+  line-height: 1.85;
+  color: var(--pp-text);
+}
+
+.pp-section__body p {
+  margin-bottom: 22px;
+}
+
+.pp-section__body p:last-child {
+  margin-bottom: 0;
+}
+
+.pp-section__body h3 {
+  font-family: var(--pp-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pp-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 38px 0 12px 0;
+}
+
+.pp-section__body strong {
+  color: var(--pp-heading);
+  font-weight: 600;
+}
+
+/* ── Minimalist note (replaces callout boxes) ── */
+.pp-note {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--pp-text-muted) !important;
+  line-height: 1.75 !important;
+  padding-left: 18px !important;
+  border-left: 2px solid var(--pp-orange) !important;
+  margin-top: 28px !important;
+  margin-bottom: 0 !important;
+}
+
+/* ===================================
+   Lists
+   =================================== */
+.pp-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 4px 0 24px 0;
+}
+
+.pp-list li {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--pp-text);
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.pp-list li::before {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pp-orange);
+  flex-shrink: 0;
+  margin-top: 10px;
+}
+
+/* ===================================
+   Cookie Table
+   =================================== */
+.pp-cookie-table {
+  border: 1px solid var(--pp-border);
+  border-radius: var(--pp-radius);
+  overflow: hidden;
+  margin: 20px 0 28px 0;
+  font-size: 13px;
+}
+
+.pp-cookie-table__head,
+.pp-cookie-table__row {
+  display: grid;
+  grid-template-columns: 130px 100px 88px 1fr;
+}
+
+.pp-cookie-table__head {
+  background: #fafafa;
+  border-bottom: 1px solid var(--pp-border);
+}
+
+.pp-cookie-table__head span {
+  padding: 11px 14px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--pp-text-faint);
+  border-right: 1px solid var(--pp-border);
+}
+
+.pp-cookie-table__head span:last-child {
+  border-right: none;
+}
+
+.pp-cookie-table__row {
+  border-bottom: 1px solid var(--pp-border);
+  transition: background-color 0.14s ease;
+}
+
+.pp-cookie-table__row:last-child {
+  border-bottom: none;
+}
+
+.pp-cookie-table__row:hover {
+  background: #fafafa;
+}
+
+.pp-cookie-table__row span {
+  padding: 12px 14px;
+  color: var(--pp-text);
+  border-right: 1px solid var(--pp-border);
+  line-height: 1.5;
+}
+
+.pp-cookie-table__row span:last-child {
+  border-right: none;
+}
+
+.pp-cookie-table__code {
+  font-family: "SF Mono", "Fira Mono", "Courier New", monospace !important;
+  font-size: 12px !important;
+  color: var(--pp-orange) !important;
+  font-weight: 600 !important;
+}
+
+/* ===================================
+   Floating Table of Contents (Right)
+   =================================== */
+.pp-toc {
+  position: sticky;
+  top: 96px;
+  width: var(--pp-toc-w);
+  flex-shrink: 0;
+  padding: 32px 0 32px 28px;
+  align-self: flex-start;
+}
+
+.pp-toc__label {
+  font-family: var(--pp-font-body);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pp-text-faint);
+  margin-bottom: 20px;
+}
+
+.pp-toc__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* The <li> itself receives the animated color/scale from framer */
+.pp-toc__li {
+  display: block;
+}
+
+.pp-toc__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-family: var(--pp-font-body);
+  font-size: 12px;
+  font-weight: 500;
+  /* color is driven by framer-motion on the parent <li> */
+  color: inherit;
+  text-align: left;
+  transition: background-color 0.18s ease;
+  position: relative;
+}
+
+.pp-toc__item:hover {
+  background: var(--pp-orange-soft);
+}
+
+.pp-toc__item--active {
+  font-weight: 700;
+}
+
+.pp-toc__num {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: inherit;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.pp-toc__text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Animated orange dot pip */
+.pp-toc__pip {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pp-orange);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(255, 153, 0, 0.6);
+}
+
+/* ===================================
+   Footer
+   =================================== */
+.pp-footer {
+  padding-top: 56px;
+  border-top: 1px solid var(--pp-border);
+  margin-top: 16px;
+}
+
+.pp-footer p {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--pp-text-muted);
+  margin-bottom: 8px;
+}
+
+.pp-footer__copy {
+  font-size: 12px !important;
+  color: var(--pp-text-faint) !important;
+  margin-top: 18px !important;
+}
+
+/* ===================================
+   Responsive
+   =================================== */
+@media (max-width: 1100px) {
+  .pp-toc {
+    display: none;
+  }
+  .pp-main {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .pp-hero {
+    padding: 64px 32px 56px calc(var(--pp-thread-w) + 32px);
+  }
+  .pp-main {
+    padding: 56px 32px 72px 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --pp-thread-w: 32px;
+  }
+  .pp-hero {
+    padding: 48px 20px 44px calc(var(--pp-thread-w) + 20px);
+  }
+  .pp-main {
+    padding: 40px 20px 60px 20px;
+  }
+  .pp-cookie-table__head,
+  .pp-cookie-table__row {
+    grid-template-columns: 110px 88px 78px 1fr;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .pp-cookie-table {
+    overflow-x: auto;
+  }
+  .pp-cookie-table__head,
+  .pp-cookie-table__row {
+    min-width: 380px;
+  }
+}
+
+/* ===================================
+   Reduced Motion
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+  .pp-thread,
+  .pp-thread__node,
+  .pp-section,
+  .pp-toc__li,
+  .pp-toc__item {
+    transition: none !important;
+    animation: none !important;
+  }
+}
