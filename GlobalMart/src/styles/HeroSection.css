@@ -401,12 +401,9 @@
   border-right: 6px solid transparent;
   border-top: 6px solid #ffb347;
 }
-.hero__card--center .hero__card-tag,
-.hero__card:hover .hero__card-tag,
-.hero__card-tag--visible {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-}
+
+/* Removed .hero__card--center and :hover forced visibility —
+   tags are now shown only via JS-driven inline styles */
 
 .hero__button-wrapper {
   margin-top: 52px;

@@ -202,6 +202,9 @@ const RADIUS = 220;
 const CARDSIZE = 190;
 const DURATION = 14;
 
+// Threshold: how close to the top of orbit (0.75 in normalized units) to show tag
+const TOP_THRESHOLD = 0.08; // ±8% of orbit ≈ ±29° arc
+
 function getPathOffset(index) {
   return index / TOTAL;
 }
@@ -264,6 +267,8 @@ function OrbitalCard({
   onCardClick,
 }) {
   const pathOffset = useMotionValue(getPathOffset(index));
+  const [tagVisible, setTagVisible] = useState(false);
+
   useEffect(() => {
     const c = animate(pathOffset, pathOffset.get() + 1, {
       repeat: Infinity,
@@ -273,6 +278,19 @@ function OrbitalCard({
     });
     return () => c.stop();
   }, [pathOffset]);
+
+  // Subscribe to pathOffset changes — show tag only when card is near the top (0.75)
+  useEffect(() => {
+    if (!product.seller_tag) return;
+    const unsubscribe = pathOffset.on("change", (v) => {
+      const normalized = ((v % 1) + 1) % 1;
+      let distFromTop = Math.abs(normalized - 0.75);
+      if (distFromTop > 0.5) distFromTop = 1 - distFromTop;
+      setTagVisible(distFromTop < TOP_THRESHOLD);
+    });
+    return unsubscribe;
+  }, [pathOffset, product.seller_tag]);
+
   const x = useTransform(
     pathOffset,
     (v) => Math.cos((v % 1) * Math.PI * 2) * radius,
@@ -289,7 +307,7 @@ function OrbitalCard({
       style={{
         position: "absolute",
         width: cardSize,
-        height: cardSize * 1.26, // same 190×240 ratio as before
+        height: cardSize * 1.26,
         left: `calc(50% - ${cardSize / 2}px)`,
         top: `calc(50% - ${cardSize * 0.63}px)`,
         x,
@@ -302,11 +320,21 @@ function OrbitalCard({
         scale: { duration: 0.9, delay: index * 0.12 + 0.3 },
       }}
     >
+      {/* Seller tag — only visible when card reaches the top of its orbit */}
       {product.seller_tag && (
-        <span className="hero__card-tag hero__card-tag--visible">
+        <span
+          className="hero__card-tag"
+          style={{
+            opacity: tagVisible ? 1 : 0,
+            transform: tagVisible
+              ? "translateX(-50%) translateY(0)"
+              : "translateX(-50%) translateY(-8px)",
+          }}
+        >
           {product.seller_tag}
         </span>
       )}
+
       <div className="hero__card-image-wrapper">
         <img
           src={product.image}
