@@ -7,6 +7,7 @@ import Gateway from "./components/MarketplaceGateway.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import MembershipAgreement from "./pages/MembershipAgreement";
+import TermsOfService from "./pages/TermsOfService.jsx";
 import Categories from "./components/CategorySlider.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Login from "./pages/LoginPage.jsx";
@@ -38,6 +39,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/Product-Detail" element={<ProductDetail />} />
+            <Route path="/Terms" element={<TermsOfService />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/shop" element={<Shop />} />
             <Route
