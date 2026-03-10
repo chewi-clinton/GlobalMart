@@ -6,6 +6,7 @@ import Hero from "./components/HeroSection.jsx";
 import Gateway from "./components/MarketplaceGateway.jsx";
 import Footer from "./components/Footer.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import MembershipAgreement from "./pages/MembershipAgreement";
 import Categories from "./components/CategorySlider.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Login from "./pages/LoginPage.jsx";
@@ -39,6 +40,10 @@ function App() {
             <Route path="/Product-Detail" element={<ProductDetail />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/shop" element={<Shop />} />
+            <Route
+              path="/membership-agreement"
+              element={<MembershipAgreement />}
+            />
             <Route path="/favorite" element={<Favorite />} />
             <Route path="/register" element={<Register />} />
             <Route path="*" element={<NotFound />} />
