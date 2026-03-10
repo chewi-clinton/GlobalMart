@@ -630,6 +630,205 @@ input {
 }
 
 /* ===================================
+   Profile Dropdown
+   =================================== */
+
+/* Wrapper around the profile icon — positions the dropdown */
+.main-nav__profile-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Active state for the icon when dropdown is open */
+.main-nav__icon-btn--active {
+  background-color: #f5f5f5;
+  color: #ff9900;
+}
+
+/* The dropdown card */
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow:
+    0 12px 48px rgba(0, 0, 0, 0.13),
+    0 2px 8px rgba(0, 0, 0, 0.07);
+  border: 1px solid #f0f0f0;
+  padding: 24px 20px 20px 20px;
+  z-index: 1200;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  /* Arrow pointer at the top */
+  transform-origin: top right;
+}
+
+/* Little caret/arrow pointing up toward the icon */
+.profile-dropdown::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  right: 11px;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-left: 1px solid #f0f0f0;
+  border-top: 1px solid #f0f0f0;
+  transform: rotate(45deg);
+  border-radius: 2px 0 0 0;
+}
+
+/* Welcome heading */
+.profile-dropdown__heading {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+}
+
+/* Button group */
+.profile-dropdown__btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* Reuse existing button styles — .profile-panel__btn, --signin, --register */
+
+/* Disclaimer */
+/* Reuses .profile-panel__disclaimer */
+
+/* Divider */
+/* Reuses .profile-panel__divider */
+
+/* Nav list */
+/* Reuses .profile-panel__nav and .profile-panel__nav-item */
+
+.profile-panel__btn {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  border: none;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* Solid orange Sign In */
+.profile-panel__btn--signin {
+  background-color: #ff9900;
+  color: #ffffff;
+  border: 2px solid #ff9900;
+}
+
+.profile-panel__btn--signin:hover {
+  background-color: #e68a00;
+  border-color: #e68a00;
+  box-shadow: 0 4px 16px rgba(255, 153, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+/* White with orange border Create Account */
+.profile-panel__btn--register {
+  background-color: #ffffff;
+  color: #ff9900;
+  border: 2px solid #ff9900;
+}
+
+.profile-panel__btn--register:hover {
+  background-color: rgba(255, 153, 0, 0.05);
+  box-shadow: 0 4px 16px rgba(255, 153, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Legal disclaimer */
+.profile-panel__disclaimer {
+  font-size: 11.5px;
+  color: #aaa;
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.profile-panel__disclaimer a {
+  color: #aaa;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.profile-panel__disclaimer a:hover {
+  color: #ff9900;
+}
+
+/* Divider */
+.profile-panel__divider {
+  height: 1px;
+  background: #f0f0f0;
+  margin-bottom: 20px;
+}
+
+/* Nav list */
+.profile-panel__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.profile-panel__nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  border-radius: 8px;
+  transition:
+    color 0.18s ease,
+    padding-left 0.18s ease;
+  border-bottom: 1px solid #f5f5f5;
+  text-decoration: none;
+}
+
+.profile-panel__nav-item:last-child {
+  border-bottom: none;
+}
+
+.profile-panel__nav-arrow {
+  font-size: 14px;
+  color: transparent;
+  transition:
+    color 0.18s ease,
+    transform 0.18s ease;
+  flex-shrink: 0;
+}
+
+.profile-panel__nav-item:hover {
+  color: #ff9900;
+  padding-left: 6px;
+}
+
+.profile-panel__nav-item:hover .profile-panel__nav-arrow {
+  color: #ff9900;
+  transform: translateX(3px);
+}
+
+/* ===================================
    Responsive Adjustments
    =================================== */
 @media (max-width: 1200px) {
@@ -725,6 +924,12 @@ input {
   .mobile-menu {
     display: block;
   }
+
+  /* Profile dropdown — make it full-width on mobile if ever shown */
+  .profile-dropdown {
+    width: calc(100vw - 24px);
+    right: -8px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -775,7 +980,10 @@ input {
   .mobile-menu,
   .mobile-menu__option,
   .mobile-menu__link,
-  .mobile-menu__location-btn {
+  .mobile-menu__location-btn,
+  .profile-dropdown,
+  .profile-panel__btn,
+  .profile-panel__nav-item {
     transition: none;
     animation: none;
   }
