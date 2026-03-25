@@ -16,6 +16,8 @@ import Favorite from "./pages/FavoritesPage.jsx";
 import Shop from "./pages/ShopePage.jsx";
 import Register from "./pages/RegisterPage.jsx";
 import ProductDetail from "./components/ProductDetailOverlay.jsx";
+import WarehouseAdmin from "./admin/WarehouseAdmin.jsx";
+import CustomerOrderAdmin from "./admin/CustomerOrderAdmin.jsx";
 // Home Page Component
 function HomePage() {
   return (
@@ -48,7 +50,10 @@ function App() {
             />
             <Route path="/favorite" element={<Favorite />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/admin/warehouse" element={<WarehouseAdmin />} />
+            <Route path="/admin/customers" element={<CustomerOrderAdmin />} />
             <Route path="*" element={<NotFound />} />
+            
           </Routes>
         </main>
       </div>
