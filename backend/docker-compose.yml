@@ -31,7 +31,7 @@ services:
   # ─── Auth Service ──────────────────────────────────────────────────
   auth_service:
     build:
-      context: ./services/auth_service
+      context: ./services/Auth_service
       dockerfile: Dockerfile
     container_name: globalmart_auth_service
     restart: unless-stopped
