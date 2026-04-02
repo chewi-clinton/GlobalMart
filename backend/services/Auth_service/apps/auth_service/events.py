@@ -11,7 +11,15 @@ EXCHANGE = "globalmart.events"
 def publish_event(routing_key: str, payload: dict):
     """
     Publish an event to the globalmart.events topic exchange.
-    Swallows all connection errors so the main flow is never
+
+    Routing keys used by this service:
+      user.registered   — new account created
+      user.verified     — email verified
+      user.login        — successful login
+      user.activated    — admin un-suspended a user
+      user.suspended    — admin suspended a user
+
+    Swallows all connection errors so the main request flow is never
     broken by a broker outage.
     """
     try:
@@ -30,7 +38,7 @@ def publish_event(routing_key: str, payload: dict):
             routing_key=routing_key,
             body=json.dumps(payload),
             properties=pika.BasicProperties(
-                delivery_mode=2,  # persistent — survives broker restart
+                delivery_mode=2,        # persistent — survives broker restart
                 content_type="application/json",
             ),
         )
@@ -41,5 +49,5 @@ def publish_event(routing_key: str, payload: dict):
     except Exception as exc:
         logger.warning(
             f"RabbitMQ publish failed ({routing_key}): {exc}. "
-            f"Continuing without event."
+            "Continuing without event."
         )

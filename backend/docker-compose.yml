@@ -1,31 +1,12 @@
 services:
   # ─── Infrastructure ────────────────────────────────────────────────
-  postgres:
-    image: postgres:17
-    container_name: globalmart_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: globalmart
-      POSTGRES_PASSWORD: globalmart_secret
-      POSTGRES_DB: postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    ports:
-      - "5493:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U globalmart -d postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: globalmart_rabbitmq
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: globalmart
-      RABBITMQ_DEFAULT_PASS: globalmart_secret
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -54,24 +35,27 @@ services:
       dockerfile: Dockerfile
     container_name: globalmart_auth_service
     restart: unless-stopped
-    env_file:
-      - ./services/auth_service/.env
-    volumes:
-      - ./services/auth_service:/app
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      DEBUG: "False"
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DATABASE_URL: ${DATABASE_URL}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASS}@rabbitmq:5672/
+      REDIS_URL: redis://redis:6379/0
+      JWT_ACCESS_TOKEN_LIFETIME_MINUTES: ${JWT_ACCESS_TOKEN_LIFETIME_MINUTES}
+      JWT_REFRESH_TOKEN_LIFETIME_DAYS: ${JWT_REFRESH_TOKEN_LIFETIME_DAYS}
+      FRONTEND_URL: ${FRONTEND_URL}
     ports:
       - "8001:8001"
     depends_on:
-      postgres:
-        condition: service_healthy
       rabbitmq:
         condition: service_healthy
       redis:
         condition: service_healthy
     command: >
-      sh -c "python manage.py wait_for_db &&
-             python manage.py migrate &&
+      sh -c "python manage.py migrate &&
              python manage.py seed_tiers &&
-             python manage.py runserver 0.0.0.0:8001"
+             gunicorn config.wsgi:application --bind 0.0.0.0:8001 --workers 3 --timeout 120"
 
   # ─── Future services (uncomment as each is built) ──────────────────
   # product_service: ...
@@ -81,6 +65,3 @@ services:
   # payment_service: ...
   # notification_service: ...
   # reporting_service: ...
-
-volumes:
-  postgres_data:
