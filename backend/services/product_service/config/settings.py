@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "True") == "True"
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -19,10 +19,9 @@ INSTALLED_APPS = [
     # Third-party
     "rest_framework",
     "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
     # Local
-    "apps.auth_service",
+    "apps.product_service",
 ]
 
 MIDDLEWARE = [
@@ -55,19 +54,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-# ─── Database — Neon DB ───────────────────────────────────────────────
-# Reads DATABASE_URL from .env
-# e.g. postgres://user:pass@ep-xxx.us-east-2.aws.neon.tech/users_db?sslmode=require
+# ─── Database ─────────────────────────────────────────────────────────
 DATABASES = {
-    "default": dj_database_url.config(
-        env="DATABASE_URL",
-        conn_max_age=600,           # keep connections alive 10 min
-        conn_health_checks=True,    # drop stale connections automatically
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True,
     )
 }
-
-# ─── Custom user model ────────────────────────────────────────────────
-AUTH_USER_MODEL = "auth_service.User"
 
 # ─── REST Framework ───────────────────────────────────────────────────
 REST_FRAMEWORK = {
@@ -81,18 +75,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
     ),
-    # ─── Throttling ───────────────────────────────────────────────────
-    "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
-    ],
-    "DEFAULT_THROTTLE_RATES": {
-        "anon": "100/day",
-        "user": "1000/day",
-        "login": "10/minute",       # tight cap on login attempts
-        "register": "20/day",       # one signup spree per IP per day
-        "password_reset": "5/hour", # abuse prevention on reset emails
-    },
 }
 
 # ─── JWT ──────────────────────────────────────────────────────────────
@@ -108,28 +90,12 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "user_id",
     "USER_ID_CLAIM": "user_id",
-    "TOKEN_OBTAIN_SERIALIZER": "apps.auth_service.serializers.CustomTokenObtainPairSerializer",
 }
-
-# ─── Email ────────────────────────────────────────────────────────────
-EMAIL_BACKEND = os.environ.get(
-    "EMAIL_BACKEND",
-    "django.core.mail.backends.console.EmailBackend",  # prints to console in dev
-)
-EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.sendgrid.net")
-EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
-EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@globalmart.com")
-
-# Frontend URL used in email links (verify, reset)
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Auth Service API",
-    "DESCRIPTION": "Authentication & user management — ICT 3212 Team 10",
+    "TITLE": "GlobalMart+ Product Service API",
+    "DESCRIPTION": "Product management — ICT 3212 Team 10",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
