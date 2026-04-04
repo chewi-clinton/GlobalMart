@@ -1,7 +1,8 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
@@ -42,7 +43,6 @@ class CategoryListView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        # Only top-level categories — children nested inside
         categories = Category.objects.filter(
             parent=None, is_active=True
         ).prefetch_related("children")
@@ -100,7 +100,6 @@ class ProductListView(APIView):
     def get(self, request):
         qs = Product.objects.select_related("category").prefetch_related("images")
 
-        # Filters
         category_id = request.query_params.get("category")
         status_filter = request.query_params.get("status", "active")
         seller_id = request.query_params.get("seller_id")
@@ -167,7 +166,6 @@ class ProductDetailView(APIView):
         if not product:
             return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        # Sellers can only update their own products
         if payload.get("role") == "seller" and product.seller_id != payload.get("user_id"):
             return Response({"error": "You can only update your own products."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -196,7 +194,6 @@ class ProductDetailView(APIView):
         if payload.get("role") == "seller" and product.seller_id != payload.get("user_id"):
             return Response({"error": "You can only deactivate your own products."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Soft delete — deactivate instead of deleting
         product.status = "inactive"
         product.save()
         publish_event("product.updated", {
@@ -250,6 +247,7 @@ class ProductVariantListView(APIView):
 
 class ProductImageListView(APIView):
     permission_classes = [AllowAny]
+    parser_classes = [MultiPartParser, FormParser]
 
     def get_product(self, product_id):
         try:
@@ -276,10 +274,34 @@ class ProductImageListView(APIView):
         if payload.get("role") == "seller" and product.seller_id != payload.get("user_id"):
             return Response({"error": "You can only add images to your own products."}, status=status.HTTP_403_FORBIDDEN)
 
-        serializer = ProductImageWriteSerializer(
-            data=request.data, context={"product": product}
+        # Handle file upload to R2
+        file = request.FILES.get("image")
+        if not file:
+            return Response({"error": "No image file provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            from .r2_upload import upload_image_to_r2
+            image_url = upload_image_to_r2(file)
+        except Exception as e:
+            return Response(
+                {"error": f"Image upload failed: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+        is_primary = request.data.get("is_primary", "false").lower() == "true"
+        alt_text = request.data.get("alt_text", "")
+        display_order = int(request.data.get("display_order", 0))
+
+        # If primary unset all others
+        if is_primary:
+            ProductImage.objects.filter(product=product).update(is_primary=False)
+
+        image = ProductImage.objects.create(
+            product=product,
+            image_url=image_url,
+            alt_text=alt_text,
+            is_primary=is_primary,
+            display_order=display_order,
         )
-        if serializer.is_valid():
-            image = serializer.save()
-            return Response(ProductImageSerializer(image).data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(ProductImageSerializer(image).data, status=status.HTTP_201_CREATED)
