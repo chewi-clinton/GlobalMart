@@ -13,3 +13,5 @@ RUN pip install --no-cache-dir --timeout 120 -r requirements.txt
 COPY . .
 
 EXPOSE 8002
+
+CMD ["sh", "-c", "python manage.py wait_for_db && python manage.py migrate && python manage.py seed_categories && gunicorn config.wsgi:application --bind 0.0.0.0:8002 --workers 3 --timeout 120"]
