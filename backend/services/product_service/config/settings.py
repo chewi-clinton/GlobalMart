@@ -119,8 +119,8 @@ SIMPLE_JWT = {
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Product Service API",
-    "DESCRIPTION": "Product management — ICT 3212 Team 10",
+    "TITLE": "GlobalMart Product Service API",
+    "DESCRIPTION": "Product management — ICT 3212 Team 10 For Advanced Database",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
