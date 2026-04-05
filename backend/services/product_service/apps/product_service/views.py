@@ -17,7 +17,7 @@ from .serializers import (
     ProductImageSerializer,
     ProductImageWriteSerializer,
 )
-from .permissions import IsAdmin, IsSeller, IsSellerOrAdmin, IsProductOwner
+from .permissions import IsAdmin, IsSeller, IsSellerOrAdmin
 from .events import publish_event
 
 
