@@ -1,0 +1,445 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap");
+
+/* ===================================
+   CSS Variables
+   =================================== */
+:root {
+  --ma-orange:       #f0c14b;
+  --ma-orange-soft:  rgba(255, 153, 0, 0.08);
+  --ma-white:        #ffffff;
+  --ma-text:         #333333;
+  --ma-text-muted:   #666666;
+  --ma-text-faint:   #aaaaaa;
+  --ma-heading:      #111111;
+  --ma-border:       #eeeeee;
+  --ma-font-body:    "Inter", system-ui, sans-serif;
+  --ma-font-heading: "Playfair Display", Georgia, serif;
+  --ma-thread-w:     52px;
+  --ma-toc-w:        216px;
+}
+
+/* ===================================
+   Reset / Base
+   =================================== */
+.ma-root *,
+.ma-root *::before,
+.ma-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.ma-root {
+  font-family: var(--ma-font-body);
+  background: var(--ma-white);
+  color: var(--ma-text);
+  min-height: 100vh;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ma-root a {
+  color: var(--ma-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: opacity 0.15s ease;
+}
+.ma-root a:hover { opacity: 0.7; }
+
+/* ===================================
+   Snake Thread
+   =================================== */
+
+/* Fixed container — stays in place while page scrolls */
+.ma-thread {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--ma-thread-w);
+  height: 100vh;
+  pointer-events: none;
+  z-index: 50;
+  overflow: visible;
+}
+
+/* SVG fills the fixed container; preserveAspectRatio="none" lets it
+   stretch its viewBox across the full viewport height so the path
+   acts as a scroll-progress meter */
+.ma-thread__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Glowing position node — top driven by framer useTransform */
+.ma-thread__node {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ma-orange);
+  box-shadow:
+    0 0 0 3px  rgba(255, 153, 0, 0.20),
+    0 0 12px 4px rgba(255, 153, 0, 0.55),
+    0 0 22px 7px rgba(255, 153, 0, 0.22);
+  z-index: 51;
+}
+
+/* ===================================
+   Hero
+   =================================== */
+.ma-hero {
+  padding: 88px 56px 72px calc(var(--ma-thread-w) + 56px);
+  border-bottom: 1px solid var(--ma-border);
+}
+
+.ma-hero__inner {
+  max-width: 680px;
+}
+
+.ma-hero__eyebrow {
+  display: inline-block;
+  font-family: var(--ma-font-body);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ma-orange);
+  background: var(--ma-orange-soft);
+  border-radius: 20px;
+  padding: 4px 13px;
+  margin-bottom: 22px;
+}
+
+.ma-hero__title {
+  font-family: var(--ma-font-heading);
+  font-size: clamp(38px, 5.2vw, 60px);
+  font-weight: 800;
+  color: var(--ma-heading);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+/* Version badge + meta on one line */
+.ma-hero__badges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.ma-hero__version {
+  font-family: var(--ma-font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ma-white);
+  background: var(--ma-orange);
+  border-radius: 4px;
+  padding: 3px 9px;
+}
+
+.ma-hero__divider-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ma-text-faint);
+  flex-shrink: 0;
+}
+
+.ma-hero__meta {
+  font-family: var(--ma-font-body);
+  font-size: 12.5px;
+  color: var(--ma-text-faint);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.ma-hero__intro {
+  font-family: var(--ma-font-body);
+  font-size: 16px;
+  line-height: 1.85;
+  color: var(--ma-text-muted);
+  max-width: 630px;
+}
+
+/* ===================================
+   Layout: main + right TOC
+   =================================== */
+.ma-layout {
+  display: flex;
+  align-items: flex-start;
+  padding-left: var(--ma-thread-w);
+}
+
+.ma-main {
+  flex: 1;
+  min-width: 0;
+  padding: 72px 56px 96px 56px;
+  max-width: 740px;
+}
+
+/* ===================================
+   Sections
+   =================================== */
+.ma-section {
+  margin-bottom: 0;
+  scroll-margin-top: 96px;
+  /* chapters are separated by a thin 1px rule set on .ma-section__header */
+}
+
+/* Each section after the first gets a 1px top rule as the chapter divider */
+.ma-section + .ma-section {
+  padding-top: 72px;
+  border-top: 1px solid var(--ma-border);
+  margin-top: 72px;
+}
+
+.ma-section__header {
+  margin-bottom: 28px;
+}
+
+/* Chapter label — small all-caps above the Playfair title */
+.ma-section__chapter {
+  display: block;
+  font-family: var(--ma-font-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ma-orange);
+  margin-bottom: 8px;
+}
+
+.ma-section__title {
+  font-family: var(--ma-font-heading);
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 700;
+  color: var(--ma-heading);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--ma-border);
+  position: relative;
+}
+
+/* Orange underline accent on title rule */
+.ma-section__title::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 44px;
+  height: 2px;
+  background: var(--ma-orange);
+  border-radius: 2px;
+}
+
+/* ── Body copy ── */
+.ma-section__body {
+  font-family: var(--ma-font-body);
+  font-size: 15.5px;
+  line-height: 1.85;
+  color: var(--ma-text);
+}
+
+.ma-section__body p {
+  margin-top: 20px;
+}
+
+.ma-section__body p:first-child {
+  margin-top: 28px;
+}
+
+.ma-section__body h3 {
+  font-family: var(--ma-font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ma-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  margin-top: 36px;
+  margin-bottom: 8px;
+}
+
+.ma-section__body strong {
+  color: var(--ma-heading);
+  font-weight: 600;
+}
+
+/* Minimalist inline note — left orange rule, no box */
+.ma-note {
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: var(--ma-text-muted) !important;
+  line-height: 1.78 !important;
+  padding-left: 18px !important;
+  border-left: 2px solid var(--ma-orange) !important;
+  margin-top: 24px !important;
+}
+
+/* ===================================
+   Floating TOC (right side)
+   =================================== */
+.ma-toc {
+  position: sticky;
+  top: 96px;
+  width: var(--ma-toc-w);
+  flex-shrink: 0;
+  padding: 32px 0 32px 28px;
+  align-self: flex-start;
+}
+
+.ma-toc__label {
+  font-family: var(--ma-font-body);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--ma-text-faint);
+  margin-bottom: 22px;
+}
+
+.ma-toc__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* <li> receives animated color + scale from framer */
+.ma-toc__li {
+  display: block;
+}
+
+.ma-toc__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-family: var(--ma-font-body);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: inherit;    /* color animated on parent <li> */
+  text-align: left;
+  transition: background-color 0.18s ease;
+  line-height: 1.35;
+}
+
+.ma-toc__item:hover {
+  background: var(--ma-orange-soft);
+}
+
+.ma-toc__item--active {
+  font-weight: 700;
+}
+
+.ma-toc__num {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: inherit;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.ma-toc__text {
+  flex: 1;
+}
+
+/* Orange pip — shared layoutId gives spring transition between items */
+.ma-toc__pip {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ma-orange);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(255, 153, 0, 0.6);
+}
+
+/* ===================================
+   Document footer
+   =================================== */
+.ma-footer {
+  margin-top: 80px;
+  padding-top: 0;
+}
+
+/* Thin 1px rule above footer text */
+.ma-footer__rule {
+  width: 100%;
+  height: 1px;
+  background: var(--ma-border);
+  margin-bottom: 32px;
+}
+
+.ma-footer p {
+  font-size: 13.5px;
+  line-height: 1.78;
+  color: var(--ma-text-muted);
+  margin-bottom: 12px;
+}
+
+.ma-footer__copy {
+  font-size: 11.5px !important;
+  color: var(--ma-text-faint) !important;
+  margin-top: 20px !important;
+}
+
+/* ===================================
+   Responsive
+   =================================== */
+@media (max-width: 1100px) {
+  .ma-toc { display: none; }
+  .ma-main { max-width: 100%; }
+}
+
+@media (max-width: 900px) {
+  .ma-hero {
+    padding: 64px 32px 56px calc(var(--ma-thread-w) + 32px);
+  }
+  .ma-main {
+    padding: 56px 32px 72px 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root { --ma-thread-w: 32px; }
+  .ma-hero {
+    padding: 48px 20px 44px calc(var(--ma-thread-w) + 20px);
+  }
+  .ma-main {
+    padding: 40px 20px 60px 20px;
+  }
+  .ma-section + .ma-section {
+    padding-top: 52px;
+    margin-top: 52px;
+  }
+}
+
+/* ===================================
+   Reduced Motion
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+  .ma-thread,
+  .ma-thread__node,
+  .ma-section,
+  .ma-toc__li,
+  .ma-toc__item {
+    transition: none !important;
+    animation: none !important;
+  }
+}

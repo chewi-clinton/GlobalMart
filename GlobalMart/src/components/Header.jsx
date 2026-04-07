@@ -9,8 +9,10 @@ import {
   FiMenu,
   FiX,
   FiCheck,
+  FiChevronRight,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
 import "../styles/Header.css";
 
@@ -119,6 +121,23 @@ const currencies = [
   { code: "MAD", symbol: "د.م.", name: "Moroccan Dirham" },
 ];
 
+// Framer Motion variants for the profile dropdown
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -8, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.18, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    y: -6,
+    scale: 0.97,
+    transition: { duration: 0.14, ease: "easeIn" },
+  },
+};
+
 const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -126,6 +145,7 @@ const Header = () => {
   const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [locationSearch, setLocationSearch] = useState("");
+  const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
   const [userLocation, setUserLocation] = useState({
     country: "United States",
@@ -302,6 +322,13 @@ const Header = () => {
     return country ? country.flag : "🌍";
   };
 
+  const profileNavLinks = [
+    { label: "My GlobalMart", path: "/account" },
+    { label: "Orders", path: "/orders" },
+    { label: "Membership Program", path: "/membership" },
+    { label: "Account Settings", path: "/settings" },
+  ];
+
   return (
     <header className="header">
       <nav className="main-nav">
@@ -453,13 +480,98 @@ const Header = () => {
           </div>
 
           {/* Icon Buttons */}
-          <button
-            className="main-nav__icon-btn"
-            aria-label="Account"
-            onClick={() => navigate("/login")}
+          {/* Profile icon — opens dropdown on hover or click */}
+          <div
+            className="main-nav__profile-wrapper"
+            onMouseEnter={() => setProfilePanelOpen(true)}
+            onMouseLeave={() => setProfilePanelOpen(false)}
           >
-            <FiUser />
-          </button>
+            <button
+              className={`main-nav__icon-btn${profilePanelOpen ? " main-nav__icon-btn--active" : ""}`}
+              aria-label="Account"
+              onClick={() => setProfilePanelOpen((prev) => !prev)}
+            >
+              <FiUser />
+            </button>
+
+            <AnimatePresence>
+              {profilePanelOpen && (
+                <motion.div
+                  className="profile-dropdown"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  role="dialog"
+                  aria-label="Account menu"
+                  onMouseEnter={() => setProfilePanelOpen(true)}
+                  onMouseLeave={() => setProfilePanelOpen(false)}
+                >
+                  {/* Welcome heading */}
+                  <h2 className="profile-dropdown__heading">
+                    Welcome to GlobalMart!
+                  </h2>
+
+                  {/* Action buttons */}
+                  <div className="profile-dropdown__btn-group">
+                    <button
+                      className="profile-panel__btn profile-panel__btn--signin"
+                      onClick={() => {
+                        setProfilePanelOpen(false);
+                        navigate("/login");
+                      }}
+                    >
+                      Sign In
+                    </button>
+                    <button
+                      className="profile-panel__btn profile-panel__btn--register"
+                      onClick={() => {
+                        setProfilePanelOpen(false);
+                        navigate("/register");
+                      }}
+                    >
+                      Create Account
+                    </button>
+                  </div>
+
+                  {/* Legal disclaimer */}
+                  <p className="profile-panel__disclaimer">
+                    By continuing, I agree to the GlobalMart{" "}
+                    <a href="/membership-agreement">
+                      Free Membership Agreement
+                    </a>{" "}
+                    and <a href="/privacy">Privacy Policy</a>, and to receive
+                    emails about the platform's products and services.
+                  </p>
+
+                  {/* Divider */}
+                  <div className="profile-panel__divider" />
+
+                  {/* Navigation links */}
+                  <nav
+                    className="profile-panel__nav"
+                    aria-label="Account navigation"
+                  >
+                    {profileNavLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.path}
+                        className="profile-panel__nav-item"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setProfilePanelOpen(false);
+                          navigate(link.path);
+                        }}
+                      >
+                        <span>{link.label}</span>
+                        <FiChevronRight className="profile-panel__nav-arrow" />
+                      </a>
+                    ))}
+                  </nav>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           <button
             className="main-nav__icon-btn"
             aria-label="Wishlist"
@@ -561,7 +673,7 @@ const Header = () => {
               href="#"
               className="mobile-menu__link"
               onClick={() => {
-                navigate("/login");
+                setProfilePanelOpen(true);
                 setMobileMenuOpen(false);
               }}
             >

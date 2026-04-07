@@ -36,7 +36,7 @@ const NotFound = () => {
               cx="200"
               cy="180"
               r="140"
-              fill="#ff9900"
+              fill="#f0c14b"
               opacity="0.15"
               className="bg-circle"
             />
@@ -44,7 +44,7 @@ const NotFound = () => {
               cx="200"
               cy="180"
               r="100"
-              fill="#ff9900"
+              fill="#f0c14b"
               opacity="0.2"
               className="bg-circle-inner"
             />
@@ -126,7 +126,7 @@ const NotFound = () => {
                   cx="200"
                   cy="130"
                   r="8"
-                  fill="#ff9900"
+                  fill="#f0c14b"
                   opacity="0.3"
                   className="lens-glow"
                 />
@@ -247,28 +247,28 @@ const NotFound = () => {
               cx="320"
               cy="100"
               r="4"
-              fill="#ff9900"
+              fill="#f0c14b"
               className="decorative-star"
             />
             <circle
               cx="80"
               cy="120"
               r="3"
-              fill="#ff9900"
+              fill="#f0c14b"
               className="decorative-star"
             />
             <circle
               cx="350"
               cy="200"
               r="3"
-              fill="#ff9900"
+              fill="#f0c14b"
               className="decorative-star"
             />
             <circle
               cx="60"
               cy="280"
               r="2"
-              fill="#ff9900"
+              fill="#f0c14b"
               className="decorative-star"
             />
           </svg>

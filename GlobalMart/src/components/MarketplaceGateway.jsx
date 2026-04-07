@@ -17,7 +17,7 @@ const productImages = [
     name: "Premium Bag",
     price: "$299",
     badge: "Top Seller",
-    badgeColor: "#ff9900",
+    badgeColor: "#f0c14b",
     seller_tag: "@trendy_finds",
   },
   {
