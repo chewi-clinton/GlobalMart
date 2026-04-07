@@ -1,597 +1,11 @@
 import React, { useState, useCallback } from "react";
 import { useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import sorryAnimation from "../assets/sorry.json";
-import ProductDetailOverlay from "../components/ProductDetailOverlay";
+import { allProducts } from "../data/products";
 import "../styles/ShopPage.css";
-
-const allProducts = [
-  {
-    id: 1,
-    name: "Wireless Bluetooth Headphones Pro",
-    price: 149.99,
-    originalPrice: 199.99,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
-    category: "Tech",
-    rating: 4.8,
-    reviews: 234,
-    brand: "AudioMax",
-    topItem: true,
-    images: [
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Midnight Black", hex: "#1a1a1a" },
-      { name: "Pearl White", hex: "#f5f5f5" },
-      { name: "Rose Gold", hex: "#b76e79" },
-    ],
-    sizes: ["S", "M", "L", "XL"],
-    description:
-      "Experience premium audio with our latest wireless headphones. Featuring active noise cancellation, 40-hour battery life, and ultra-comfortable memory foam ear cushions.",
-    features: [
-      "Active Noise Cancellation",
-      "40-Hour Battery Life",
-      "Bluetooth 5.0",
-      "Memory Foam Cushions",
-      "Built-in Microphone",
-    ],
-    questions: 12,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Alex M.",
-        rating: 5,
-        date: "2 days ago",
-        text: "Absolutely amazing sound quality!",
-        verified: true,
-      },
-      {
-        id: 2,
-        author: "Sarah K.",
-        rating: 4,
-        date: "1 week ago",
-        text: "Very comfortable for long sessions.",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "John D.",
-        question: "Compatible with iPhone?",
-        answer: "Yes, works with all Bluetooth devices.",
-        answered: true,
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Premium Leather Crossbody Bag",
-    price: 89.99,
-    originalPrice: null,
-    image:
-      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=400&fit=crop",
-    category: "Fashion",
-    rating: 4.5,
-    reviews: 156,
-    brand: "StyleCraft",
-    topItem: false,
-    images: [
-      "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Tan", hex: "#c8a882" },
-      { name: "Black", hex: "#1a1a1a" },
-    ],
-    sizes: ["One Size"],
-    description:
-      "Handcrafted from genuine leather with premium stitching. Spacious interior with multiple pockets.",
-    features: [
-      "Genuine Leather",
-      "Adjustable Strap",
-      "Multiple Pockets",
-      "Magnetic Closure",
-    ],
-    questions: 5,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Emma L.",
-        rating: 5,
-        date: "3 days ago",
-        text: "Beautiful bag, great quality leather.",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "Lisa M.",
-        question: "What are the dimensions?",
-        answer: "30cm x 20cm x 10cm",
-        answered: true,
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Smart Watch Series X",
-    price: 299.99,
-    originalPrice: 349.99,
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop",
-    category: "Tech",
-    rating: 4.9,
-    reviews: 512,
-    brand: "TechPro",
-    topItem: true,
-    images: [
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Silver", hex: "#c0c0c0" },
-      { name: "Black", hex: "#1a1a1a" },
-      { name: "Gold", hex: "#ffd700" },
-    ],
-    sizes: ["40mm", "44mm"],
-    description:
-      "Track your fitness, stay connected, and look great. Features heart rate monitoring, GPS, and 7-day battery.",
-    features: [
-      "Heart Rate Monitor",
-      "Built-in GPS",
-      "7-Day Battery",
-      "Water Resistant",
-      "Sleep Tracking",
-    ],
-    questions: 20,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Mike R.",
-        rating: 5,
-        date: "1 week ago",
-        text: "Best smartwatch I've ever owned.",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "Tom S.",
-        question: "Is it waterproof?",
-        answer: "Yes, water resistant up to 50m.",
-        answered: true,
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "Minimalist Running Shoes",
-    price: 129.99,
-    originalPrice: null,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
-    category: "Sports",
-    rating: 4.6,
-    reviews: 289,
-    brand: "SprintMax",
-    topItem: false,
-    images: [
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop",
-      "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "White", hex: "#ffffff" },
-      { name: "Red", hex: "#cc0000" },
-      { name: "Navy", hex: "#001f5b" },
-    ],
-    sizes: ["7", "8", "9", "10", "11", "12"],
-    description:
-      "Ultra-lightweight running shoes with responsive cushioning for maximum performance.",
-    features: [
-      "Lightweight Foam",
-      "Breathable Mesh",
-      "Non-slip Sole",
-      "Reflective Details",
-    ],
-    questions: 8,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Chris P.",
-        rating: 5,
-        date: "5 days ago",
-        text: "Perfect for long runs, very comfortable.",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "Dave K.",
-        question: "True to size?",
-        answer: "Yes, fits true to standard sizing.",
-        answered: true,
-      },
-    ],
-  },
-  {
-    id: 5,
-    name: "Designer Sunglasses Collection",
-    price: 175.0,
-    originalPrice: 220.0,
-    image:
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop",
-    category: "Fashion",
-    rating: 4.4,
-    reviews: 98,
-    brand: "VisionLux",
-    topItem: true,
-    images: [
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Tortoise", hex: "#8B6914" },
-      { name: "Black", hex: "#1a1a1a" },
-    ],
-    sizes: ["One Size"],
-    description:
-      "Premium UV400 polarized lenses with lightweight titanium frames.",
-    features: [
-      "UV400 Protection",
-      "Polarized Lenses",
-      "Titanium Frame",
-      "Includes Case",
-    ],
-    questions: 6,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Sophie M.",
-        rating: 4,
-        date: "2 weeks ago",
-        text: "Stylish and great UV protection.",
-        verified: true,
-      },
-    ],
-    questionsList: [],
-  },
-  {
-    id: 6,
-    name: "Portable Bluetooth Speaker",
-    price: 79.99,
-    originalPrice: null,
-    image:
-      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&h=400&fit=crop",
-    category: "Tech",
-    rating: 4.3,
-    reviews: 445,
-    brand: "SoundWave",
-    topItem: false,
-    images: [
-      "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Black", hex: "#1a1a1a" },
-      { name: "Blue", hex: "#0066cc" },
-      { name: "Red", hex: "#cc0000" },
-    ],
-    sizes: ["One Size"],
-    description:
-      "360° surround sound with 20-hour battery. Waterproof and drop-resistant.",
-    features: [
-      "360° Sound",
-      "20-Hour Battery",
-      "IPX7 Waterproof",
-      "Built-in Mic",
-      "USB-C Charging",
-    ],
-    questions: 15,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Jake T.",
-        rating: 4,
-        date: "1 week ago",
-        text: "Great sound for the price!",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "Anna B.",
-        question: "Can it pair with two phones?",
-        answer: "Yes, supports dual pairing.",
-        answered: true,
-      },
-    ],
-  },
-  {
-    id: 7,
-    name: "Yoga Mat Premium",
-    price: 45.99,
-    originalPrice: 59.99,
-    image:
-      "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=400&fit=crop",
-    category: "Sports",
-    rating: 4.7,
-    reviews: 678,
-    brand: "FitLife",
-    topItem: false,
-    images: [
-      "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Purple", hex: "#6b21a8" },
-      { name: "Teal", hex: "#0d9488" },
-      { name: "Black", hex: "#1a1a1a" },
-    ],
-    sizes: ["Standard", "XL"],
-    description:
-      "Eco-friendly non-slip yoga mat with alignment lines. 6mm thick for joint support.",
-    features: [
-      "Non-slip Surface",
-      "6mm Thickness",
-      "Eco-friendly Material",
-      "Carrying Strap",
-      "Alignment Lines",
-    ],
-    questions: 9,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Yoga Fan",
-        rating: 5,
-        date: "3 days ago",
-        text: "Best mat I've used, great grip.",
-        verified: true,
-      },
-    ],
-    questionsList: [],
-  },
-  {
-    id: 8,
-    name: "Vintage Denim Jacket",
-    price: 125.0,
-    originalPrice: null,
-    image:
-      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop",
-    category: "Fashion",
-    rating: 4.5,
-    reviews: 234,
-    brand: "StyleCraft",
-    topItem: true,
-    images: [
-      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Light Wash", hex: "#9eb8d9" },
-      { name: "Dark Wash", hex: "#2d3f5e" },
-    ],
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    description:
-      "Classic vintage-inspired denim jacket with distressed detailing. 100% cotton.",
-    features: [
-      "100% Cotton",
-      "Distressed Detail",
-      "Button Front",
-      "Chest Pockets",
-      "Machine Washable",
-    ],
-    questions: 7,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Retro Fan",
-        rating: 5,
-        date: "4 days ago",
-        text: "Perfect vintage look, great quality.",
-        verified: true,
-      },
-    ],
-    questionsList: [],
-  },
-  {
-    id: 9,
-    name: "Wireless Charging Pad",
-    price: 34.99,
-    originalPrice: 44.99,
-    image:
-      "https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=400&h=400&fit=crop",
-    category: "Tech",
-    rating: 4.2,
-    reviews: 892,
-    brand: "TechPro",
-    topItem: false,
-    images: [
-      "https://images.unsplash.com/photo-1586816879360-004f5b0c51e5?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "White", hex: "#ffffff" },
-      { name: "Black", hex: "#1a1a1a" },
-    ],
-    sizes: ["One Size"],
-    description:
-      "15W fast wireless charging pad compatible with all Qi-enabled devices.",
-    features: [
-      "15W Fast Charge",
-      "Qi Compatible",
-      "LED Indicator",
-      "Anti-slip Base",
-      "Foreign Object Detection",
-    ],
-    questions: 18,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Tech Guy",
-        rating: 4,
-        date: "6 days ago",
-        text: "Works perfectly with my iPhone.",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "Penny L.",
-        question: "Works with Samsung?",
-        answer: "Yes, compatible with all Qi devices.",
-        answered: true,
-      },
-    ],
-  },
-  {
-    id: 10,
-    name: "Professional Running Tights",
-    price: 69.99,
-    originalPrice: null,
-    image:
-      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=400&h=400&fit=crop",
-    category: "Sports",
-    rating: 4.8,
-    reviews: 345,
-    brand: "SprintMax",
-    topItem: true,
-    images: [
-      "https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Black", hex: "#1a1a1a" },
-      { name: "Navy", hex: "#001f5b" },
-    ],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    description:
-      "Compression running tights with moisture-wicking fabric and reflective details.",
-    features: [
-      "Compression Fit",
-      "Moisture-wicking",
-      "Reflective Details",
-      "Hidden Pocket",
-      "4-way Stretch",
-    ],
-    questions: 11,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Runner Pro",
-        rating: 5,
-        date: "2 days ago",
-        text: "Great compression, very comfortable.",
-        verified: true,
-      },
-    ],
-    questionsList: [],
-  },
-  {
-    id: 11,
-    name: "Canvas Backpack Pro",
-    price: 79.99,
-    originalPrice: 99.99,
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
-    category: "Fashion",
-    rating: 4.6,
-    reviews: 567,
-    brand: "TravelGear",
-    topItem: false,
-    images: [
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "Khaki", hex: "#c3b091" },
-      { name: "Black", hex: "#1a1a1a" },
-      { name: "Olive", hex: "#6b7c2d" },
-    ],
-    sizes: ["One Size"],
-    description:
-      "Durable canvas backpack with laptop compartment and ergonomic shoulder straps.",
-    features: [
-      '15" Laptop Compartment',
-      "Water Resistant",
-      "USB Charging Port",
-      "Ergonomic Straps",
-      "Multiple Pockets",
-    ],
-    questions: 14,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Traveler",
-        rating: 5,
-        date: "1 week ago",
-        text: "Perfect for travel and daily use.",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "Sam R.",
-        question: "Fits 15 inch laptop?",
-        answer: "Yes, fits up to 15.6 inch laptops.",
-        answered: true,
-      },
-    ],
-  },
-  {
-    id: 12,
-    name: "Smart Home Hub",
-    price: 149.99,
-    originalPrice: null,
-    image:
-      "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=400&h=400&fit=crop",
-    category: "Tech",
-    rating: 4.4,
-    reviews: 223,
-    brand: "SmartLife",
-    topItem: true,
-    images: [
-      "https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=600&h=600&fit=crop",
-    ],
-    colors: [
-      { name: "White", hex: "#ffffff" },
-      { name: "Black", hex: "#1a1a1a" },
-    ],
-    sizes: ["One Size"],
-    description:
-      "Control all your smart home devices from one hub. Compatible with Alexa, Google Home, and Apple HomeKit.",
-    features: [
-      "Alexa Compatible",
-      "Google Home Compatible",
-      "Apple HomeKit",
-      "Zigbee & Z-Wave",
-      "App Control",
-    ],
-    questions: 25,
-    reviewsList: [
-      {
-        id: 1,
-        author: "Smart Home Fan",
-        rating: 4,
-        date: "3 days ago",
-        text: "Easy setup, works great with all my devices.",
-        verified: true,
-      },
-    ],
-    questionsList: [
-      {
-        id: 1,
-        author: "New User",
-        question: "Works with Philips Hue?",
-        answer: "Yes, fully compatible.",
-        answered: true,
-      },
-    ],
-  },
-];
 
 const categories = ["All", "Tech", "Fashion", "Sports"];
 const brandOptions = [
@@ -614,7 +28,7 @@ const StarRating = ({ rating }) => {
   for (let i = 0; i < 5; i++) {
     if (i < fullStars) {
       stars.push(
-        <svg key={i} className="star filled" viewBox="0 0 24 24" fill="#ff9900">
+        <svg key={i} className="star filled" viewBox="0 0 24 24" fill="#f0c14b">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
         </svg>,
       );
@@ -623,7 +37,7 @@ const StarRating = ({ rating }) => {
         <svg key={i} className="star half" viewBox="0 0 24 24">
           <defs>
             <linearGradient id={`hg-${rating}-${i}`}>
-              <stop offset="50%" stopColor="#ff9900" />
+              <stop offset="50%" stopColor="#f0c14b" />
               <stop offset="50%" stopColor="#e0e0e0" />
             </linearGradient>
           </defs>
@@ -747,8 +161,8 @@ const WishlistButton = ({ productId }) => {
       >
         <svg
           viewBox="0 0 24 24"
-          fill={wished ? "#ff9900" : "none"}
-          stroke={wished ? "#ff9900" : "#fff"}
+          fill={wished ? "#f0c14b" : "none"}
+          stroke={wished ? "#f0c14b" : "#fff"}
           strokeWidth="2"
         >
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -758,7 +172,7 @@ const WishlistButton = ({ productId }) => {
   );
 };
 
-// Product Card — clicks open overlay
+// Product Card
 const ProductCard = ({ product, index, onProductClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -924,24 +338,17 @@ const FilterSidebar = ({ filters, setFilters }) => {
 
 // Main ShopPage
 const ShopPage = () => {
+  const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState("All");
   const [filters, setFilters] = useState({
     priceRange: [0, 400],
     brands: [],
     rating: 0,
   });
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [overlayOpen, setOverlayOpen] = useState(false);
 
   const handleProductClick = useCallback((product) => {
-    setSelectedProduct(product);
-    setOverlayOpen(true);
-  }, []);
-
-  const handleOverlayClose = useCallback(() => {
-    setOverlayOpen(false);
-    setTimeout(() => setSelectedProduct(null), 300);
-  }, []);
+    navigate(`/product/${product.id}`);
+  }, [navigate]);
 
   const filteredProducts = allProducts.filter((product) => {
     if (activeCategory !== "All" && product.category !== activeCategory)
@@ -1035,15 +442,6 @@ const ShopPage = () => {
           </main>
         </div>
       </div>
-
-      {/* Product Detail Overlay — renders as modal over the shop */}
-      {selectedProduct && (
-        <ProductDetailOverlay
-          isOpen={overlayOpen}
-          onClose={handleOverlayClose}
-          product={selectedProduct}
-        />
-      )}
     </div>
   );
 };

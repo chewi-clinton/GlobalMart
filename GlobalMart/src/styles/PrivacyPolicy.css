@@ -4,7 +4,7 @@
    CSS Variables
    =================================== */
 :root {
-  --pp-orange: #ff9900;
+  --pp-orange: #f0c14b;
   --pp-orange-soft: rgba(255, 153, 0, 0.08);
   --pp-orange-glow: rgba(255, 153, 0, 0.8);
   --pp-white: #ffffff;
@@ -13,7 +13,7 @@
   --pp-text-faint: #aaaaaa;
   --pp-heading: #111111;
   --pp-border: #eeeeee;
-  --pp-note-border: #ff9900;
+  --pp-note-border: #f0c14b;
   --pp-font-body: "Inter", system-ui, sans-serif;
   --pp-font-heading: "Playfair Display", Georgia, serif;
   --pp-thread-w: 52px; /* reserved left column width */

@@ -18,6 +18,10 @@ import Register from "./pages/RegisterPage.jsx";
 import ProductDetail from "./components/ProductDetailOverlay.jsx";
 import WarehouseAdmin from "./admin/WarehouseAdmin.jsx";
 import CustomerOrderAdmin from "./admin/CustomerOrderAdmin.jsx";
+import ProductDetailPage from "./pages/ProductDetailPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
+import SellerDashboard from "./pages/SellerDashboard.jsx";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard.jsx";
 // Home Page Component
 function HomePage() {
   return (
@@ -52,6 +56,10 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/admin/warehouse" element={<WarehouseAdmin />} />
             <Route path="/admin/customers" element={<CustomerOrderAdmin />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/seller" element={<SellerDashboard />} />
+            <Route path="/super-admin" element={<SuperAdminDashboard />} />
             <Route path="*" element={<NotFound />} />
             
           </Routes>

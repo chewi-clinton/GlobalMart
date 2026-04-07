@@ -23,8 +23,8 @@ const HeartIcon = ({ filled }) => (
     width="22"
     height="22"
     viewBox="0 0 24 24"
-    fill={filled ? "#ff9900" : "none"}
-    stroke={filled ? "#ff9900" : "currentColor"}
+    fill={filled ? "#f0c14b" : "none"}
+    stroke={filled ? "#f0c14b" : "currentColor"}
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -55,7 +55,7 @@ const StarIcon = ({ filled }) => (
     width="15"
     height="15"
     viewBox="0 0 24 24"
-    fill={filled ? "#ff9900" : "#e0e0e0"}
+    fill={filled ? "#f0c14b" : "#e0e0e0"}
   >
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
   </svg>

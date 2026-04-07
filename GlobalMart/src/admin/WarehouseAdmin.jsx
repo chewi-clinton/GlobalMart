@@ -1,7 +1,8 @@
 import { useState } from 'react'
+import '../styles/AdminPages.css'
 
 const initialProducts = [
- { id: 1, name: 'Wireless Headphones', category: 'Electronics', stock: 120, price: 59.99, status: 'In Stock' },
+  { id: 1, name: 'Wireless Headphones', category: 'Electronics', stock: 120, price: 59.99, status: 'In Stock' },
   { id: 2, name: 'Running Shoes', category: 'Footwear', stock: 8, price: 89.99, status: 'Low Stock' },
   { id: 3, name: 'Coffee Maker', category: 'Appliances', stock: 0, price: 45.00, status: 'Out of Stock' },
   { id: 4, name: 'Yoga Mat', category: 'Sports', stock: 55, price: 25.00, status: 'In Stock' },
@@ -42,190 +43,137 @@ function WarehouseAdmin() {
     setShowForm(false)
   }
 
-  const statusColor = (status) => {
-    if (status === 'In Stock') return '#00c853'
-    if (status === 'Low Stock') return '#ff9900'
-    return '#ff1744'
+  const statusConfig = (status) => {
+    if (status === 'In Stock') return { bg: '#e6f4ea', color: '#007600' }
+    if (status === 'Low Stock') return { bg: '#fff8e1', color: '#e47911' }
+    return { bg: '#fce8e6', color: '#cc0c39' }
   }
 
   return (
-    <div>
-      <h2 style={{ fontFamily: '"Playfair Display", Georgia, serif', marginLeft: '10px',color: '#ff9900', fontSize: '28px', marginBottom: '24px' }}>
-        Warehouse Admin
-      </h2>
+    <div className="ap">
 
-      <div style={{ display: 'flex', gap: '20px', marginBottom: '30px', flexWrap: 'wrap' }}>
+      {/* Page Title */}
+      <div className="ap__header">
+        <h2 className="ap__title">Warehouse Admin</h2>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="ap__cards">
         {[
-          { label: 'Total Products', value: totalProducts, color: '#ff9900' },
-          { label: 'Low Stock', value: lowStock, color: '#ffaa00' },
-          { label: 'Out of Stock', value: outOfStock, color: '#ff1744' },
+          { label: 'Total Products', value: totalProducts, icon: '', color: '#1a73e8' },
+          { label: 'Low Stock', value: lowStock, icon: '', color: '#e47911' },
+          { label: 'Out of Stock', value: outOfStock, icon: '', color: '#cc0c39' },
         ].map((card) => (
-          <div key={card.label} style={{
-            backgroundColor: '#ffffff',
-            border: `1px solid ${card.color}`,
-            borderRadius: '10px',
-            padding: '20px 30px',
-            minWidth: '160px',
-            textAlign: 'center',
-            marginLeft: '10px',
-          }}>
-            <p style={{ color: '#ffffff', opacity: 0.6, fontSize: '13px' }}>{card.label}</p>
-            <h2 style={{ color: card.color, fontSize: '32px', fontFamily: '"Playfair Display", Georgia, serif' }}>{card.value}</h2>
+          <div key={card.label} className="ap__card">
+            <span className="ap__card-icon" style={{ color: card.color }}>{card.icon}</span>
+            <div>
+              <p className="ap__card-label">{card.label}</p>
+              <p className="ap__card-value" style={{ color: card.color }}>{card.value}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
+      {/* Search + Add Button */}
+      <div className="ap__toolbar">
         <input
           type="text"
           placeholder="Search products..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{
-            padding: '10px 16px',
-            borderRadius: '8px',
-            border: '1px solid #ff9900',
-            backgroundColor: '#ffffff',
-            color: '#0a0a0a',
-            fontSize: '14px',
-            width: '260px',
-            marginLeft: '10px',
-          }}
+          className="ap__search"
         />
         <button
+          className="ap__btn ap__btn--primary"
           onClick={() => setShowForm(!showForm)}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#ff9900',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '8px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            fontSize: '14px',
-            marginRight: '10px',
-          }}
         >
           + Add Product
         </button>
       </div>
 
+      {/* Add Product Form */}
       {showForm && (
-        <div style={{
-          backgroundColor: '#ffffff',
-          border: 'none',
-          borderRadius: '10px',
-          padding: '20px',
-          marginBottom: '24px',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '12px',
-          alignItems: 'flex-end',
-        }}>
-          {[
-            { placeholder: 'Product Name', key: 'name' },
-            { placeholder: 'Category', key: 'category' },
-            { placeholder: 'Stock Quantity', key: 'stock' },
-            { placeholder: 'Price ($)', key: 'price' },
-          ].map((field) => (
-            <input
-              key={field.key}
-              type="text"
-              placeholder={field.placeholder}
-              value={newProduct[field.key]}
-              onChange={(e) => setNewProduct({ ...newProduct, [field.key]: e.target.value })}
-              style={{
-                padding: '10px',
-                borderRadius: '8px',
-                border: '1px solid #ff9900',
-                backgroundColor: '#ffffff',
-                color: '#ffffff',
-                fontSize: '14px',
-                width: '180px',
-              }}
-            />
-          ))}
-          <select
-            value={newProduct.status}
-            onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value })}
-            style={{
-              padding: '10px',
-              borderRadius: '8px',
-              border: '1px solid #ff9900',
-              backgroundColor: '#ffffff',
-              color: '#0a0a0a',
-              fontSize: '14px',
-            }}
-          >
-            <option>In Stock</option>
-            <option>Low Stock</option>
-            <option>Out of Stock</option>
-          </select>
-          <button
-            onClick={handleAdd}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#ff9900',
-              color: '#ffffff',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              cursor: 'pointer',
-            }}
-          >
-            Save
-          </button>
+        <div className="ap__form">
+          <h3 className="ap__form-title">Add New Product</h3>
+          <div className="ap__form-grid">
+            {[
+              { placeholder: 'Product Name', key: 'name' },
+              { placeholder: 'Category', key: 'category' },
+              { placeholder: 'Stock Quantity', key: 'stock' },
+              { placeholder: 'Price ($)', key: 'price' },
+            ].map((field) => (
+              <input
+                key={field.key}
+                type="text"
+                placeholder={field.placeholder}
+                value={newProduct[field.key]}
+                onChange={(e) => setNewProduct({ ...newProduct, [field.key]: e.target.value })}
+                className="ap__input"
+              />
+            ))}
+            <select
+              value={newProduct.status}
+              onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value })}
+              className="ap__input"
+            >
+              <option>In Stock</option>
+              <option>Low Stock</option>
+              <option>Out of Stock</option>
+            </select>
+          </div>
+          <div className="ap__form-actions">
+            <button className="ap__btn ap__btn--primary" onClick={handleAdd}>
+              Save Product
+            </button>
+            <button
+              className="ap__btn ap__btn--secondary"
+              onClick={() => setShowForm(false)}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '98.5%', borderCollapse: 'collapse', fontSize: '14px', marginLeft: '10px' }}>
+      {/* Products Table */}
+      <div className="ap__table-wrapper">
+        <table className="ap__table">
           <thead>
-            <tr style={{ backgroundColor: '#ffffff', color: '#ff9900' }}>
+            <tr>
               {['#', 'Product Name', 'Category', 'Stock', 'Price', 'Status', 'Actions'].map(col => (
-                <th key={col} style={{ padding: '14px 16px', textAlign: 'left', borderBottom: '1px solid #333' }}>{col}</th>
+                <th key={col}>{col}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {filtered.map((product, index) => (
-              <tr key={product.id} style={{ borderBottom: 'none' }}>
-                <td style={{ padding: '14px 16px', color: '#0a0a0a' }}>{index + 1}</td>
-                <td style={{ padding: '14px 16px', color: '#0a0a0a', fontWeight: '500' }}>{product.name}</td>
-                <td style={{ padding: '14px 16px', color: '#0a0a0a' }}>{product.category}</td>
-                <td style={{ padding: '14px 16px', color: '#0a0a0a' }}>{product.stock}</td>
-                <td style={{ padding: '14px 16px', color: '#0a0a0a' }}>${product.price.toFixed(2)}</td>
-                <td style={{ padding: '14px 16px' }}>
-                  <span style={{
-                    backgroundColor: statusColor(product.status) + '22',
-                    color: statusColor(product.status),
-                    padding: '4px 10px',
-                    borderRadius: '20px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                  }}>
-                    {product.status}
-                  </span>
-                </td>
-                <td style={{ padding: '14px 16px' }}>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    style={{
-                      padding: '6px 14px',
-                      backgroundColor: '#ff9900',
-                      color: '#ffffff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {filtered.map((product, index) => {
+              const sc = statusConfig(product.status)
+              return (
+                <tr key={product.id}>
+                  <td className="ap__td-muted">{index + 1}</td>
+                  <td className="ap__td-bold">{product.name}</td>
+                  <td className="ap__td-muted">{product.category}</td>
+                  <td>{product.stock}</td>
+                  <td>${product.price.toFixed(2)}</td>
+                  <td>
+                    <span
+                      className="ap__badge"
+                      style={{ backgroundColor: sc.bg, color: sc.color }}
+                    >
+                      {product.status}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="ap__action-btn ap__action-btn--delete"
+                      onClick={() => handleDelete(product.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

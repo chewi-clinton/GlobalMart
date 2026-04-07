@@ -166,7 +166,7 @@
 }
 
 .hero__title--accent {
-  color: #ff9900;
+  color: #f0c14b;
   position: relative;
   display: inline-block;
 }
@@ -266,7 +266,7 @@
   transform: translateY(-10px) scale(1.04);
   box-shadow:
     0 28px 52px -12px rgba(255, 153, 0, 0.3),
-    0 0 0 2px #ff9900;
+    0 0 0 2px #f0c14b;
   z-index: 5;
 }
 
@@ -373,7 +373,7 @@
   top: 12px;
   left: 50%;
   transform: translateX(-50%) translateY(-8px);
-  background: linear-gradient(135deg, #ff9900 0%, #ffb347 100%);
+  background: linear-gradient(135deg, #f0c14b 0%, #ffb347 100%);
   color: #ffffff;
   font-family: "Inter", sans-serif;
   font-size: 10px;
@@ -419,7 +419,7 @@
   font-size: 17px;
   font-weight: 700;
   color: #ffffff;
-  background: linear-gradient(135deg, #ff9900 0%, #ff7b00 50%, #ff9900 100%);
+  background: linear-gradient(135deg, #f0c14b 0%, #ff7b00 50%, #f0c14b 100%);
   background-size: 200% 200%;
   border: none;
   border-radius: 60px;

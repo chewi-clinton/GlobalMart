@@ -60,7 +60,7 @@ function TosThread() {
         {/* Animated orange fill using pathLength */}
         <motion.path
           d={SNAKE_D}
-          stroke="#ff9900"
+          stroke="#f0c14b"
           strokeWidth="2"
           fill="none"
           strokeLinecap="round"
@@ -87,7 +87,7 @@ function TocItem({ section, index, isActive, onClick }) {
       className="tos-toc__li"
       animate={
         isActive
-          ? { scale: 1.07, color: "#ff9900" }
+          ? { scale: 1.07, color: "#f0c14b" }
           : { scale: 1.0,  color: "#aaaaaa" }
       }
       transition={{ type: "spring", stiffness: 360, damping: 26 }}

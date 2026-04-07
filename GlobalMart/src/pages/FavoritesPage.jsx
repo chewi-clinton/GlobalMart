@@ -108,8 +108,8 @@ const HeartIcon = ({ filled, onClick }) => (
   <svg
     className={`heart-icon ${filled ? "filled" : ""}`}
     viewBox="0 0 24 24"
-    fill={filled ? "#ff9900" : "none"}
-    stroke={filled ? "#ff9900" : "#666"}
+    fill={filled ? "#f0c14b" : "none"}
+    stroke={filled ? "#f0c14b" : "#666"}
     strokeWidth="2"
     onClick={onClick}
   >
