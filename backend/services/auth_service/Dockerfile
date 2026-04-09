@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 8001
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8001", "--workers", "3", "--timeout", "120"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py seed_tiers && gunicorn config.wsgi:application --bind 0.0.0.0:8001 --workers 3 --timeout 120"]

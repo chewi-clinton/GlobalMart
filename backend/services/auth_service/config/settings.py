@@ -128,8 +128,8 @@ FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Auth Service API",
-    "DESCRIPTION": "Authentication & user management — ICT 3212 Team 10",
+    "TITLE": "GlobalMart Auth Service API",
+    "DESCRIPTION": "Authentication & user management — ICT 3212 Team 10 For Advanced Database",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

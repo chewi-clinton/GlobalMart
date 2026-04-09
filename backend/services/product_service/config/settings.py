@@ -1,13 +1,29 @@
 import os
+import sys
+import logging
 import dj_database_url
 from pathlib import Path
 from datetime import timedelta
+
+# ─── Logging setup — runs immediately so we can see startup errors ─────
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
+
+logger.info(f"Starting product_service...")
+logger.info(f"DEBUG={DEBUG}")
+logger.info(f"ALLOWED_HOSTS={ALLOWED_HOSTS}")
+logger.info(f"DATABASE_URL present: {bool(os.environ.get('DATABASE_URL'))}")
+logger.info(f"SECRET_KEY present: {bool(SECRET_KEY)}")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -55,13 +71,23 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # ─── Database ─────────────────────────────────────────────────────────
-DATABASES = {
-    "default": dj_database_url.parse(
-        os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True,
-    )
-}
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    logger.error("DATABASE_URL environment variable is not set!")
+    sys.exit(1)
+
+try:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
+    }
+    logger.info("Database configured successfully")
+except Exception as e:
+    logger.error(f"Database configuration failed: {e}")
+    sys.exit(1)
 
 # ─── REST Framework ───────────────────────────────────────────────────
 REST_FRAMEWORK = {
@@ -85,8 +111,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(
         days=int(os.environ.get("JWT_REFRESH_TOKEN_LIFETIME_DAYS", 7))
     ),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
+    "ROTATE_REFRESH_TOKENS": False,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "user_id",
     "USER_ID_CLAIM": "user_id",
@@ -94,17 +119,27 @@ SIMPLE_JWT = {
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Product Service API",
-    "DESCRIPTION": "Product management — ICT 3212 Team 10",
+    "TITLE": "GlobalMart Product Service API",
+    "DESCRIPTION": "Product management — ICT 3212 Team 10 For Advanced Database",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
 # ─── RabbitMQ ─────────────────────────────────────────────────────────
 RABBITMQ_URL = os.environ.get("RABBITMQ_URL")
+logger.info(f"RABBITMQ_URL present: {bool(RABBITMQ_URL)}")
 
 # ─── Redis ────────────────────────────────────────────────────────────
 REDIS_URL = os.environ.get("REDIS_URL")
+logger.info(f"REDIS_URL present: {bool(REDIS_URL)}")
+
+# ─── Cloudflare R2 ────────────────────────────────────────────────────
+CLOUDFLARE_R2_ACCOUNT_ID = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
+CLOUDFLARE_R2_ACCESS_KEY_ID = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
+CLOUDFLARE_R2_SECRET_ACCESS_KEY = os.environ.get("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
+CLOUDFLARE_R2_BUCKET_NAME = os.environ.get("CLOUDFLARE_R2_BUCKET_NAME")
+CLOUDFLARE_R2_PUBLIC_URL = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL")
+logger.info(f"R2 configured: {bool(CLOUDFLARE_R2_ACCOUNT_ID)}")
 
 # ─── Static files ─────────────────────────────────────────────────────
 STATIC_URL = "/static/"
@@ -113,9 +148,5 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
-# ─── Cloudflare R2 ────────────────────────────────────────────────────
-CLOUDFLARE_R2_ACCOUNT_ID = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
-CLOUDFLARE_R2_ACCESS_KEY_ID = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
-CLOUDFLARE_R2_SECRET_ACCESS_KEY = os.environ.get("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
-CLOUDFLARE_R2_BUCKET_NAME = os.environ.get("CLOUDFLARE_R2_BUCKET_NAME")
-CLOUDFLARE_R2_PUBLIC_URL = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL")
+
+logger.info("Settings loaded successfully")

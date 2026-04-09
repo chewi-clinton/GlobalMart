@@ -12,4 +12,8 @@ RUN pip install --no-cache-dir --timeout 120 -r requirements.txt
 
 COPY . .
 
+RUN chmod +x start.sh
+
 EXPOSE 8002
+
+CMD ["./start.sh"]
