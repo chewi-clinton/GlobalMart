@@ -4,7 +4,7 @@ import logging
 import dj_database_url
 from pathlib import Path
 from datetime import timedelta
-from dotenv import load_dotenv   # ← Added this line only
+from dotenv import load_dotenv   
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env file - Added this block
+
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
