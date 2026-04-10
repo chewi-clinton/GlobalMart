@@ -119,7 +119,7 @@ SIMPLE_JWT = {
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Order Service API",
+    "TITLE": "GlobalMart Order Service API",
     "DESCRIPTION": "Order management — ICT 3212 Team 10",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
