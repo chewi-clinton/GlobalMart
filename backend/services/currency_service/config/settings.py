@@ -98,7 +98,7 @@ REST_FRAMEWORK = {
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Currency Service API",
+    "TITLE": "GlobalMart Currency Service API",
     "DESCRIPTION": "Currency and exchange rate management — ICT 3212 Team 10",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,

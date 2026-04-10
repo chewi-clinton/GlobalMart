@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   # ─── Infrastructure ────────────────────────────────────────────────
   rabbitmq:
@@ -73,8 +75,29 @@ services:
          python manage.py seed_categories &&
          gunicorn config.wsgi:application --bind 0.0.0.0:8002 --workers 3 --timeout 120"
 
+  # ─── Currency Service ──────────────────────────────────────────────
+  currency_service:
+    build:
+      context: ./services/currency_service
+      dockerfile: Dockerfile
+    container_name: globalmart_currency_service
+    restart: unless-stopped
+    env_file:
+      - ./services/currency_service/.env
+    volumes:
+      - ./services/currency_service:/app
+    ports:
+      - "8003:8003"
+    depends_on:
+      redis:
+        condition: service_healthy
+      # rabbitmq:
+      #   condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8003 --workers 3 --timeout 120"
+
   # ─── Future services ───────────────────────────────────────────────
-  # currency_service: ...
   # inventory_service: ...
   # order_service: ...
   # payment_service: ...
