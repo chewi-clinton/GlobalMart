@@ -116,7 +116,7 @@ SIMPLE_JWT = {
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Inventory Service API",
+    "TITLE": "GlobalMart Inventory Service API",
     "DESCRIPTION": "Inventory and warehouse management — ICT 3212 Team 10",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
