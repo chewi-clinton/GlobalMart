@@ -71,9 +71,9 @@ services:
         condition: service_healthy
     command: >
       sh -c "python manage.py wait_for_db &&
-         python manage.py migrate &&
-         python manage.py seed_categories &&
-         gunicorn config.wsgi:application --bind 0.0.0.0:8002 --workers 3 --timeout 120"
+             python manage.py migrate &&
+             python manage.py seed_categories &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8002 --workers 3 --timeout 120"
 
   # ─── Currency Service ──────────────────────────────────────────────
   currency_service:
@@ -91,14 +91,34 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      # rabbitmq:
-      #   condition: service_healthy
     command: >
       sh -c "python manage.py migrate --noinput &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8003 --workers 3 --timeout 120"
 
+  # ─── Inventory Service ─────────────────────────────────────────────
+  inventory_service:
+    build:
+      context: ./services/inventory_service
+      dockerfile: Dockerfile
+    container_name: globalmart_inventory_service
+    restart: unless-stopped
+    env_file:
+      - ./services/inventory_service/.env
+    volumes:
+      - ./services/inventory_service:/app
+    ports:
+      - "8004:8004"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py seed_warehouses &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8004 --workers 3 --timeout 120"
+
   # ─── Future services ───────────────────────────────────────────────
-  # inventory_service: ...
   # order_service: ...
   # payment_service: ...
   # notification_service: ...
