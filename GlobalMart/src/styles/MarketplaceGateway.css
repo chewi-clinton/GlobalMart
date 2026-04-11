@@ -58,7 +58,7 @@
 
 /* Seller Card - Orange Theme */
 .gateway__card--seller {
-  background: linear-gradient(135deg, #ff9900 0%, #ffb347 100%);
+  background: linear-gradient(135deg, #f0c14b 0%, #ffb347 100%);
   border: none;
 }
 
@@ -156,7 +156,7 @@
 
 .gateway__feature-icon {
   font-size: 18px;
-  color: #ff9900;
+  color: #f0c14b;
 }
 
 .gateway__card--seller .gateway__feature-icon {
@@ -202,7 +202,7 @@
 /* Seller Button - White with Orange Text */
 .gateway__button--seller {
   background: #ffffff;
-  color: #ff9900;
+  color: #f0c14b;
 }
 
 .gateway__button--seller:hover {
@@ -235,7 +235,7 @@
 }
 
 .gateway__card--buyer:hover .gateway__dot {
-  background: #ff9900;
+  background: #f0c14b;
   opacity: 0.3;
 }
 
@@ -344,7 +344,7 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #ff9900;
+  color: #f0c14b;
   margin-bottom: 16px;
 }
 
@@ -432,7 +432,7 @@
   top: -32px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ff9900;
+  background: #f0c14b;
   color: #ffffff;
   font-family: "Inter", sans-serif;
   font-size: 0.65rem;
@@ -454,7 +454,7 @@
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-top: 6px solid #ff9900;
+  border-top: 6px solid #f0c14b;
 }
 
 /* ===================================
@@ -564,7 +564,7 @@
   right: -2px;
   bottom: -2px;
   border-radius: 18px;
-  border: 2px solid #ff9900;
+  border: 2px solid #f0c14b;
   pointer-events: none;
   opacity: 0;
 }

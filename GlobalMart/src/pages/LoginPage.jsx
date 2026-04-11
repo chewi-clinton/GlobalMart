@@ -1,126 +1,83 @@
 import React, { useState } from "react";
-import Lottie from "lottie-react";
-import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import loginAnimation from "../assets/login.json";
 import logo from "../Assets/logo.png";
 import "../styles/LoginPage.css";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log("Login attempted with:", { email, password });
-    }, 1500);
+    console.log("Continue with:", email);
   };
 
   return (
     <div className="login-page">
-      {/* Decorative background circles */}
-      <div className="login-page__decoration login-page__decoration--1" />
-      <div className="login-page__decoration login-page__decoration--2" />
-      <div className="login-page__decoration login-page__decoration--3" />
 
-      {/* Single unified card — horizontal layout */}
+      {/* Logo */}
+      <div className="login-page__logo-wrapper">
+        <img src={logo} alt="GlobalMart" className="login-page__logo" />
+      </div>
+
+      {/* Card */}
       <div className="login-page__card">
-        {/* Left: Logo + Lottie */}
-        <div className="login-page__visual">
-          <div className="login-page__gradient-bg" />
-          <div className="login-page__logo-wrapper">
-            <img src={logo} alt="GlobalMart" className="login-page__logo" />
-          </div>
-          <div className="login-page__animation-wrapper">
-            <Lottie
-              animationData={loginAnimation}
-              loop={true}
-              autoplay={true}
-              className="login-page__lottie"
+        <h1 className="login-page__title">Sign in or create account</h1>
+
+        <form className="login-page__form" onSubmit={handleSubmit}>
+          {/* Email */}
+          <div className="login-page__field">
+            <label htmlFor="email" className="login-page__label">
+              Enter your email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="login-page__input"
+              required
             />
           </div>
-        </div>
 
-        {/* Right: Form */}
-        <div className="login-page__form-container">
-          <div className="login-page__header">
-            <h1>Welcome back</h1>
-          </div>
+          {/* Continue Button */}
+          <button type="submit" className="login-page__submit">
+            Continue
+          </button>
 
-          <form className="login-page__form" onSubmit={handleSubmit}>
-            <div className="input-group">
-              <div className="input-group__icon">
-                <FiMail />
-              </div>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder=" "
-                required
-                className="input-group__input"
-              />
-              <label htmlFor="email" className="input-group__label">
-                Email Address
-              </label>
-            </div>
+          {/* Terms */}
+          <p className="login-page__terms">
+            By continuing, you agree to GlobalMart's{" "}
+            <a href="/Terms">Conditions of Use</a> and{" "}
+            <a href="/privacy">Privacy Notice</a>.
+          </p>
 
-            <div className="input-group">
-              <div className="input-group__icon">
-                <FiLock />
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder=" "
-                required
-                className="input-group__input"
-              />
-              <label htmlFor="password" className="input-group__label">
-                Password
-              </label>
-              <button
-                type="button"
-                className="input-group__toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
-            </div>
+          {/* Need help */}
+          <a href="#" className="login-page__help">Need help?</a>
+        </form>
 
-            <div className="login-page__forgot">
-              <a href="/forgot-password" className="login-page__forgot-link">
-                Forgot Password?
-              </a>
-            </div>
+        {/* Divider */}
+        <div className="login-page__divider" />
 
-            <button
-              type="submit"
-              className={`login-page__submit ${isLoading ? "login-page__submit--loading" : ""}`}
-              disabled={isLoading}
-            >
-              <span className="login-page__submit-text">Sign In</span>
-              <span className="login-page__submit-loader" />
-            </button>
-          </form>
-
-          <div className="login-page__divider">
-            <span>New to GlobalMart?</span>
-          </div>
-
-          <a href="/signup" className="login-page__signup">
-            Create an account
+        {/* Business account */}
+        <div className="login-page__business">
+          <p className="login-page__business-title">Buying for work?</p>
+          <a href="#" className="login-page__business-link">
+            Create a free business account
           </a>
         </div>
       </div>
+
+      {/* Footer */}
+      <div className="login-page__footer">
+        <div className="login-page__footer-links">
+          <a href="/Terms">Conditions of Use</a>
+          <a href="/privacy">Privacy Notice</a>
+          <a href="#">Help</a>
+        </div>
+        <p className="login-page__footer-copy">
+          © 2026, GlobalMart, Inc. or its affiliates
+        </p>
+      </div>
+
     </div>
   );
 };

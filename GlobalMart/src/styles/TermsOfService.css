@@ -1,0 +1,383 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap");
+
+/* ===================================
+   CSS Variables
+   =================================== */
+:root {
+  --tos-orange:        #f0c14b;
+  --tos-orange-soft:   rgba(255, 153, 0, 0.08);
+  --tos-orange-glow:   rgba(255, 153, 0, 0.80);
+  --tos-white:         #ffffff;
+  --tos-text:          #333333;
+  --tos-text-muted:    #666666;
+  --tos-text-faint:    #aaaaaa;
+  --tos-heading:       #111111;
+  --tos-border:        #eeeeee;
+  --tos-font-body:     "Inter", system-ui, sans-serif;
+  --tos-font-heading:  "Playfair Display", Georgia, serif;
+  --tos-thread-w:      52px;
+  --tos-toc-w:         210px;
+  --tos-radius:        10px;
+}
+
+/* ===================================
+   Reset / Base
+   =================================== */
+.tos-root *,
+.tos-root *::before,
+.tos-root *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.tos-root {
+  font-family: var(--tos-font-body);
+  background: var(--tos-white);
+  color: var(--tos-text);
+  min-height: 100vh;
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tos-root a {
+  color: var(--tos-orange);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: opacity 0.15s ease;
+}
+.tos-root a:hover { opacity: 0.7; }
+
+/* ===================================
+   The Winding Snake Thread
+   =================================== */
+.tos-thread {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--tos-thread-w);
+  height: 100vh;
+  pointer-events: none;
+  z-index: 50;
+  overflow: visible;
+}
+
+.tos-thread__svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.tos-thread__node {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tos-orange);
+  box-shadow:
+    0 0 0 3px rgba(255, 153, 0, 0.20),
+    0 0 12px 4px rgba(255, 153, 0, 0.55),
+    0 0 20px 6px rgba(255, 153, 0, 0.25);
+  z-index: 51;
+}
+
+/* ===================================
+   Hero
+   =================================== */
+.tos-hero {
+  padding: 88px 56px 72px calc(var(--tos-thread-w) + 56px);
+  border-bottom: 1px solid var(--tos-border);
+}
+
+.tos-hero__inner {
+  max-width: 680px;
+}
+
+.tos-hero__eyebrow {
+  display: inline-block;
+  font-family: var(--tos-font-body);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tos-orange);
+  background: var(--tos-orange-soft);
+  border-radius: 20px;
+  padding: 4px 13px;
+  margin-bottom: 22px;
+}
+
+.tos-hero__title {
+  font-family: var(--tos-font-heading);
+  font-size: clamp(40px, 5.5vw, 62px);
+  font-weight: 800;
+  color: var(--tos-heading);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.tos-hero__meta {
+  font-family: var(--tos-font-body);
+  font-size: 12.5px;
+  color: var(--tos-text-faint);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: 30px;
+}
+
+.tos-hero__intro {
+  font-family: var(--tos-font-body);
+  font-size: 16.5px;
+  line-height: 1.85;
+  color: var(--tos-text-muted);
+  max-width: 620px;
+}
+
+/* ===================================
+   Layout
+   =================================== */
+.tos-layout {
+  display: flex;
+  align-items: flex-start;
+  padding-left: calc(var(--tos-thread-w) + 0px);
+}
+
+.tos-main {
+  flex: 1;
+  min-width: 0;
+  padding: 72px 56px 96px 56px;
+  max-width: 740px;
+}
+
+/* ===================================
+   Sections
+   =================================== */
+.tos-section {
+  margin-bottom: 88px;
+  scroll-margin-top: 96px;
+  /* Thin 1px horizontal line separates each section from the one below */
+  padding-bottom: 88px;
+  border-bottom: 1px solid var(--tos-border);
+}
+
+.tos-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+  margin-bottom: 56px;
+}
+
+.tos-section__title {
+  font-family: var(--tos-font-heading);
+  font-size: clamp(24px, 3.2vw, 32px);
+  font-weight: 700;
+  color: var(--tos-heading);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1.5px solid var(--tos-border);
+  position: relative;
+}
+
+/* Subtle orange underline accent on section title */
+.tos-section__title::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  width: 48px;
+  height: 2px;
+  background: var(--tos-orange);
+  border-radius: 2px;
+}
+
+/* ── Body copy ── */
+.tos-section__body {
+  font-family: var(--tos-font-body);
+  font-size: 15.5px;
+  line-height: 1.85;
+  color: var(--tos-text);
+}
+
+.tos-section__body p {
+  margin-bottom: 22px;
+}
+
+.tos-section__body p:last-child {
+  margin-bottom: 0;
+}
+
+.tos-section__body h3 {
+  font-family: var(--tos-font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tos-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  margin: 38px 0 12px 0;
+}
+
+.tos-section__body strong {
+  color: var(--tos-heading);
+  font-weight: 600;
+}
+
+/* ===================================
+   Floating Table of Contents (Right)
+   =================================== */
+.tos-toc {
+  position: sticky;
+  top: 96px;
+  width: var(--tos-toc-w);
+  flex-shrink: 0;
+  padding: 32px 0 32px 28px;
+  align-self: flex-start;
+}
+
+.tos-toc__label {
+  font-family: var(--tos-font-body);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tos-text-faint);
+  margin-bottom: 20px;
+}
+
+.tos-toc__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tos-toc__li {
+  display: block;
+}
+
+.tos-toc__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-family: var(--tos-font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: inherit;
+  text-align: left;
+  transition: background-color 0.18s ease;
+  position: relative;
+}
+
+.tos-toc__item:hover {
+  background: var(--tos-orange-soft);
+}
+
+.tos-toc__item--active {
+  font-weight: 700;
+}
+
+.tos-toc__num {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: inherit;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.tos-toc__text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+/* Animated orange dot pip */
+.tos-toc__pip {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--tos-orange);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(255, 153, 0, 0.6);
+}
+
+/* ===================================
+   Footer
+   =================================== */
+.tos-footer {
+  padding-top: 56px;
+  border-top: 1px solid var(--tos-border);
+  margin-top: 16px;
+}
+
+.tos-footer p {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--tos-text-muted);
+  margin-bottom: 8px;
+}
+
+.tos-footer__copy {
+  font-size: 12px !important;
+  color: var(--tos-text-faint) !important;
+  margin-top: 18px !important;
+}
+
+/* ===================================
+   Responsive
+   =================================== */
+@media (max-width: 1100px) {
+  .tos-toc {
+    display: none;
+  }
+  .tos-main {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .tos-hero {
+    padding: 64px 32px 56px calc(var(--tos-thread-w) + 32px);
+  }
+  .tos-main {
+    padding: 56px 32px 72px 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --tos-thread-w: 32px;
+  }
+  .tos-hero {
+    padding: 48px 20px 44px calc(var(--tos-thread-w) + 20px);
+  }
+  .tos-main {
+    padding: 40px 20px 60px 20px;
+  }
+}
+
+/* ===================================
+   Reduced Motion
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+  .tos-thread,
+  .tos-thread__node,
+  .tos-section,
+  .tos-toc__li,
+  .tos-toc__item {
+    transition: none !important;
+    animation: none !important;
+  }
+}

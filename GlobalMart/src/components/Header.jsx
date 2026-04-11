@@ -9,9 +9,11 @@ import {
   FiMenu,
   FiX,
   FiCheck,
+  FiChevronRight,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
+import { motion, AnimatePresence } from "framer-motion";
+
 import "../styles/Header.css";
 
 const countries = [
@@ -119,6 +121,22 @@ const currencies = [
   { code: "MAD", symbol: "د.م.", name: "Moroccan Dirham" },
 ];
 
+const dropdownVariants = {
+  hidden: { opacity: 0, y: -8, scale: 0.97 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.18, ease: "easeOut" },
+  },
+  exit: {
+    opacity: 0,
+    y: -6,
+    scale: 0.97,
+    transition: { duration: 0.14, ease: "easeIn" },
+  },
+};
+
 const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -126,6 +144,7 @@ const Header = () => {
   const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [locationSearch, setLocationSearch] = useState("");
+  const [profilePanelOpen, setProfilePanelOpen] = useState(false);
 
   const [userLocation, setUserLocation] = useState({
     country: "United States",
@@ -142,25 +161,27 @@ const Header = () => {
     try {
       const response = await fetch("https://ipapi.co/json/");
       const data = await response.json();
-      if (data && data.country_name && data.country_code) {
+
+      if (data?.country_code) {
         const detectedCountry = countries.find(
           (c) => c.code === data.country_code,
         );
-        if (detectedCountry) {
-          setUserLocation({
-            country: detectedCountry.name,
-            countryCode: detectedCountry.code,
-          });
-        } else {
-          setUserLocation({
-            country: data.country_name,
-            countryCode: data.country_code,
-          });
-        }
+        setUserLocation({
+          country: detectedCountry
+            ? detectedCountry.name
+            : data.country_name || "United States",
+          countryCode: data.country_code,
+        });
+
         const currencyMap = {
           CM: "XAF",
           SN: "XOF",
           CI: "XOF",
+          GH: "GHS",
+          NG: "NGN",
+          KE: "KES",
+          MA: "MAD",
+          ZA: "ZAR",
           US: "USD",
           GB: "GBP",
           CA: "CAD",
@@ -168,7 +189,6 @@ const Header = () => {
           JP: "JPY",
           CN: "CNY",
           IN: "INR",
-          NG: "NGN",
           BR: "BRL",
           MX: "MXN",
           DE: "EUR",
@@ -182,24 +202,12 @@ const Header = () => {
           GR: "EUR",
           FI: "EUR",
           IE: "EUR",
-          SK: "EUR",
-          SI: "EUR",
-          LU: "EUR",
-          LV: "EUR",
-          EE: "EUR",
-          LT: "EUR",
-          CY: "EUR",
-          MT: "EUR",
-          SG: "SGD",
-          HK: "HKD",
-          KR: "KRW",
           CH: "CHF",
           SE: "SEK",
           NO: "NOK",
           DK: "DKK",
           AE: "AED",
           SA: "SAR",
-          ZA: "ZAR",
           TR: "TRY",
           RU: "RUB",
           PL: "PLN",
@@ -207,16 +215,16 @@ const Header = () => {
           ID: "IDR",
           MY: "MYR",
           PH: "PHP",
-          GH: "GHS",
-          KE: "KES",
-          MA: "MAD",
+          SG: "SGD",
+          KR: "KRW",
         };
-        const code = currencyMap[data.country_code];
+
+        const code = currencyMap[data.country_code] || "USD";
         const detectedCurrency = currencies.find((c) => c.code === code);
         if (detectedCurrency) setSelectedCurrency(detectedCurrency);
       }
     } catch (error) {
-      console.log("Could not detect location, using defaults");
+      console.log("Location detection failed");
     }
   };
 
@@ -248,10 +256,16 @@ const Header = () => {
     setUserLocation({ country: country.name, countryCode: country.code });
     setLocationDropdownOpen(false);
     setLocationSearch("");
+
     const currencyMap = {
       CM: "XAF",
       SN: "XOF",
       CI: "XOF",
+      GH: "GHS",
+      NG: "NGN",
+      KE: "KES",
+      MA: "MAD",
+      ZA: "ZAR",
       US: "USD",
       GB: "GBP",
       CA: "CAD",
@@ -259,7 +273,6 @@ const Header = () => {
       JP: "JPY",
       CN: "CNY",
       IN: "INR",
-      NG: "NGN",
       BR: "BRL",
       MX: "MXN",
       DE: "EUR",
@@ -271,16 +284,14 @@ const Header = () => {
       AT: "EUR",
       PT: "EUR",
       GR: "EUR",
-      SG: "SGD",
-      HK: "HKD",
-      KR: "KRW",
+      FI: "EUR",
+      IE: "EUR",
       CH: "CHF",
       SE: "SEK",
       NO: "NOK",
       DK: "DKK",
       AE: "AED",
       SA: "SAR",
-      ZA: "ZAR",
       TR: "TRY",
       RU: "RUB",
       PL: "PLN",
@@ -288,11 +299,11 @@ const Header = () => {
       ID: "IDR",
       MY: "MYR",
       PH: "PHP",
-      GH: "GHS",
-      KE: "KES",
-      MA: "MAD",
+      SG: "SGD",
+      KR: "KRW",
     };
-    const code = currencyMap[country.code];
+
+    const code = currencyMap[country.code] || "USD";
     const newCurrency = currencies.find((c) => c.code === code);
     if (newCurrency) setSelectedCurrency(newCurrency);
   };
@@ -302,102 +313,117 @@ const Header = () => {
     return country ? country.flag : "🌍";
   };
 
+  const profileNavLinks = [
+    { label: "My GlobalMart", path: "/account" },
+    { label: "Orders", path: "/orders" },
+    { label: "Membership Program", path: "/membership" },
+    { label: "Account Settings", path: "/settings" },
+  ];
+
   return (
     <header className="header">
       <nav className="main-nav">
-        {/* Left: Logo */}
         <div className="main-nav__left">
           <a href="/" className="main-nav__logo">
-            <img src={logo} alt="GlobalMart" className="main-nav__logo-image" />
+            ‚
+            <div className="main-nav__logo-text">
+              Global<span>Mart</span>
+            </div>
           </a>
         </div>
 
-        {/* Center: Search */}
+        {/* Deliver To */}
+        <div
+          className="main-nav__deliver"
+          onClick={(e) => handleDropdownClick(e, setLocationDropdownOpen)}
+        >
+          <FiMapPin className="main-nav__deliver-icon" />
+          <div className="main-nav__deliver-text">
+            <span className="main-nav__deliver-line1">Deliver to</span>
+            <span className="main-nav__deliver-line2">
+              {userLocation.country}
+            </span>
+          </div>
+
+          {locationDropdownOpen && (
+            <div
+              className="main-nav__dropdown-menu main-nav__dropdown-menu--location"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="main-nav__dropdown-header">
+                <FiMapPin /> Choose your location
+              </div>
+              <div className="main-nav__dropdown-search">
+                <FiSearch className="main-nav__dropdown-search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search country..."
+                  value={locationSearch}
+                  onChange={(e) => setLocationSearch(e.target.value)}
+                  className="main-nav__dropdown-search-input"
+                  autoFocus
+                />
+              </div>
+              <div className="main-nav__dropdown-list">
+                {filteredCountries.map((country) => (
+                  <div
+                    key={country.code}
+                    className={`main-nav__dropdown-item ${userLocation.countryCode === country.code ? "main-nav__dropdown-item--active" : ""}`}
+                    onClick={() => handleCountrySelect(country)}
+                  >
+                    <span className="main-nav__flag">{country.flag}</span>
+                    <span>{country.name}</span>
+                    {userLocation.countryCode === country.code && (
+                      <FiCheck className="main-nav__check-icon" />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Search Bar */}
         <div className="main-nav__center">
           <div className="main-nav__search">
-            <FiSearch className="main-nav__search-icon" />
+            <select className="main-nav__search-category">
+              <option value="all">All</option>
+              <option value="electronics">Electronics</option>
+              <option value="fashion">Fashion</option>
+              <option value="home">Home & Garden</option>
+            </select>
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search Global Mart"
               className="main-nav__search-input"
             />
+            <button className="main-nav__search-btn">
+              <FiSearch className="main-nav__search-icon" />
+            </button>
           </div>
         </div>
 
-        {/* Right: Dropdowns & Icons */}
+        {/* Right Section */}
         <div className="main-nav__right">
-          {/* Location Dropdown */}
+          {/* Language */}
           <div
-            className={`main-nav__dropdown main-nav__dropdown--location ${locationDropdownOpen ? "main-nav__dropdown--open" : ""}`}
-            onClick={(e) => handleDropdownClick(e, setLocationDropdownOpen)}
-          >
-            <span className="main-nav__flag">
-              {getCountryFlag(userLocation.countryCode)}
-            </span>
-            <FiMapPin className="main-nav__dropdown-icon" />
-            <FiChevronDown className="main-nav__arrow" />
-
-            {locationDropdownOpen && (
-              <div
-                className="main-nav__dropdown-menu main-nav__dropdown-menu--location"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="main-nav__dropdown-header">
-                  <FiMapPin /> Select Your Location
-                </div>
-                <div className="main-nav__dropdown-search">
-                  <FiSearch className="main-nav__dropdown-search-icon" />
-                  <input
-                    type="text"
-                    placeholder="Search country..."
-                    value={locationSearch}
-                    onChange={(e) => setLocationSearch(e.target.value)}
-                    className="main-nav__dropdown-search-input"
-                    autoFocus
-                  />
-                </div>
-                <div className="main-nav__dropdown-current">
-                  <span className="main-nav__dropdown-current-label">
-                    Current:
-                  </span>
-                  <span className="main-nav__flag">
-                    {getCountryFlag(userLocation.countryCode)}
-                  </span>
-                  <span>{userLocation.country}</span>
-                </div>
-                <div className="main-nav__dropdown-divider" />
-                <div className="main-nav__dropdown-list">
-                  {filteredCountries.map((country) => (
-                    <div
-                      key={country.code}
-                      className={`main-nav__dropdown-item ${userLocation.countryCode === country.code ? "main-nav__dropdown-item--active" : ""}`}
-                      onClick={() => handleCountrySelect(country)}
-                    >
-                      <span className="main-nav__flag">{country.flag}</span>
-                      <span className="main-nav__country-name">
-                        {country.name}
-                      </span>
-                      {userLocation.countryCode === country.code && (
-                        <FiCheck className="main-nav__check-icon" />
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Language Dropdown */}
-          <div
-            className={`main-nav__dropdown ${languageDropdownOpen ? "main-nav__dropdown--open" : ""}`}
+            className="nav-item main-nav__dropdown"
             onClick={(e) => handleDropdownClick(e, setLanguageDropdownOpen)}
           >
             <span className="main-nav__flag">{selectedLanguage.flag}</span>
-            <span>{selectedLanguage.code}</span>
-            <FiChevronDown className="main-nav__arrow" />
+            <span style={{ fontWeight: 700, color: "white" }}>
+              {selectedLanguage.code}
+            </span>
+            <FiChevronDown
+              style={{ color: "white", marginTop: "2px" }}
+              size={12}
+            />
 
             {languageDropdownOpen && (
-              <div className="main-nav__dropdown-menu">
+              <div
+                className="main-nav__dropdown-menu"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {languages.map((lang) => (
                   <div
                     key={lang.code}
@@ -405,7 +431,7 @@ const Header = () => {
                     onClick={() => setSelectedLanguage(lang)}
                   >
                     <span className="main-nav__flag">{lang.flag}</span>
-                    <span className="main-nav__country-name">{lang.name}</span>
+                    <span>{lang.name}</span>
                     {selectedLanguage.code === lang.code && (
                       <FiCheck className="main-nav__check-icon" />
                     )}
@@ -415,31 +441,33 @@ const Header = () => {
             )}
           </div>
 
-          {/* Currency Dropdown */}
+          {/* Currency */}
           <div
-            className={`main-nav__dropdown ${currencyDropdownOpen ? "main-nav__dropdown--open" : ""}`}
+            className="nav-item main-nav__dropdown"
             onClick={(e) => handleDropdownClick(e, setCurrencyDropdownOpen)}
           >
-            <span className="main-nav__currency-symbol">
-              {selectedCurrency.symbol}
+            <span style={{ color: "#ccc" }}>{selectedCurrency.symbol}</span>
+            <span style={{ fontWeight: 700, color: "white" }}>
+              {selectedCurrency.code}
             </span>
-            <span>{selectedCurrency.code}</span>
-            <FiChevronDown className="main-nav__arrow" />
+            <FiChevronDown
+              style={{ color: "white", marginTop: "2px" }}
+              size={12}
+            />
 
             {currencyDropdownOpen && (
-              <div className="main-nav__dropdown-menu main-nav__dropdown-menu--currency">
+              <div
+                className="main-nav__dropdown-menu"
+                onClick={(e) => e.stopPropagation()}
+              >
                 {currencies.map((currency) => (
                   <div
                     key={currency.code}
                     className={`main-nav__dropdown-item ${selectedCurrency.code === currency.code ? "main-nav__dropdown-item--active" : ""}`}
                     onClick={() => setSelectedCurrency(currency)}
                   >
-                    <span className="main-nav__currency-symbol">
-                      {currency.symbol}
-                    </span>
-                    <span className="main-nav__currency-name">
-                      {currency.name}
-                    </span>
+                    <span style={{ width: "30px" }}>{currency.symbol}</span>
+                    <span>{currency.name}</span>
                     <span className="main-nav__currency-code">
                       {currency.code}
                     </span>
@@ -452,40 +480,91 @@ const Header = () => {
             )}
           </div>
 
-          {/* Icon Buttons */}
-          <button
-            className="main-nav__icon-btn"
-            aria-label="Account"
-            onClick={() => navigate("/login")}
+          {/* Account */}
+          <div
+            className="nav-item main-nav__profile-wrapper"
+            onMouseEnter={() => setProfilePanelOpen(true)}
+            onMouseLeave={() => setProfilePanelOpen(false)}
           >
-            <FiUser />
-          </button>
-          <button
-            className="main-nav__icon-btn"
-            aria-label="Wishlist"
-            onClick={() => navigate("/favorite")}
-          >
-            <FiHeart />
-          </button>
-          <button
-            className="main-nav__icon-btn main-nav__icon-btn--cart"
-            aria-label="Cart"
+            <div onClick={() => setProfilePanelOpen((prev) => !prev)}>
+              <div className="nav-item__line1">Hello, sign in</div>
+              <div className="nav-item__line2">
+                Account & Lists <FiChevronDown size={12} />
+              </div>
+            </div>
+
+            <AnimatePresence>
+              {profilePanelOpen && (
+                <motion.div
+                  className="profile-dropdown"
+                  variants={dropdownVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  onMouseEnter={() => setProfilePanelOpen(true)}
+                  onMouseLeave={() => setProfilePanelOpen(false)}
+                >
+                  <div className="profile-dropdown__btn-group">
+                    <button
+                      className="profile-panel__btn profile-panel__btn--signin"
+                      onClick={() => {
+                        setProfilePanelOpen(false);
+                        navigate("/login");
+                      }}
+                    >
+                      Sign in
+                    </button>
+                    <button
+                      className="profile-panel__btn profile-panel__btn--register"
+                      onClick={() => {
+                        setProfilePanelOpen(false);
+                        navigate("/register");
+                      }}
+                    >
+                      Sign up
+                    </button>
+                  </div>
+                  <div className="profile-panel__divider" />
+                  <nav className="profile-panel__nav">
+                    {profileNavLinks.map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.path}
+                        className="profile-panel__nav-item"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setProfilePanelOpen(false);
+                          navigate(link.path);
+                        }}
+                      >
+                        <span>{link.label}</span>
+                        <FiChevronRight />
+                      </a>
+                    ))}
+                  </nav>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Returns & Orders */}
+          <div className="nav-item" onClick={() => navigate("/orders")}>
+            <div className="nav-item__line1">Returns</div>
+            <div className="nav-item__line2">& Orders</div>
+          </div>
+
+          {/* Cart */}
+          <div
+            className="nav-item nav-item--cart"
             onClick={() => navigate("/cart")}
           >
-            <FiShoppingCart />
+            <FiShoppingCart className="main-nav__cart-icon" />
             <span className="main-nav__cart-badge">0</span>
-          </button>
+            <span className="nav-item__cart-text">Cart</span>
+          </div>
 
-          {/* Mobile: Search & Hamburger */}
-          <button
-            className="main-nav__icon-btn main-nav__icon-btn--mobile"
-            aria-label="Search"
-          >
-            <FiSearch />
-          </button>
           <button
             className="main-nav__hamburger"
-            aria-label="Menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <FiX /> : <FiMenu />}
@@ -493,101 +572,65 @@ const Header = () => {
         </div>
       </nav>
 
+      {/* Bottom Navigation Bar - Cleaned up */}
+      <div className="bottom-nav">
+        <div className="bottom-nav__content">
+          <button className="bottom-nav__item">
+            <FiMenu /> All
+          </button>
+          <button className="bottom-nav__item">Today's Deals</button>
+        </div>
+      </div>
+
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="mobile-menu">
+        <div className="mobile-menu mobile-menu--open">
+          {/* ... your existing mobile menu content ... */}
           <div className="mobile-menu__search">
             <FiSearch className="mobile-menu__search-icon" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search Global Mart"
               className="mobile-menu__search-input"
             />
           </div>
-          <div className="mobile-menu__content">
-            <div className="mobile-menu__section">
-              <span className="mobile-menu__section-title">Location</span>
-              <div className="mobile-menu__location-grid">
-                {countries.slice(0, 12).map((country) => (
-                  <button
-                    key={country.code}
-                    className={`mobile-menu__location-btn ${userLocation.countryCode === country.code ? "mobile-menu__location-btn--active" : ""}`}
-                    onClick={() => handleCountrySelect(country)}
-                  >
-                    <span className="main-nav__flag">{country.flag}</span>
-                    <span>{country.code}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
 
-            <div className="mobile-menu__section">
-              <span className="mobile-menu__section-title">Language</span>
-              <div className="mobile-menu__options">
-                {languages.slice(0, 6).map((lang) => (
-                  <button
-                    key={lang.code}
-                    className={`mobile-menu__option ${selectedLanguage.code === lang.code ? "mobile-menu__option--active" : ""}`}
-                    onClick={() => setSelectedLanguage(lang)}
-                  >
-                    <span className="main-nav__flag">{lang.flag}</span>
-                    <span>{lang.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mobile-menu__section">
-              <span className="mobile-menu__section-title">Currency</span>
-              <div className="mobile-menu__options mobile-menu__options--currency">
-                {currencies.slice(0, 8).map((currency) => (
-                  <button
-                    key={currency.code}
-                    className={`mobile-menu__option ${selectedCurrency.code === currency.code ? "mobile-menu__option--active" : ""}`}
-                    onClick={() => setSelectedCurrency(currency)}
-                  >
-                    <span className="main-nav__currency-symbol">
-                      {currency.symbol}
-                    </span>
-                    <span>{currency.code}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mobile-menu__divider" />
-
-            <a
-              href="#"
-              className="mobile-menu__link"
-              onClick={() => {
-                navigate("/login");
-                setMobileMenuOpen(false);
-              }}
-            >
-              <FiUser /> Account
-            </a>
-            <a
-              href="#"
-              className="mobile-menu__link"
-              onClick={() => {
-                navigate("/favorite");
-                setMobileMenuOpen(false);
-              }}
-            >
-              <FiHeart /> Wishlist
-            </a>
-            <a
-              href="#"
-              className="mobile-menu__link"
-              onClick={() => {
-                navigate("/cart");
-                setMobileMenuOpen(false);
-              }}
-            >
-              <FiShoppingCart /> Cart
-            </a>
+          <div className="mobile-menu__section-title">Location</div>
+          <div className="mobile-menu__location-grid">
+            {countries.slice(0, 12).map((country) => (
+              <button
+                key={country.code}
+                className={`mobile-menu__location-btn ${userLocation.countryCode === country.code ? "mobile-menu__location-btn--active" : ""}`}
+                onClick={() => handleCountrySelect(country)}
+              >
+                <span className="main-nav__flag">{country.flag}</span>
+                <span>{country.code}</span>
+              </button>
+            ))}
           </div>
+
+          <div className="mobile-menu__divider" />
+          <a
+            href="#"
+            className="mobile-menu__link"
+            onClick={() => navigate("/login")}
+          >
+            Sign In
+          </a>
+          <a
+            href="#"
+            className="mobile-menu__link"
+            onClick={() => navigate("/orders")}
+          >
+            Orders
+          </a>
+          <a
+            href="#"
+            className="mobile-menu__link"
+            onClick={() => navigate("/favorite")}
+          >
+            Wishlist
+          </a>
         </div>
       )}
     </header>

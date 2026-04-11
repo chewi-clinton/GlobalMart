@@ -1,14 +1,4 @@
 import React, { useState } from "react";
-import Lottie from "lottie-react";
-import {
-  FiUser,
-  FiMail,
-  FiLock,
-  FiEye,
-  FiEyeOff,
-  FiChevronDown,
-} from "react-icons/fi";
-import loginAnimation from "../assets/login.json";
 import logo from "../Assets/logo.png";
 import "../styles/RegisterPage.css";
 
@@ -20,9 +10,6 @@ const RegisterPage = () => {
     confirmPassword: "",
     role: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -30,184 +17,153 @@ const RegisterPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      console.log("Register attempted with:", form);
-    }, 1500);
+    console.log("Register attempted with:", form);
   };
 
   return (
     <div className="register-page">
-      <div className="register-page__decoration register-page__decoration--1" />
-      <div className="register-page__decoration register-page__decoration--2" />
-      <div className="register-page__decoration register-page__decoration--3" />
 
+      {/* Logo */}
+      <div className="register-page__logo-wrapper">
+        <img src={logo} alt="GlobalMart" className="register-page__logo" />
+      </div>
+
+      {/* Card */}
       <div className="register-page__card">
-        {/* Left: Logo + Lottie */}
-        <div className="register-page__visual">
-          <div className="register-page__gradient-bg" />
-          <div className="register-page__logo-wrapper">
-            <img src={logo} alt="GlobalMart" className="register-page__logo" />
-          </div>
-          <div className="register-page__animation-wrapper">
-            <Lottie
-              animationData={loginAnimation}
-              loop={true}
-              autoplay={true}
-              className="register-page__lottie"
+        <h1 className="register-page__title">Create account</h1>
+
+        <form className="register-page__form" onSubmit={handleSubmit}>
+
+          {/* Username */}
+          <div className="register-page__field">
+            <label htmlFor="username" className="register-page__label">
+              Your name
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              className="register-page__input"
+              placeholder="First and last name"
+              required
             />
           </div>
-        </div>
 
-        {/* Right: Form */}
-        <div className="register-page__form-container">
-          <div className="register-page__header">
-            <h1>Create account</h1>
+          {/* Email */}
+          <div className="register-page__field">
+            <label htmlFor="email" className="register-page__label">
+              Mobile number or email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              className="register-page__input"
+              required
+            />
           </div>
 
-          <form className="register-page__form" onSubmit={handleSubmit}>
-            {/* Username */}
-            <div className="input-group">
-              <div className="input-group__icon">
-                <FiUser />
-              </div>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                placeholder=" "
-                required
-                className="input-group__input"
-              />
-              <label htmlFor="username" className="input-group__label">
-                Username
-              </label>
-            </div>
-
-            {/* Email */}
-            <div className="input-group">
-              <div className="input-group__icon">
-                <FiMail />
-              </div>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                placeholder=" "
-                required
-                className="input-group__input"
-              />
-              <label htmlFor="email" className="input-group__label">
-                Email Address
-              </label>
-            </div>
-
-            {/* Password */}
-            <div className="input-group">
-              <div className="input-group__icon">
-                <FiLock />
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                placeholder=" "
-                required
-                className="input-group__input"
-              />
-              <label htmlFor="password" className="input-group__label">
-                Password
-              </label>
-              <button
-                type="button"
-                className="input-group__toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="input-group">
-              <div className="input-group__icon">
-                <FiLock />
-              </div>
-              <input
-                type={showConfirm ? "text" : "password"}
-                id="confirmPassword"
-                name="confirmPassword"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder=" "
-                required
-                className="input-group__input"
-              />
-              <label htmlFor="confirmPassword" className="input-group__label">
-                Confirm Password
-              </label>
-              <button
-                type="button"
-                className="input-group__toggle"
-                onClick={() => setShowConfirm(!showConfirm)}
-                aria-label={showConfirm ? "Hide password" : "Show password"}
-              >
-                {showConfirm ? <FiEyeOff /> : <FiEye />}
-              </button>
-            </div>
-
-            {/* Role Dropdown */}
-            <div className="input-group">
-              <div className="input-group__icon">
-                <FiChevronDown />
-              </div>
-              <select
-                id="role"
-                name="role"
-                value={form.role}
-                onChange={handleChange}
-                required
-                className={`input-group__input input-group__select ${form.role ? "input-group__select--filled" : ""}`}
-              >
-                <option value="" disabled hidden></option>
-                <option value="buyer">Buyer</option>
-                <option value="seller">Seller</option>
-              </select>
-              <label
-                htmlFor="role"
-                className={`input-group__label ${form.role ? "input-group__label--active" : ""}`}
-              >
-                I am a
-              </label>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              className={`register-page__submit ${isLoading ? "register-page__submit--loading" : ""}`}
-              disabled={isLoading || !form.role}
+          {/* Role */}
+          <div className="register-page__field">
+            <label htmlFor="role" className="register-page__label">
+              I am a
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              className="register-page__input register-page__select"
+              required
             >
-              <span className="register-page__submit-text">Create Account</span>
-              <span className="register-page__submit-loader" />
-            </button>
-          </form>
-
-          <div className="register-page__divider">
-            <span>Already have an account?</span>
+              <option value="" disabled hidden>Select role</option>
+              <option value="buyer">Buyer</option>
+              <option value="seller">Seller</option>
+            </select>
           </div>
 
-          <a href="/login" className="register-page__login">
-            Sign in
-          </a>
-        </div>
+          {/* Password */}
+          <div className="register-page__field">
+            <label htmlFor="password" className="register-page__label">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
+              className="register-page__input"
+              placeholder="At least 6 characters"
+              required
+            />
+            <p className="register-page__hint">
+              Passwords must be at least 6 characters.
+            </p>
+          </div>
+
+          {/* Confirm Password */}
+          <div className="register-page__field">
+            <label htmlFor="confirmPassword" className="register-page__label">
+              Re-enter password
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              className="register-page__input"
+              required
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="register-page__submit"
+            disabled={!form.role}
+          >
+            Continue
+          </button>
+
+          {/* Terms */}
+          <p className="register-page__terms">
+            By creating an account, you agree to GlobalMart's{" "}
+            <a href="/Terms">Conditions of Use</a> and{" "}
+            <a href="/privacy">Privacy Notice</a>.
+          </p>
+
+          {/* Divider */}
+          <div className="register-page__divider" />
+
+          {/* Sign in link */}
+          <p className="register-page__signin-text">
+            Already have an account?{" "}
+            <a href="/login" className="register-page__signin-link">
+              Sign in
+            </a>
+          </p>
+
+        </form>
       </div>
+
+      {/* Footer */}
+      <div className="register-page__footer">
+        <div className="register-page__footer-links">
+          <a href="/Terms">Conditions of Use</a>
+          <a href="/privacy">Privacy Notice</a>
+          <a href="#">Help</a>
+        </div>
+        <p className="register-page__footer-copy">
+          © 1996-2026, GlobalMart, Inc. or its affiliates
+        </p>
+      </div>
+
     </div>
   );
 };

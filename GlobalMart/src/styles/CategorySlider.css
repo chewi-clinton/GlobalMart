@@ -32,7 +32,7 @@
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #ff9900;
+  color: #f0c14b;
   margin-bottom: 16px;
 }
 
@@ -201,7 +201,7 @@
   align-items: center;
   gap: 12px;
   padding: 16px 32px;
-  background: #ff9900;
+  background: #f0c14b;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -239,7 +239,7 @@
   left: 0;
   width: 4px;
   height: 100%;
-  background: linear-gradient(180deg, #ff9900 0%, #ffb84d 100%);
+  background: linear-gradient(180deg, #f0c14b 0%, #ffb84d 100%);
   transform-origin: bottom;
   z-index: 6;
 }

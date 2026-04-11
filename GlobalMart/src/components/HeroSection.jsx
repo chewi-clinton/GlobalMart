@@ -1,165 +1,219 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import "../styles/HeroSection.css";
 
-// Import images - update paths to match your project
-import bag from "../assets/bag.png";
-import watch from "../assets/smart_watch.jpg";
-import headphone from "../assets/headphone.jpg";
-import camera from "../assets/camera.jpg";
-import phone from "../assets/smartphone.jpg";
-import giftbox from "../assets/giftbox.jpg";
+import hero1 from "../assets/Hero_img_1.jpeg";
+import hero2 from "../assets/Hero_img_2.jpg";
+import hero3 from "../assets/Hero_img_3.jpg";
+import hero4 from "../assets/Hero_img_4.jpg";
+import hero5 from "../assets/Hero_img_5.jpg";
+import hero6 from "../assets/Hero_img_6.jpg";
 
-const GlobalMartHero = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+const heroBanners = [hero1, hero2, hero3, hero4, hero5, hero6];
+
+const Hero = () => {
+  const [currentBanner, setCurrentBanner] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Trigger spread after scrolling ~120–180px (adjust as needed)
-      setIsScrolled(window.scrollY > 140);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    // Also check immediately in case page is already scrolled on mount
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
+    const interval = setInterval(() => {
+      setCurrentBanner((prev) => (prev + 1) % heroBanners.length);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const products = [
-    {
-      id: 1,
-      image: bag,
-      seller_tag: "@trendy_finds",
-      product_name: "Premium Bag",
-    },
-    {
-      id: 2,
-      image: watch,
-      seller_tag: "@global_picks",
-      product_name: "Smart Watch",
-    },
-    {
-      id: 3,
-      image: headphone,
-      seller_tag: null,
-      product_name: "Wireless Audio",
-    },
-    {
-      id: 4,
-      image: camera,
-      seller_tag: "@tech_hub",
-      product_name: "Camera Pro",
-    },
-    {
-      id: 5,
-      image: phone,
-      seller_tag: null,
-      product_name: "Smartphone X",
-    },
-    {
-      id: 6,
-      image: giftbox,
-      seller_tag: "@seller_1",
-      product_name: "Gift Box",
-    },
-  ];
+  const goToNext = () => {
+    setCurrentBanner((prev) => (prev + 1) % heroBanners.length);
+  };
+
+  const goToPrev = () => {
+    setCurrentBanner(
+      (prev) => (prev - 1 + heroBanners.length) % heroBanners.length,
+    );
+  };
 
   return (
-    <section className="hero">
-      {/* Animated Background Elements */}
-      <div className="hero__bg-orb hero__bg-orb--1"></div>
-      <div className="hero__bg-orb hero__bg-orb--2"></div>
-      <div className="hero__bg-orb hero__bg-orb--3"></div>
-
-      <div className="hero__content">
-        {/* Hero Text */}
-        <div className="hero__text">
-          <h1 className="hero__title">
-            Discover unique products from{" "}
-            <span className="hero__title--accent">
-              trusted sellers worldwide
-            </span>
-          </h1>
-          <p className="hero__subtitle">
-            Explore exclusive finds from global creators you can trust
-          </p>
+    <div className="home">
+      <div className="hero-banner">
+        <div className="hero-slider">
+          {heroBanners.map((banner, index) => (
+            <div
+              key={index}
+              className={`hero-slide ${index === currentBanner ? "active" : ""}`}
+              style={{ backgroundImage: `url(${banner})` }}
+            />
+          ))}
         </div>
 
-        {/* Product Cards */}
-        <div className="hero__cards-wrapper">
-          <div
-            className={`hero__cards-container ${
-              isScrolled ? "hero__cards-container--spread" : ""
-            }`}
-          >
-            {products.map((product, index) => (
-              <div
-                key={product.id}
-                className="hero__card"
-                style={{
-                  "--card-index": index,
-                  "--total-cards": products.length,
-                }}
-              >
-                {/* Seller Tag */}
-                {product.seller_tag && (
-                  <span className="hero__card-tag">{product.seller_tag}</span>
-                )}
+        <button className="hero-arrow hero-arrow-left" onClick={goToPrev}>
+          <FiChevronLeft size={28} />
+        </button>
+        <button className="hero-arrow hero-arrow-right" onClick={goToNext}>
+          <FiChevronRight size={28} />
+        </button>
 
-                {/* Image */}
-                <div className="hero__card-image-wrapper">
-                  <img
-                    src={product.image}
-                    alt={product.product_name}
-                    className="hero__card-image"
-                  />
-                  <div className="hero__card-image-overlay"></div>
-                </div>
-
-                {/* Card Content */}
-                <div className="hero__card-inner">
-                  <p className="hero__card-name">{product.product_name}</p>
-                </div>
-
-                {/* Shine Effect */}
-                <div className="hero__card-shine"></div>
-              </div>
-            ))}
-          </div>
+        <div className="hero-dots">
+          {heroBanners.map((_, index) => (
+            <div
+              key={index}
+              className={`hero-dot ${index === currentBanner ? "active" : ""}`}
+              onClick={() => setCurrentBanner(index)}
+            />
+          ))}
         </div>
-
-        {/* Shop Now Button */}
-        <div className="hero__button-wrapper">
-          <button className="hero__button">
-            <span className="hero__button-text">Shop Now</span>
-            <span className="hero__button-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </span>
-            <span className="hero__button-glow"></span>
-            <span className="hero__button-particles">
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-              <span></span>
-            </span>
-          </button>
-        </div>
-
-        {/* Decorative Elements */}
-        <div className="hero__decoration hero__decoration--1"></div>
-        <div className="hero__decoration hero__decoration--2"></div>
-        <div className="hero__decoration hero__decoration--3"></div>
       </div>
-    </section>
+
+      <div className="content-grid">
+        <div className="content-box">
+          <h3>Fashion trends you like</h3>
+          <div className="fashion-grid">
+            <div className="fashion-item">
+              <img src="https://picsum.photos/id/1015/300/380" alt="Dresses" />
+              <p>Dresses</p>
+            </div>
+            <div className="fashion-item">
+              <img src="https://picsum.photos/id/1027/300/380" alt="Knits" />
+              <p>Knits</p>
+            </div>
+            <div className="fashion-item">
+              <img src="https://picsum.photos/id/106/300/380" alt="Jackets" />
+              <p>Jackets</p>
+            </div>
+            <div className="fashion-item">
+              <img src="https://picsum.photos/id/133/300/380" alt="Jewelry" />
+              <p>Jewelry</p>
+            </div>
+          </div>
+          <a href="/fashion" className="explore-link">
+            Explore more
+          </a>
+        </div>
+
+        <div className="content-box">
+          <h3>Up to 45% off on home refresh</h3>
+          <div className="home-refresh-grid">
+            <div className="refresh-item">
+              <div className="pink-bg">
+                <img
+                  src="https://picsum.photos/id/201/280/280"
+                  alt="Home décor"
+                />
+              </div>
+              <p>Home décor</p>
+            </div>
+            <div className="refresh-item">
+              <div className="pink-bg">
+                <img
+                  src="https://picsum.photos/id/1074/280/280"
+                  alt="Home improvement"
+                />
+              </div>
+              <p>Home improvement</p>
+            </div>
+            <div className="refresh-item">
+              <div className="pink-bg">
+                <img
+                  src="https://picsum.photos/id/870/280/280"
+                  alt="Cleaning essentials"
+                />
+              </div>
+              <p>Cleaning essentials</p>
+            </div>
+            <div className="refresh-item">
+              <div className="pink-bg">
+                <img
+                  src="https://picsum.photos/id/1060/280/280"
+                  alt="Storage & organizers"
+                />
+              </div>
+              <p>Storage & organizers</p>
+            </div>
+          </div>
+          <a href="/home-deals" className="explore-link">
+            Shop Season Deals
+          </a>
+        </div>
+
+        <div className="content-box">
+          <h3>Easy updates for elevated spaces</h3>
+          <div className="elevated-grid">
+            <div className="elevated-item">
+              <img
+                src="https://picsum.photos/id/201/300/200"
+                alt="Baskets & hampers"
+              />
+              <p>Baskets & hampers</p>
+            </div>
+            <div className="elevated-item">
+              <img src="https://picsum.photos/id/106/300/200" alt="Hardware" />
+              <p>Hardware</p>
+            </div>
+            <div className="elevated-item">
+              <img
+                src="https://picsum.photos/id/133/300/200"
+                alt="Accent furniture"
+              />
+              <p>Accent furniture</p>
+            </div>
+            <div className="elevated-item">
+              <img
+                src="https://picsum.photos/id/1074/300/200"
+                alt="Wallpaper & paint"
+              />
+              <p>Wallpaper & paint</p>
+            </div>
+          </div>
+          <a href="/home" className="explore-link">
+            Shop home products
+          </a>
+        </div>
+
+        <div className="content-box">
+          <h3>Get ready for Easter</h3>
+          <div className="easter-grid">
+            <div className="easter-item">
+              <div className="purple-bg">
+                <img
+                  src="https://picsum.photos/id/201/260/260"
+                  alt="Easter bunny"
+                />
+              </div>
+              <p>Easter bunny</p>
+            </div>
+            <div className="easter-item">
+              <div className="purple-bg">
+                <img
+                  src="https://picsum.photos/id/1060/260/260"
+                  alt="Easter baskets"
+                />
+              </div>
+              <p>Easter baskets</p>
+            </div>
+            <div className="easter-item">
+              <div className="purple-bg">
+                <img
+                  src="https://picsum.photos/id/870/260/260"
+                  alt="Easter decor"
+                />
+              </div>
+              <p>Easter decor</p>
+            </div>
+            <div className="easter-item">
+              <div className="purple-bg">
+                <img
+                  src="https://picsum.photos/id/133/260/260"
+                  alt="Easter baking"
+                />
+              </div>
+              <p>Easter baking</p>
+            </div>
+          </div>
+          <a href="/easter" className="explore-link">
+            Shop for Easter
+          </a>
+        </div>
+      </div>
+    </div>
   );
 };
 
-export default GlobalMartHero;
+export default Hero;

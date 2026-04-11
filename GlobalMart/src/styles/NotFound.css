@@ -38,7 +38,7 @@
   position: absolute;
   width: var(--size, 4px);
   height: var(--size, 4px);
-  background: #ff9900;
+  background: #f0c14b;
   border-radius: 50%;
   left: var(--x, 50%);
   top: var(--y, 50%);
@@ -263,7 +263,7 @@
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
-  background: #ff9900;
+  background: #f0c14b;
   border: none;
   border-radius: 14px;
   text-decoration: none;
