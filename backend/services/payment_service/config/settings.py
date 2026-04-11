@@ -119,7 +119,7 @@ SIMPLE_JWT = {
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
-    "TITLE": "GlobalMart+ Payment Service API",
+    "TITLE": "GlobalMart Payment Service API",
     "DESCRIPTION": "Payment management — ICT 3212 Team 10",
     "VERSION": "2.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
