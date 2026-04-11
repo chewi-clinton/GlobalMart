@@ -117,9 +117,28 @@ services:
       sh -c "python manage.py migrate &&
              python manage.py seed_warehouses &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8004 --workers 3 --timeout 120"
+  order_service:
+    build:
+      context: ./services/order_service
+      dockerfile: Dockerfile
+    container_name: globalmart_order_service
+    restart: unless-stopped
+    env_file:
+      - ./services/order_service/.env
+    volumes:
+      - ./services/order_service:/app
+    ports:
+      - "8005:8005"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py migrate &&
+             gunicorn config.wsgi:application --bind 0.0.0.0:8005 --workers 3 --timeout 120"
 
   # ─── Future services ───────────────────────────────────────────────
-  # order_service: ...
   # payment_service: ...
   # notification_service: ...
   # reporting_service: ...
