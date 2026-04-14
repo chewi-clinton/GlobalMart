@@ -1,8 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { register } from "../api";
 import logo from "../Assets/logo.png";
 import "../styles/RegisterPage.css";
 
 const RegisterPage = () => {
+  const navigate = useNavigate(); 
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -15,10 +18,18 @@ const RegisterPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Register attempted with:", form);
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  const data = await register({
+    username: form.username,
+    email: form.email,
+    password: form.password,
+    role: form.role,
+  });
+  if (data.message === "Account created successfully.") {
+    navigate("/login");
+  }
+};
 
   return (
     <div className="register-page">
@@ -81,7 +92,7 @@ const RegisterPage = () => {
               required
             >
               <option value="" disabled hidden>Select role</option>
-              <option value="buyer">Buyer</option>
+              <option value="customer">customer</option>
               <option value="seller">Seller</option>
             </select>
           </div>
