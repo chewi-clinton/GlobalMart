@@ -4,7 +4,7 @@ import logging
 import dj_database_url
 from pathlib import Path
 from datetime import timedelta
-from dotenv import load_dotenv   
+from dotenv import load_dotenv
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -14,7 +14,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -33,6 +32,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party
+    "corsheaders",                              # ← ADDED
     "rest_framework",
     "drf_spectacular",
     # Local
@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",    # ← ADDED
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -96,6 +97,31 @@ REST_FRAMEWORK = {
     ),
 }
 
+# ─── CORS ─────────────────────────────────────────────────────────────
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173"
+).split(",")
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
     "TITLE": "GlobalMart Currency Service API",
@@ -113,7 +139,7 @@ CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_BEAT_SCHEDULE = {
     "sync-exchange-rates": {
         "task": "apps.currency_service.tasks.sync_exchange_rates",
-        "schedule": 3600,  # every 1 hour
+        "schedule": 3600,
     },
 }
 
