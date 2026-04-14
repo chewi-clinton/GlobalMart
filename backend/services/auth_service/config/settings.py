@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party
+    "corsheaders",                              # ← ADDED
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
@@ -27,6 +28,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",    # ← ADDED (must be here, near the top)
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -56,13 +58,11 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # ─── Database — Neon DB ───────────────────────────────────────────────
-# Reads DATABASE_URL from .env
-# e.g. postgres://user:pass@ep-xxx.us-east-2.aws.neon.tech/users_db?sslmode=require
 DATABASES = {
     "default": dj_database_url.config(
         env="DATABASE_URL",
-        conn_max_age=600,           # keep connections alive 10 min
-        conn_health_checks=True,    # drop stale connections automatically
+        conn_max_age=600,
+        conn_health_checks=True,
     )
 }
 
@@ -81,7 +81,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
     ),
-    # ─── Throttling ───────────────────────────────────────────────────
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -89,9 +88,9 @@ REST_FRAMEWORK = {
     "DEFAULT_THROTTLE_RATES": {
         "anon": "100/day",
         "user": "1000/day",
-        "login": "10/minute",       # tight cap on login attempts
-        "register": "20/day",       # one signup spree per IP per day
-        "password_reset": "5/hour", # abuse prevention on reset emails
+        "login": "10/minute",
+        "register": "20/day",
+        "password_reset": "5/hour",
     },
 }
 
@@ -111,10 +110,35 @@ SIMPLE_JWT = {
     "TOKEN_OBTAIN_SERIALIZER": "apps.auth_service.serializers.CustomTokenObtainPairSerializer",
 }
 
+# ─── CORS ─────────────────────────────────────────────────────────────
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000"
+).split(",")
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 # ─── Email ────────────────────────────────────────────────────────────
 EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND",
-    "django.core.mail.backends.console.EmailBackend",  # prints to console in dev
+    "django.core.mail.backends.console.EmailBackend",
 )
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.sendgrid.net")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
@@ -123,7 +147,6 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@globalmart.com")
 
-# Frontend URL used in email links (verify, reset)
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 
 # ─── drf-spectacular ──────────────────────────────────────────────────

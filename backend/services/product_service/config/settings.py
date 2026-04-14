@@ -4,8 +4,11 @@ import logging
 import dj_database_url
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv                  # ← ADDED
 
-# ─── Logging setup — runs immediately so we can see startup errors ─────
+load_dotenv()                                   # ← ADDED
+
+# ─── Logging setup ────────────────────────────────────────────────────
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.DEBUG,
@@ -19,7 +22,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
-logger.info(f"Starting product_service...")
+logger.info("Starting product_service...")
 logger.info(f"DEBUG={DEBUG}")
 logger.info(f"ALLOWED_HOSTS={ALLOWED_HOSTS}")
 logger.info(f"DATABASE_URL present: {bool(os.environ.get('DATABASE_URL'))}")
@@ -33,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party
+    "corsheaders",                              # ← ADDED
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",    # ← ADDED
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -117,6 +122,31 @@ SIMPLE_JWT = {
     "USER_ID_CLAIM": "user_id",
 }
 
+# ─── CORS ─────────────────────────────────────────────────────────────
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173"
+).split(",")
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
     "TITLE": "GlobalMart Product Service API",
@@ -134,11 +164,11 @@ REDIS_URL = os.environ.get("REDIS_URL")
 logger.info(f"REDIS_URL present: {bool(REDIS_URL)}")
 
 # ─── Cloudflare R2 ────────────────────────────────────────────────────
-CLOUDFLARE_R2_ACCOUNT_ID = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
-CLOUDFLARE_R2_ACCESS_KEY_ID = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
+CLOUDFLARE_R2_ACCOUNT_ID      = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
+CLOUDFLARE_R2_ACCESS_KEY_ID   = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
 CLOUDFLARE_R2_SECRET_ACCESS_KEY = os.environ.get("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
-CLOUDFLARE_R2_BUCKET_NAME = os.environ.get("CLOUDFLARE_R2_BUCKET_NAME")
-CLOUDFLARE_R2_PUBLIC_URL = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL")
+CLOUDFLARE_R2_BUCKET_NAME     = os.environ.get("CLOUDFLARE_R2_BUCKET_NAME")
+CLOUDFLARE_R2_PUBLIC_URL      = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL")
 logger.info(f"R2 configured: {bool(CLOUDFLARE_R2_ACCOUNT_ID)}")
 
 # ─── Static files ─────────────────────────────────────────────────────
