@@ -9,3 +9,4 @@ gunicorn==22.0.0
 
 # Rate limiting
 django-ratelimit==4.1.0
+django-cors-headers
