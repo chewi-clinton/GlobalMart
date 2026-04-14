@@ -17,18 +17,18 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party
+    "corsheaders",                              # ← ADDED
     "rest_framework",
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
     "drf_spectacular",
-    "cors_headers",  # ✅ ADDED
     # Local
     "apps.auth_service",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",  # ✅ ADDED
+    "corsheaders.middleware.CorsMiddleware",    # ← ADDED (must be here, near the top)
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -69,42 +69,6 @@ DATABASES = {
 # ─── Custom user model ────────────────────────────────────────────────
 AUTH_USER_MODEL = "auth_service.User"
 
-# ─── CORS Configuration ──────────────────────────────────────────────
-# ✅ UPDATED: Allow localhost:5173 (Vite default port)
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-
-# Allow cookies/authorization headers with credentials
-CORS_ALLOW_CREDENTIALS = True
-
-# Allowed headers for CORS requests
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-]
-
-# Allowed HTTP methods
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-
-# Cache preflight requests for 24 hours
-CORS_PREFLIGHT_MAX_AGE = 86400
-
 # ─── REST Framework ───────────────────────────────────────────────────
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -117,7 +81,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
         "rest_framework.renderers.JSONRenderer",
     ),
-    # ─── Throttling ───────────────────────────────────────────────────
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
@@ -147,6 +110,31 @@ SIMPLE_JWT = {
     "TOKEN_OBTAIN_SERIALIZER": "apps.auth_service.serializers.CustomTokenObtainPairSerializer",
 }
 
+# ─── CORS ─────────────────────────────────────────────────────────────
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000"
+).split(",")
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 # ─── Email ────────────────────────────────────────────────────────────
 EMAIL_BACKEND = os.environ.get(
     "EMAIL_BACKEND",
@@ -159,8 +147,7 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@globalmart.com")
 
-# Frontend URL used in email links (verify, reset)
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")  # ✅ UPDATED
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 
 # ─── drf-spectacular ──────────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
@@ -179,7 +166,6 @@ REDIS_URL = os.environ.get("REDIS_URL")
 # ─── Static files ─────────────────────────────────────────────────────
 STATIC_URL = "/static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
