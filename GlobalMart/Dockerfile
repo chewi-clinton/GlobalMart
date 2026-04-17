@@ -23,7 +23,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Nginx config for React Router
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
-    listen 80;
+    listen 90;
     server_name localhost;
     root /usr/share/nginx/html;
     index index.html;
