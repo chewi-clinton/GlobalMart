@@ -3,6 +3,9 @@ import sys
 import logging
 import dj_database_url
 from pathlib import Path
+from dotenv import load_dotenv                  # ← ADDED
+
+load_dotenv()                                   # ← ADDED
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -26,12 +29,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # Third-party
+    "corsheaders",                              # ← ADDED
     "rest_framework",
+    # Local
     "apps.notification_service",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",    # ← ADDED
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -79,6 +86,39 @@ except Exception as e:
     logger.error(f"Database configuration failed: {e}")
     sys.exit(1)
 
+# ─── REST Framework ───────────────────────────────────────────────────
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_RENDERER_CLASSES": (
+        "rest_framework.renderers.JSONRenderer",
+    ),
+}
+
+# ─── CORS ─────────────────────────────────────────────────────────────
+CORS_ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173"
+).split(",")
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
+
 # ─── Email ────────────────────────────────────────────────────────────
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
@@ -91,6 +131,7 @@ ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL")
 
 # ─── RabbitMQ ─────────────────────────────────────────────────────────
 RABBITMQ_URL = os.environ.get("RABBITMQ_URL")
+logger.info(f"RABBITMQ_URL present: {bool(RABBITMQ_URL)}")
 
 # ─── Static files ─────────────────────────────────────────────────────
 STATIC_URL = "/static/"
