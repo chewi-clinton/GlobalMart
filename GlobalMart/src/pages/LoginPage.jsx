@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api";
-import logo from "../Assets/logo.png";
+
 import "../styles/LoginPage.css";
 
 const LoginPage = () => {
@@ -10,21 +10,15 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const data = await login({ email, password });
-  if (data.access) {
-    navigate("/");
-  }
-};
+    e.preventDefault();
+    const data = await login({ email, password });
+    if (data.access) {
+      navigate("/");
+    }
+  };
 
   return (
     <div className="login-page">
-
-      {/* Logo */}
-      <div className="login-page__logo-wrapper">
-        <img src={logo} alt="GlobalMart" className="login-page__logo" />
-      </div>
-
       {/* Card */}
       <div className="login-page__card">
         <h1 className="login-page__title">Sign in or create account</h1>
@@ -46,25 +40,25 @@ const LoginPage = () => {
           </div>
 
           {/* Continue Button */}
-           {/* Password */}
-<div className="login-page__field">
-  <label htmlFor="password" className="login-page__label">
-    Password
-  </label>
-  <input
-    type="password"
-    id="password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    className="login-page__input"
-    required
-  />
-</div>
+          {/* Password */}
+          <div className="login-page__field">
+            <label htmlFor="password" className="login-page__label">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="login-page__input"
+              required
+            />
+          </div>
 
-{/* Continue Button */}
-<button type="submit" className="login-page__submit">
-  Sign in
-</button>
+          {/* Continue Button */}
+          <button type="submit" className="login-page__submit">
+            Sign in
+          </button>
 
           {/* Terms */}
           <p className="login-page__terms">
@@ -74,7 +68,9 @@ const LoginPage = () => {
           </p>
 
           {/* Need help */}
-          <a href="#" className="login-page__help">Need help?</a>
+          <a href="#" className="login-page__help">
+            Need help?
+          </a>
         </form>
 
         {/* Divider */}
@@ -100,7 +96,6 @@ const LoginPage = () => {
           © 2026, GlobalMart, Inc. or its affiliates
         </p>
       </div>
-
     </div>
   );
 };

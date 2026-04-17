@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../api";
-import logo from "../Assets/logo.png";
+
 import "../styles/RegisterPage.css";
 
 const RegisterPage = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -19,32 +19,25 @@ const RegisterPage = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const data = await register({
-    username: form.username,
-    email: form.email,
-    password: form.password,
-    role: form.role,
-  });
-  if (data.message === "Account created successfully.") {
-    navigate("/login");
-  }
-};
+    e.preventDefault();
+    const data = await register({
+      username: form.username,
+      email: form.email,
+      password: form.password,
+      role: form.role,
+    });
+    if (data.message === "Account created successfully.") {
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="register-page">
-
-      {/* Logo */}
-      <div className="register-page__logo-wrapper">
-        <img src={logo} alt="GlobalMart" className="register-page__logo" />
-      </div>
-
       {/* Card */}
       <div className="register-page__card">
         <h1 className="register-page__title">Create account</h1>
 
         <form className="register-page__form" onSubmit={handleSubmit}>
-
           {/* Username */}
           <div className="register-page__field">
             <label htmlFor="username" className="register-page__label">
@@ -91,7 +84,9 @@ const RegisterPage = () => {
               className="register-page__input register-page__select"
               required
             >
-              <option value="" disabled hidden>Select role</option>
+              <option value="" disabled hidden>
+                Select role
+              </option>
               <option value="customer">customer</option>
               <option value="seller">Seller</option>
             </select>
@@ -159,7 +154,6 @@ const RegisterPage = () => {
               Sign in
             </a>
           </p>
-
         </form>
       </div>
 
@@ -174,7 +168,6 @@ const RegisterPage = () => {
           © 1996-2026, GlobalMart, Inc. or its affiliates
         </p>
       </div>
-
     </div>
   );
 };
