@@ -1,14 +1,21 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "../api";
 import logo from "../Assets/logo.png";
 import "../styles/LoginPage.css";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Continue with:", email);
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  const data = await login({ email, password });
+  if (data.access) {
+    navigate("/");
+  }
+};
 
   return (
     <div className="login-page">
@@ -39,9 +46,25 @@ const LoginPage = () => {
           </div>
 
           {/* Continue Button */}
-          <button type="submit" className="login-page__submit">
-            Continue
-          </button>
+           {/* Password */}
+<div className="login-page__field">
+  <label htmlFor="password" className="login-page__label">
+    Password
+  </label>
+  <input
+    type="password"
+    id="password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="login-page__input"
+    required
+  />
+</div>
+
+{/* Continue Button */}
+<button type="submit" className="login-page__submit">
+  Sign in
+</button>
 
           {/* Terms */}
           <p className="login-page__terms">
