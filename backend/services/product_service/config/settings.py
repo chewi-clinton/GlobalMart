@@ -184,7 +184,7 @@ logger.info(f"R2 configured: {bool(CLOUDFLARE_R2_ACCOUNT_ID)}")
 # ══════════════════════════════════════════════════════════════════════
 
 MEDIA_ROOT = "/app/media"  # ← Matches your Dokploy mount path!
-MEDIA_URL = "/media/"
+MEDIA_URL = 'http://62.171.174.37:8002/media/'
 
 # Ensure media directory exists on startup
 os.makedirs(MEDIA_ROOT, exist_ok=True)
