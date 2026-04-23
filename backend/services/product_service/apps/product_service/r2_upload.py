@@ -1,7 +1,11 @@
 import boto3
 import uuid
 import os
+import logging
 from django.conf import settings
+from botocore.config import Config
+
+logger = logging.getLogger(__name__)
 
 
 def get_r2_client():
@@ -11,6 +15,10 @@ def get_r2_client():
         aws_access_key_id=settings.CLOUDFLARE_R2_ACCESS_KEY_ID,
         aws_secret_access_key=settings.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
         region_name="auto",
+        config=Config(
+            signature_version="s3v4",
+            retries={"max_attempts": 3},
+        ),
     )
 
 
@@ -23,12 +31,17 @@ def upload_image_to_r2(file, folder="products"):
     filename = f"{folder}/{uuid.uuid4().hex}{ext}"
 
     client = get_r2_client()
-    client.upload_fileobj(
-        file,
-        settings.CLOUDFLARE_R2_BUCKET_NAME,
-        filename,
-        ExtraArgs={"ContentType": file.content_type},
-    )
+    
+    try:
+        client.upload_fileobj(
+            file,
+            settings.CLOUDFLARE_R2_BUCKET_NAME,
+            filename,
+            ExtraArgs={"ContentType": file.content_type},
+        )
+    except Exception as e:
+        logger.error(f"R2 upload failed: {e}")
+        raise Exception(f"Image upload to R2 failed: {e}")
 
     return f"{settings.CLOUDFLARE_R2_PUBLIC_URL}/{filename}"
 
@@ -45,5 +58,4 @@ def delete_image_from_r2(image_url):
             Key=key,
         )
     except Exception as e:
-        import logging
-        logging.getLogger(__name__).warning(f"R2 delete failed: {e}")
+        logger.warning(f"R2 delete failed: {e}")
