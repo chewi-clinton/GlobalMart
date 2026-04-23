@@ -1,3 +1,4 @@
+
 import requests
 from decimal import Decimal
 from django.db import transaction
@@ -6,8 +7,6 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 
 from .models import Order, OrderItem
 from .serializers import (
@@ -18,20 +17,19 @@ from .serializers import (
 )
 from .permissions import IsAdmin, IsCustomer, IsCustomerOrAdmin
 from .events import publish_event
+from .authentication import TokenPayload
 
 
 # ─── Helper ───────────────────────────────────────────────────────────
 
 def get_token_payload(request):
-    try:
-        authenticator = JWTAuthentication()
-        result = authenticator.authenticate(request)
-        if result is None:
-            return None
-        _, token = result
-        return token.payload
-    except (InvalidToken, TokenError):
-        return None
+    """
+    Read the JWT payload that JWTPayloadAuthentication already placed
+    on request.user. No duplicate parsing, no DB lookup.
+    """
+    if isinstance(request.user, TokenPayload):
+        return request.user
+    return None
 
 
 def check_stock(product_id, quantity, variant_id=None):
