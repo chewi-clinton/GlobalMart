@@ -1,11 +1,10 @@
-# ─── MUST BE AT THE VERY TOP BEFORE OTHER IMPORTS ─────────────────────
+# ─── IMPORTS ─────────────────────────────────────────────────────────────────────
 import ssl
 import urllib3.util.ssl_ as _urllib3_ssl
 import urllib3.connection as _urllib3_conn
 
-# urllib3 v2 uses its own create_urllib3_context (not ssl.create_default_context)
-# and holds a local import reference in urllib3.connection, so both must be patched.
-# Required to fix SSLV3_ALERT_HANDSHAKE_FAILURE with Cloudflare R2 on Python 3.12.
+# Patch urllib3 to allow more ciphers (fixes SSLV3_ALERT_HANDSHAKE_FAILURE on
+# Python 3.12 / Debian bookworm where OpenSSL defaults to SECLEVEL=2)
 _orig_create_urllib3_context = _urllib3_ssl.create_urllib3_context
 
 def _patched_create_urllib3_context(*args, **kwargs):
@@ -18,35 +17,31 @@ def _patched_create_urllib3_context(*args, **kwargs):
 
 _urllib3_ssl.create_urllib3_context = _patched_create_urllib3_context
 _urllib3_conn.create_urllib3_context = _patched_create_urllib3_context
-# ──────────────────────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
 
-import boto3
-import uuid
 import os
+import uuid
 import logging
 from django.conf import settings
-from botocore.config import Config
+from minio import Minio
 
 logger = logging.getLogger(__name__)
 
 
 def get_r2_client():
-    return boto3.client(
-        "s3",
-        endpoint_url=f"https://{settings.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
-        aws_access_key_id=settings.CLOUDFLARE_R2_ACCESS_KEY_ID,
-        aws_secret_access_key=settings.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
-        region_name="auto",
-        config=Config(
-            signature_version="s3v4",
-            retries={"max_attempts": 3},
-        ),
+    # MinIO takes the bare hostname; secure=True adds HTTPS automatically.
+    # Cloudflare R2 endpoint format: <account_id>.r2.cloudflarestorage.com
+    return Minio(
+        endpoint=f"{settings.CLOUDFLARE_R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+        access_key=settings.CLOUDFLARE_R2_ACCESS_KEY_ID,
+        secret_key=settings.CLOUDFLARE_R2_SECRET_ACCESS_KEY,
+        secure=True,
     )
 
 
 def upload_image_to_r2(file, folder="products"):
     """
-    Upload an image file to Cloudflare R2.
+    Upload an image file to Cloudflare R2 using MinIO SDK.
     Returns the public URL of the uploaded file.
     """
     ext = os.path.splitext(file.name)[1].lower()
@@ -55,14 +50,15 @@ def upload_image_to_r2(file, folder="products"):
     client = get_r2_client()
 
     try:
-        client.upload_fileobj(
-            file,
-            settings.CLOUDFLARE_R2_BUCKET_NAME,
-            filename,
-            ExtraArgs={"ContentType": file.content_type},
+        client.put_object(
+            bucket_name=settings.CLOUDFLARE_R2_BUCKET_NAME,
+            object_name=filename,
+            data=file,
+            length=file.size,
+            content_type=file.content_type,
         )
     except Exception as e:
-        logger.error(f"R2 upload failed: {e}")
+        logger.error(f"MinIO upload failed: {e}")
         raise Exception(f"Image upload to R2 failed: {e}")
 
     return f"{settings.CLOUDFLARE_R2_PUBLIC_URL}/{filename}"
@@ -73,11 +69,12 @@ def delete_image_from_r2(image_url):
     Delete an image from Cloudflare R2 by its public URL.
     """
     try:
-        key = image_url.replace(f"{settings.CLOUDFLARE_R2_PUBLIC_URL}/", "")
-        client = get_r2_client()
-        client.delete_object(
-            Bucket=settings.CLOUDFLARE_R2_BUCKET_NAME,
-            Key=key,
-        )
+        if settings.CLOUDFLARE_R2_PUBLIC_URL in image_url:
+            key = image_url.replace(f"{settings.CLOUDFLARE_R2_PUBLIC_URL}/", "")
+            client = get_r2_client()
+            client.remove_object(
+                bucket_name=settings.CLOUDFLARE_R2_BUCKET_NAME,
+                object_name=key,
+            )
     except Exception as e:
-        logger.warning(f"R2 delete failed: {e}")
+        logger.warning(f"MinIO delete failed: {e}")
