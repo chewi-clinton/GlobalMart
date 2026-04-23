@@ -170,9 +170,25 @@ CLOUDFLARE_R2_BUCKET_NAME = os.environ.get("CLOUDFLARE_R2_BUCKET_NAME")
 CLOUDFLARE_R2_PUBLIC_URL = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL")
 logger.info(f"R2 configured: {bool(CLOUDFLARE_R2_ACCOUNT_ID)}")
 
-# ─── Local Media Storage ─────────────────────────────────────────────
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+# ══════════════════════════════════════════════════════════════════════
+# 🎯 MEDIA FILES CONFIGURATION (Dokploy Volume Mount)
+# ══════════════════════════════════════════════════════════════════════
+# 
+# IMPORTANT: This matches your Dokploy volume mount:
+#   - Host Path: product_media (Docker volume)
+#   - Container Path: /app/media
+#
+# All uploaded files will be persisted in the 'product_media' volume!
+# ══════════════════════════════════════════════════════════════════════
+
+MEDIA_ROOT = "/app/media"  # ← Matches your Dokploy mount path!
 MEDIA_URL = "/media/"
+
+# Ensure media directory exists on startup
+os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+logger.info(f"MEDIA_ROOT configured: {MEDIA_ROOT} (Dokploy volume)")
+logger.info(f"MEDIA_URL configured: {MEDIA_URL}")
 
 # ─── Static files ─────────────────────────────────────────────────────
 STATIC_URL = "/static/"
