@@ -62,8 +62,7 @@ services:
       - ./services/product_service/.env
     volumes:
       - ./services/product_service:/app
-    ports:
-      - "8002:8002"
+      - product_media:/app/media
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -74,6 +73,19 @@ services:
              python manage.py migrate &&
              python manage.py seed_categories &&
              gunicorn config.wsgi:application --bind 0.0.0.0:8002 --workers 3 --timeout 120"
+
+  # ─── Product Nginx ─────────────────────────────────────────────────
+  product_nginx:
+    image: nginx:1.25-alpine
+    container_name: globalmart_product_nginx
+    restart: unless-stopped
+    ports:
+      - "8002:80"
+    volumes:
+      - ./services/product_service/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - product_media:/app/media:ro
+    depends_on:
+      - product_service
 
   # ─── Currency Service ──────────────────────────────────────────────
   currency_service:
@@ -142,3 +154,6 @@ services:
   # payment_service: ...
   # notification_service: ...
   # reporting_service: ...
+
+volumes:
+  product_media:
