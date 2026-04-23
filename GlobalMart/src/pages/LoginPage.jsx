@@ -20,12 +20,11 @@ const LoginPage = () => {
     try {
       const data = await login({ email, password });
 
-      if (data.access) {
+      if (data?.access) {
         const payload = JSON.parse(atob(data.access.split(".")[1]));
         const role = payload.role;
 
         localStorage.setItem("user", JSON.stringify(data.user));
-        // Tell the Header (and any other listener) that auth state changed
         window.dispatchEvent(new Event("auth-change"));
         showToast("Signed in successfully!", "success");
 
@@ -37,7 +36,7 @@ const LoginPage = () => {
           navigate("/");
         }
       } else {
-        const msg = data.detail || data.error || "Invalid email or password.";
+        const msg = data?.detail || data?.error || "Invalid email or password.";
         setError(msg);
         showToast(msg, "error");
       }
@@ -107,7 +106,6 @@ const LoginPage = () => {
             <a href="/privacy">Privacy Notice</a>.
           </p>
 
-          {/* Need help */}
           <a href="#" className="login-page__help">Need help?</a>
         </form>
 
