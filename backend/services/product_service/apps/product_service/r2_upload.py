@@ -1,59 +1,40 @@
 import os
 import uuid
 import logging
-import requests
-from requests.auth import HTTPBasicAuth
 
 logger = logging.getLogger(__name__)
+
+MEDIA_ROOT = os.path.join(os.path.dirname(__file__), '..', '..', 'media')
+MEDIA_URL = '/media/'
 
 
 def upload_image_to_r2(file, folder="products"):
     ext = os.path.splitext(file.name)[1].lower()
     filename = f"{folder}/{uuid.uuid4().hex}{ext}"
 
-    account_id = os.environ.get('CLOUDFLARE_R2_ACCOUNT_ID')
-    access_key = os.environ.get('CLOUDFLARE_R2_ACCESS_KEY_ID')
-    secret_key = os.environ.get('CLOUDFLARE_R2_SECRET_ACCESS_KEY')
-    bucket = os.environ.get('CLOUDFLARE_R2_BUCKET_NAME')
-    public_url = os.environ.get('CLOUDFLARE_R2_PUBLIC_URL')
+    folder_path = os.path.join(MEDIA_ROOT, folder)
+    os.makedirs(folder_path, exist_ok=True)
 
-    url = f"https://{account_id}.r2.cloudflarestorage.com/{bucket}/{filename}"
+    file_path = os.path.join(MEDIA_ROOT, filename)
 
-    try:
-        resp = requests.put(
-            url,
-            data=file,
-            auth=HTTPBasicAuth(access_key, secret_key),
-            headers={'Content-Type': file.content_type},
-            timeout=30,
-        )
-        resp.raise_for_status()
-        logger.info(f"Uploaded {filename} to R2 - {resp.status_code}")
-        return f"{public_url}/{filename}"
+    with open(file_path, 'wb+') as destination:
+        for chunk in file.chunks():
+            destination.write(chunk)
 
-    except requests.exceptions.SSLError as e:
-        logger.error(f"R2 SSL Error: {e}")
-        raise Exception(f"R2 SSL failed: {e}")
-    except Exception as e:
-        logger.error(f"R2 Error: {e}")
-        raise Exception(f"R2 upload failed: {e}")
+    logger.info(f"Saved {filename} locally")
+    return f"{MEDIA_URL}{filename}"
 
 
 def delete_image_from_r2(image_url):
-    public_url = os.environ.get('CLOUDFLARE_R2_PUBLIC_URL', '')
-    if public_url not in image_url:
+    if MEDIA_URL not in image_url:
         return
 
-    account_id = os.environ.get('CLOUDFLARE_R2_ACCOUNT_ID')
-    access_key = os.environ.get('CLOUDFLARE_R2_ACCESS_KEY_ID')
-    secret_key = os.environ.get('CLOUDFLARE_R2_SECRET_ACCESS_KEY')
-    bucket = os.environ.get('CLOUDFLARE_R2_BUCKET_NAME')
-
-    key = image_url.replace(f"{public_url}/", "")
-    url = f"https://{account_id}.r2.cloudflarestorage.com/{bucket}/{key}"
+    key = image_url.replace(MEDIA_URL, '')
+    file_path = os.path.join(MEDIA_ROOT, key)
 
     try:
-        resp = requests.delete(url, auth=HTTPBasicAuth(access_key, secret_key), timeout=15)
-        logger.info(f"Deleted {key} from R2 - {resp.status_code}")
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            logger.info(f"Deleted {key}")
     except Exception as e:
-        logger.warning(f"R2 delete warning: {e}")
+        logger.warning(f"Delete warning: {e}")

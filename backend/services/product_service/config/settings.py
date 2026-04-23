@@ -4,11 +4,10 @@ import logging
 import dj_database_url
 from pathlib import Path
 from datetime import timedelta
-from dotenv import load_dotenv                  # ← ADDED
+from dotenv import load_dotenv
 
-load_dotenv()                                   # ← ADDED
+load_dotenv()
 
-# ─── Logging setup ────────────────────────────────────────────────────
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.DEBUG,
@@ -35,18 +34,16 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # Third-party
-    "corsheaders",                              # ← ADDED
+    "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
-    # Local
     "apps.product_service",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "corsheaders.middleware.CorsMiddleware",    # ← ADDED
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -163,13 +160,17 @@ logger.info(f"RABBITMQ_URL present: {bool(RABBITMQ_URL)}")
 REDIS_URL = os.environ.get("REDIS_URL")
 logger.info(f"REDIS_URL present: {bool(REDIS_URL)}")
 
-# ─── Cloudflare R2 ────────────────────────────────────────────────────
-CLOUDFLARE_R2_ACCOUNT_ID      = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
-CLOUDFLARE_R2_ACCESS_KEY_ID   = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
+# ─── Cloudflare R2 (kept but unused now) ──────────────────────────────
+CLOUDFLARE_R2_ACCOUNT_ID = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
+CLOUDFLARE_R2_ACCESS_KEY_ID = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
 CLOUDFLARE_R2_SECRET_ACCESS_KEY = os.environ.get("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
-CLOUDFLARE_R2_BUCKET_NAME     = os.environ.get("CLOUDFLARE_R2_BUCKET_NAME")
-CLOUDFLARE_R2_PUBLIC_URL      = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL")
+CLOUDFLARE_R2_BUCKET_NAME = os.environ.get("CLOUDFLARE_R2_BUCKET_NAME")
+CLOUDFLARE_R2_PUBLIC_URL = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL")
 logger.info(f"R2 configured: {bool(CLOUDFLARE_R2_ACCOUNT_ID)}")
+
+# ─── Local Media Storage ─────────────────────────────────────────────
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
 
 # ─── Static files ─────────────────────────────────────────────────────
 STATIC_URL = "/static/"
