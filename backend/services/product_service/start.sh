@@ -1,8 +1,17 @@
-#!/bin/sh
+
+#!/bin/bash
 set -e
-echo "Running migrations..."
-python manage.py migrate
-echo "Seeding categories..."
-python manage.py seed_categories
-echo "Starting gunicorn..."
-exec gunicorn config.wsgi:application --bind 0.0.0.0:8002 --workers 3 --timeout 120
+
+echo "Starting product_service..."
+
+python manage.py migrate --noinput || true
+python manage.py seed_categories || true
+
+exec gunicorn config.wsgi:application \
+    --bind 0.0.0.0:8002 \
+    --workers ${GUNICORN_WORKERS:-3} \
+    --worker-class sync \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level info

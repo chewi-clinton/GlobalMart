@@ -1,23 +1,3 @@
-# ─── IMPORTS ─────────────────────────────────────────────────────────────────────
-import ssl
-import urllib3.util.ssl_ as _urllib3_ssl
-import urllib3.connection as _urllib3_conn
-
-# Patch urllib3 to allow more ciphers (fixes SSLV3_ALERT_HANDSHAKE_FAILURE on
-# Python 3.12 / Debian bookworm where OpenSSL defaults to SECLEVEL=2)
-_orig_create_urllib3_context = _urllib3_ssl.create_urllib3_context
-
-def _patched_create_urllib3_context(*args, **kwargs):
-    ctx = _orig_create_urllib3_context(*args, **kwargs)
-    try:
-        ctx.set_ciphers('DEFAULT@SECLEVEL=1')
-    except ssl.SSLError:
-        pass
-    return ctx
-
-_urllib3_ssl.create_urllib3_context = _patched_create_urllib3_context
-_urllib3_conn.create_urllib3_context = _patched_create_urllib3_context
-# ─────────────────────────────────────────────────────────────────────────────
 
 import os
 import uuid
