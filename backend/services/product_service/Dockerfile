@@ -1,4 +1,3 @@
-
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -16,10 +15,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV OPENSSL_CONF=/etc/ssl/openssl_r2.cnf
+ENV OPENSSL_CONF=/etc/ssl/openssl.cnf
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir --timeout 120 -r requirements.txt && pip install --no-cache-dir --upgrade urllib3 certifi minio
+RUN pip install --no-cache-dir --timeout 120 -r requirements.txt \
+    && pip install --no-cache-dir --upgrade urllib3 certifi boto3
 
 COPY . .
 RUN chmod +x start.sh
