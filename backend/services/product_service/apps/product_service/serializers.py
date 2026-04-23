@@ -1,3 +1,5 @@
+import uuid
+from django.utils.text import slugify
 from rest_framework import serializers
 from .models import Category, Product, ProductVariant, ProductImage
 
@@ -98,6 +100,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 class ProductWriteSerializer(serializers.ModelSerializer):
     """Serializer for creating and updating products."""
+    slug = serializers.SlugField(max_length=280, required=False)
 
     class Meta:
         model = Product
@@ -106,8 +109,16 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             "currency_code", "specs", "status", "category",
         ]
 
+    def validate(self, attrs):
+        if not attrs.get("slug"):
+            base = slugify(attrs.get("title", ""))
+            attrs["slug"] = f"{base}-{uuid.uuid4().hex[:8]}" if base else uuid.uuid4().hex
+        return attrs
+
     def create(self, validated_data):
-        seller_id = self.context["seller_id"]
+        seller_id = self.context.get("seller_id")
+        if not seller_id:
+            raise serializers.ValidationError({"seller_id": "Could not resolve seller from token."})
         return Product.objects.create(seller_id=seller_id, **validated_data)
 
     def update(self, instance, validated_data):
