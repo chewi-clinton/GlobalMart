@@ -1,18 +1,23 @@
 # ─── MUST BE AT THE VERY TOP BEFORE OTHER IMPORTS ─────────────────────
 import ssl
-import functools
+import urllib3.util.ssl_ as _urllib3_ssl
+import urllib3.connection as _urllib3_conn
 
-# urllib3 v2+ ignores DEFAULT_CIPHERS; patch create_default_context instead.
+# urllib3 v2 uses its own create_urllib3_context (not ssl.create_default_context)
+# and holds a local import reference in urllib3.connection, so both must be patched.
 # Required to fix SSLV3_ALERT_HANDSHAKE_FAILURE with Cloudflare R2 on Python 3.12.
-_orig_create_default_context = ssl.create_default_context
+_orig_create_urllib3_context = _urllib3_ssl.create_urllib3_context
 
-@functools.wraps(_orig_create_default_context)
-def _patched_create_default_context(*args, **kwargs):
-    ctx = _orig_create_default_context(*args, **kwargs)
-    ctx.set_ciphers('DEFAULT@SECLEVEL=1')
+def _patched_create_urllib3_context(*args, **kwargs):
+    ctx = _orig_create_urllib3_context(*args, **kwargs)
+    try:
+        ctx.set_ciphers('DEFAULT@SECLEVEL=1')
+    except ssl.SSLError:
+        pass
     return ctx
 
-ssl.create_default_context = _patched_create_default_context
+_urllib3_ssl.create_urllib3_context = _patched_create_urllib3_context
+_urllib3_conn.create_urllib3_context = _patched_create_urllib3_context
 # ──────────────────────────────────────────────────────────────────────
 
 import boto3
