@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../api";
 import { showToast } from "../components/Toast";
-import logo from "../Assets/logo.png";
+import logo from "../assets/logo.png";
 import "../styles/RegisterPage.css";
 
 const RegisterPage = () => {
