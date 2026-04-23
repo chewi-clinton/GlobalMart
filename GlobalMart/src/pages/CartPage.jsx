@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/Toast";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import emptyCartAnimation from "../assets/empty_cart.json";
@@ -45,7 +47,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
 
       <div className="cart-item-details">
         <h3 className="cart-item-name">{item.name}</h3>
-        <p className="cart-item-price">${item.price.toFixed(2)}</p>
+        <p className="cart-item-price">{item.price.toLocaleString()} {item.currency || ""}</p>
       </div>
 
       <div className="cart-item-actions">
@@ -93,12 +95,9 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
 
 // Order Summary Component
 const OrderSummary = ({ items, onCheckout }) => {
-  const subtotal = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0,
-  );
-  const tax = subtotal * 0.08;
-  const total = subtotal + tax;
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const currency = items[0]?.currency || "";
+  const total = subtotal;
 
   return (
     <motion.div
@@ -113,19 +112,14 @@ const OrderSummary = ({ items, onCheckout }) => {
         <span>
           Subtotal ({items.reduce((sum, item) => sum + item.quantity, 0)} items)
         </span>
-        <span className="summary-value">${subtotal.toFixed(2)}</span>
-      </div>
-
-      <div className="summary-row">
-        <span>Tax (8%)</span>
-        <span className="summary-value">${tax.toFixed(2)}</span>
+        <span className="summary-value">{subtotal.toLocaleString()} {currency}</span>
       </div>
 
       <div className="summary-divider"></div>
 
       <div className="summary-row total-row">
         <span>Total</span>
-        <span className="total-value">${total.toFixed(2)}</span>
+        <span className="total-value">{total.toLocaleString()} {currency}</span>
       </div>
 
       <motion.button
@@ -200,10 +194,19 @@ const EmptyCart = ({ onContinueShopping }) => (
 
 // Main CartPage Component
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState(() =>
+    JSON.parse(localStorage.getItem("cart") || "[]")
+  );
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const handleRemoveItem = (itemId) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+    const item = cartItems.find((i) => i.id === itemId);
+    setCartItems((prev) => prev.filter((i) => i.id !== itemId));
+    if (item) showToast(`"${item.name}" removed from cart.`, "info");
   };
 
   const handleUpdateQuantity = (itemId, newQuantity) => {
@@ -215,11 +218,11 @@ const CartPage = () => {
   };
 
   const handleCheckout = () => {
-    alert("Redirecting to Checkout...");
+    navigate("/payment");
   };
 
   const handleContinueShopping = () => {
-    alert("Navigating to products...");
+    navigate("/shop");
   };
 
   return (

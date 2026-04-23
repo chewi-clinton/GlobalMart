@@ -1,44 +1,156 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { allProducts } from "../data/products";
+import { getProductDetail } from "../api";
+import { showToast } from "../components/Toast";
 import "../styles/ProductDetailPage.css";
+
+// ─── Cart helpers ─────────────────────────────────────────────────────
+
+const addToCart = (product, quantity) => {
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const existing = cart.find((item) => item.id === product.id);
+  if (existing) {
+    existing.quantity += quantity;
+  } else {
+    cart.push({ ...product, quantity });
+  }
+  localStorage.setItem("cart", JSON.stringify(cart));
+};
+
+// ─── Star Rating ──────────────────────────────────────────────────────
 
 function StarRating({ rating }) {
   const stars = [];
   const fullStars = Math.floor(rating);
   const hasHalf = rating % 1 >= 0.5;
   for (let i = 0; i < 5; i++) {
-    if (i < fullStars) stars.push(<span key={i} className="pdp__star pdp__star--full">★</span>);
-    else if (i === fullStars && hasHalf) stars.push(<span key={i} className="pdp__star pdp__star--half">★</span>);
-    else stars.push(<span key={i} className="pdp__star pdp__star--empty">☆</span>);
+    if (i < fullStars)
+      stars.push(<span key={i} className="pdp__star pdp__star--full">★</span>);
+    else if (i === fullStars && hasHalf)
+      stars.push(<span key={i} className="pdp__star pdp__star--half">★</span>);
+    else
+      stars.push(<span key={i} className="pdp__star pdp__star--empty">☆</span>);
   }
   return <span className="pdp__stars">{stars}</span>;
 }
 
+// ─── Map API response to component shape ──────────────────────────────
+
+const mapProductDetail = (p) => {
+  const images = p.images && p.images.length > 0
+    ? p.images.sort((a, b) => a.display_order - b.display_order).map((img) => img.image_url)
+    : ["https://placehold.co/500x500?text=No+Image"];
+
+  // Extract colors and sizes from variant_attributes
+  const colors = [];
+  const sizes = [];
+  if (p.variants) {
+    p.variants.filter((v) => v.is_active).forEach((v) => {
+      const attrs = v.variant_attributes || {};
+      if (attrs.color && !colors.find((c) => c.name === attrs.color)) {
+        colors.push({ name: attrs.color, hex: attrs.color_hex || "#888888" });
+      }
+      if (attrs.size && !sizes.includes(attrs.size)) {
+        sizes.push(attrs.size);
+      }
+    });
+  }
+
+  // Extract features and details from specs JSON
+  const specs = p.specs || {};
+  const features = Array.isArray(specs.features) ? specs.features : [];
+  const details = Array.isArray(specs.details)
+    ? specs.details
+    : Object.entries(specs)
+        .filter(([k]) => k !== "features" && k !== "details")
+        .map(([k, v]) => ({ label: k, value: String(v) }));
+
+  return {
+    id: p.product_id,
+    name: p.title,
+    description: p.description || "",
+    price: parseFloat(p.base_price),
+    currency: p.currency_code || "XAF",
+    category: p.category ? p.category.name : "Other",
+    seller_id: p.seller_id,
+    images,
+    colors,
+    sizes,
+    features,
+    details,
+  };
+};
+
+// ─── ProductDetailPage ────────────────────────────────────────────────
+
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = allProducts.find((p) => p.id === parseInt(id));
+
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState(0);
   const [selectedSize, setSelectedSize] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [cartMsg, setCartMsg] = useState("");
 
-  if (!product) {
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const data = await getProductDetail(id);
+        if (data.product_id) {
+          setProduct(mapProductDetail(data));
+        } else {
+          setError(data.error || "Product not found.");
+        }
+      } catch {
+        setError("Network error. Could not load product.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0],
+        currency: product.currency,
+        seller_id: product.seller_id,
+      },
+      quantity
+    );
+    showToast(`"${product.name}" added to cart!`, "success");
+    setCartMsg("Added to cart!");
+    setTimeout(() => setCartMsg(""), 2000);
+  };
+
+  if (loading) {
     return (
       <div style={{ textAlign: "center", padding: "60px", fontSize: "18px" }}>
-        Product not found.{" "}
-        <a href="/shop" style={{ color: "#0066c0" }}>
-          Go back to shop
-        </a>
+        Loading product...
       </div>
     );
   }
 
-  const discountPercent = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : null;
+  if (error || !product) {
+    return (
+      <div style={{ textAlign: "center", padding: "60px", fontSize: "18px" }}>
+        {error || "Product not found."}{" "}
+        <a href="/shop" style={{ color: "#0066c0" }}>Go back to shop</a>
+      </div>
+    );
+  }
 
   return (
     <div className="pdp">
@@ -66,6 +178,7 @@ const ProductDetailPage = () => {
               alt={`View ${i + 1}`}
               className={`pdp__thumb ${selectedImage === i ? "pdp__thumb--active" : ""}`}
               onClick={() => setSelectedImage(i)}
+              onError={(e) => { e.target.src = "https://placehold.co/80x80?text=N/A"; }}
             />
           ))}
         </div>
@@ -76,54 +189,16 @@ const ProductDetailPage = () => {
             src={product.images[selectedImage]}
             alt={product.name}
             className="pdp__main-image"
+            onError={(e) => { e.target.src = "https://placehold.co/500x500?text=No+Image"; }}
           />
         </div>
 
         {/* Product Info */}
         <div className="pdp__info">
-          {/* Brand */}
-          <p className="pdp__brand">Visit the {product.brand} Store</p>
-
-          {/* Title */}
           <h1 className="pdp__title">{product.name}</h1>
 
-          {/* Rating */}
-          <div className="pdp__rating-row">
-            <StarRating rating={product.rating} />
-            <span className="pdp__rating-number">{product.rating}</span>
-            <span className="pdp__review-count">
-              ({product.reviews.toLocaleString()} reviews)
-            </span>
-          </div>
-
-          {/* Bought last month */}
-          <p className="pdp__bought">1K+ bought in past month</p>
-
-          {/* Deal Badge */}
-          {discountPercent && (
-            <span className="pdp__deal-badge">Limited time deal</span>
-          )}
-
-          {/* Price */}
-          <div className="pdp__price-row">
-            {discountPercent && (
-              <span className="pdp__discount">-{discountPercent}%</span>
-            )}
-            <span className="pdp__price">${product.price.toFixed(2)}</span>
-          </div>
-          {product.originalPrice && (
-            <p className="pdp__original-price">
-              List Price:{" "}
-              <span className="pdp__strikethrough">
-                ${product.originalPrice.toFixed(2)}
-              </span>
-            </p>
-          )}
-
-          <div className="pdp__divider" />
-
           {/* Color Variants */}
-          {product.colors && product.colors.length > 0 && (
+          {product.colors.length > 0 && (
             <div className="pdp__variants">
               <p className="pdp__variant-label">
                 Color: <strong>{product.colors[selectedColor].name}</strong>
@@ -142,10 +217,10 @@ const ProductDetailPage = () => {
             </div>
           )}
 
-          <div className="pdp__divider" />
+          {product.colors.length > 0 && <div className="pdp__divider" />}
 
           {/* Size Variants */}
-          {product.sizes && product.sizes.length > 0 && (
+          {product.sizes.length > 0 && (
             <div className="pdp__size">
               <p className="pdp__variant-label">Size:</p>
               <div className="pdp__size-buttons">
@@ -162,6 +237,15 @@ const ProductDetailPage = () => {
             </div>
           )}
 
+          {product.sizes.length > 0 && <div className="pdp__divider" />}
+
+          {/* Price */}
+          <div className="pdp__price-row">
+            <span className="pdp__price">
+              {product.price.toLocaleString()} {product.currency}
+            </span>
+          </div>
+
           <div className="pdp__divider" />
 
           {/* Description */}
@@ -170,23 +254,16 @@ const ProductDetailPage = () => {
 
         {/* Buy Box */}
         <div className="pdp__buybox">
-          {/* Price */}
           <p className="pdp__buybox-price">
-            ${product.price.toFixed(2)}
+            {product.price.toLocaleString()} {product.currency}
           </p>
 
-          {/* Delivery */}
           <p className="pdp__buybox-delivery">
-            <span className="pdp__buybox-free">FREE delivery</span>{" "}
-            <strong>Thursday, April 16</strong>
+            <span className="pdp__buybox-free">FREE delivery</span>
           </p>
 
-          <p className="pdp__buybox-location"> Delivery</p>
-
-          {/* Stock */}
           <p className="pdp__stock pdp__stock--in">In Stock</p>
 
-          {/* Quantity */}
           <div className="pdp__quantity">
             <label className="pdp__quantity-label">Quantity:</label>
             <select
@@ -200,26 +277,22 @@ const ProductDetailPage = () => {
             </select>
           </div>
 
-          {/* Buttons */}
-          <button
-            className="pdp__btn pdp__btn--cart"
-            onClick={() => navigate("/cart")}
-          >
+          {cartMsg && <p style={{ color: "#007600", fontSize: "14px", margin: "4px 0" }}>{cartMsg}</p>}
+
+          <button className="pdp__btn pdp__btn--cart" onClick={handleAddToCart}>
             Add to Cart
           </button>
           <button
             className="pdp__btn pdp__btn--buy"
-            onClick={() => navigate("/payment")}
+            onClick={() => {
+              handleAddToCart();
+              navigate("/payment");
+            }}
           >
             Buy Now
           </button>
 
-          {/* Extra Info */}
           <div className="pdp__buybox-info">
-            <div className="pdp__buybox-info-row">
-              <span className="pdp__buybox-info-label">Shipper/Seller</span>
-              <span>GlobalMart</span>
-            </div>
             <div className="pdp__buybox-info-row">
               <span className="pdp__buybox-info-label">Returns</span>
               <span>30-day refund / replacement</span>
@@ -238,56 +311,34 @@ const ProductDetailPage = () => {
       <div className="pdp__bottom">
 
         {/* Features */}
-        <div className="pdp__section">
-          <h2 className="pdp__section-title">Top highlights</h2>
-          <ul className="pdp__features">
-            {product.features.map((f, i) => (
-              <li key={i}>✓ {f}</li>
-            ))}
-          </ul>
-        </div>
+        {product.features.length > 0 && (
+          <div className="pdp__section">
+            <h2 className="pdp__section-title">Top highlights</h2>
+            <ul className="pdp__features">
+              {product.features.map((f, i) => (
+                <li key={i}>✓ {f}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* Details Table */}
-        <div className="pdp__section">
-          <h2 className="pdp__section-title">Product details</h2>
-          <table className="pdp__details-table">
-            <tbody>
-              {product.details.map((d, i) => (
-                <tr key={i}>
-                  <td className="pdp__details-key">{d.label}</td>
-                  <td className="pdp__details-value">{d.value}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {product.details.length > 0 && (
+          <div className="pdp__section">
+            <h2 className="pdp__section-title">Product details</h2>
+            <table className="pdp__details-table">
+              <tbody>
+                {product.details.map((d, i) => (
+                  <tr key={i}>
+                    <td className="pdp__details-key">{d.label}</td>
+                    <td className="pdp__details-value">{d.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-        {/* Reviews */}
-        <div className="pdp__section pdp__section--reviews">
-          <h2 className="pdp__section-title">Customer Reviews</h2>
-          <div className="pdp__reviews-summary">
-            <span className="pdp__reviews-avg">{product.rating}</span>
-            <StarRating rating={product.rating} />
-            <span className="pdp__reviews-total">
-              {product.reviews.toLocaleString()} ratings
-            </span>
-          </div>
-          <div className="pdp__reviews-list">
-            {product.reviewsList.map((review) => (
-              <div key={review.id} className="pdp__review">
-                <div className="pdp__review-header">
-                  <strong>{review.author}</strong>
-                  {review.verified && (
-                    <span className="pdp__verified">✓ Verified Purchase</span>
-                  )}
-                </div>
-                <StarRating rating={review.rating} />
-                <p className="pdp__review-date">{review.date}</p>
-                <p className="pdp__review-text">{review.text}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

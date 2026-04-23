@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../api";
+import { showToast } from "../components/Toast";
 import logo from "../Assets/logo.png";
 import "../styles/RegisterPage.css";
 
 const RegisterPage = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -13,23 +14,49 @@ const RegisterPage = () => {
     confirmPassword: "",
     role: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const data = await register({
-    username: form.username,
-    email: form.email,
-    password: form.password,
-    role: form.role,
-  });
-  if (data.message === "Account created successfully.") {
-    navigate("/login");
-  }
-};
+    e.preventDefault();
+    setError("");
+
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      showToast("Passwords do not match.", "error");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const data = await register({
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+      });
+
+      if (data.message === "Account created successfully.") {
+        showToast("Account created! Please sign in.", "success");
+        navigate("/login");
+      } else {
+        const messages = Object.values(data).flat().join(" ");
+        const msg = messages || "Registration failed. Please try again.";
+        setError(msg);
+        showToast(msg, "error");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+      showToast("Network error. Please try again.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="register-page">
@@ -42,6 +69,8 @@ const RegisterPage = () => {
       {/* Card */}
       <div className="register-page__card">
         <h1 className="register-page__title">Create account</h1>
+
+        {error && <p className="register-page__error">{error}</p>}
 
         <form className="register-page__form" onSubmit={handleSubmit}>
 
@@ -92,7 +121,7 @@ const RegisterPage = () => {
               required
             >
               <option value="" disabled hidden>Select role</option>
-              <option value="customer">customer</option>
+              <option value="customer">Customer</option>
               <option value="seller">Seller</option>
             </select>
           </div>
@@ -137,9 +166,9 @@ const RegisterPage = () => {
           <button
             type="submit"
             className="register-page__submit"
-            disabled={!form.role}
+            disabled={!form.role || loading}
           >
-            Continue
+            {loading ? "Creating account..." : "Continue"}
           </button>
 
           {/* Terms */}

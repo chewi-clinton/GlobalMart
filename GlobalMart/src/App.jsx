@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+const routerFuture = { v7_startTransition: true, v7_relativeSplatPath: true };
 import "./App.css";
 
 import Header from "./components/Header.jsx";
+import Toast from "./components/Toast.jsx";
 import Hero from "./components/HeroSection.jsx";
 import Gateway from "./components/MarketplaceGateway.jsx";
 import Footer from "./components/Footer.jsx";
@@ -37,8 +39,9 @@ function HomePage() {
 
 function App() {
   return (
-    <Router>
+    <Router future={routerFuture}>
       <div className="app-container">
+        <Toast />
         <Header />
         <main>
           <Routes>

@@ -988,3 +988,20 @@ input {
     animation: none;
   }
 }
+
+.main-nav__logout-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.5);
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, border-color 0.2s;
+}
+.main-nav__logout-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: #fff;
+}

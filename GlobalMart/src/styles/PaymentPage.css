@@ -540,3 +540,11 @@
     grid-template-columns: 1fr;
   }
 }
+.payment__review-items { margin-bottom: 16px; }
+.payment__review-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
+.payment__review-img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+.payment__review-item-info { flex: 1; }
+.payment__review-item-name { font-size: 14px; font-weight: 500; }
+.payment__review-item-qty { font-size: 13px; color: #666; }
+.payment__review-item-price { font-size: 14px; font-weight: 600; white-space: nowrap; }
+.payment__error { color: #c0392b; background: #fdecea; border: 1px solid #f5c6cb; border-radius: 4px; padding: 10px 14px; margin-bottom: 12px; font-size: 14px; }

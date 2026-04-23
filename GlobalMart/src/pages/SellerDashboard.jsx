@@ -1,52 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/Toast";
+import {
+  getProfile,
+  updateProfile,
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getCategories,
+  uploadProductImage,
+  getInventory,
+  getOrders,
+  cancelOrder,
+} from "../api";
 import "../styles/SellerDashboard.css";
 
-// ── Sample Data ──
-const sellerData = {
-  name: "John's Store",
-  email: "john@globalmart.com",
-  accountHealth: 92,
-  totalSales: 12450.75,
-  todaySales: 320.50,
-  totalOrders: 148,
-  pendingOrders: 12,
-  totalProducts: 24,
-  lowStock: 3,
+// ── Helpers ──
+const getTokenPayload = () => {
+  try {
+    const token = localStorage.getItem("access_token");
+    if (!token) return null;
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch {
+    return null;
+  }
 };
 
-const products = [
-  { id: 1, name: "Wireless Bluetooth Headphones Pro", category: "Tech", price: 149.99, stock: 45, status: "Active", sales: 34 },
-  { id: 2, name: "Premium Leather Crossbody Bag", category: "Fashion", price: 89.99, stock: 12, status: "Active", sales: 21 },
-  { id: 3, name: "Smart Watch Series X", category: "Tech", price: 299.99, stock: 3, status: "Low Stock", sales: 18 },
-  { id: 4, name: "Minimalist Running Shoes", category: "Sports", price: 129.99, stock: 0, status: "Out of Stock", sales: 45 },
-  { id: 5, name: "Designer Sunglasses Collection", category: "Fashion", price: 175.00, stock: 20, status: "Active", sales: 12 },
-];
+const slugify = (text) =>
+  text.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-const orders = [
-  { id: "ORD-001", customer: "Alice Johnson", product: "Wireless Bluetooth Headphones Pro", date: "2026-04-01", amount: 149.99, status: "Pending" },
-  { id: "ORD-002", customer: "Bob Smith", product: "Smart Watch Series X", date: "2026-03-31", amount: 299.99, status: "Shipped" },
-  { id: "ORD-003", customer: "Clara Davis", product: "Premium Leather Crossbody Bag", date: "2026-03-30", amount: 89.99, status: "Delivered" },
-  { id: "ORD-004", customer: "David Lee", product: "Minimalist Running Shoes", date: "2026-03-29", amount: 129.99, status: "Cancelled" },
-  { id: "ORD-005", customer: "Eva Brown", product: "Designer Sunglasses Collection", date: "2026-03-28", amount: 175.00, status: "Delivered" },
-];
+const flattenCategories = (cats, prefix = "") =>
+  cats.flatMap((cat) => [
+    { category_id: cat.category_id, name: prefix + cat.name },
+    ...(cat.children?.length ? flattenCategories(cat.children, prefix + cat.name + " > ") : []),
+  ]);
 
-const reviews = [
-  { id: 1, customer: "Alex M.", product: "Wireless Bluetooth Headphones Pro", rating: 5, comment: "Amazing sound quality!", date: "2026-04-01", verified: true },
-  { id: 2, customer: "Sarah K.", product: "Smart Watch Series X", rating: 4, comment: "Great watch, battery could be better.", date: "2026-03-30", verified: true },
-  { id: 3, customer: "Mike R.", product: "Premium Leather Crossbody Bag", rating: 5, comment: "Beautiful bag, great quality!", date: "2026-03-28", verified: true },
-  { id: 4, customer: "Emma L.", product: "Designer Sunglasses Collection", rating: 3, comment: "Good but delivery was slow.", date: "2026-03-25", verified: false },
-];
-
-const monthlySales = [
-  { month: "Oct", sales: 3200 },
-  { month: "Nov", sales: 4100 },
-  { month: "Dec", sales: 6800 },
-  { month: "Jan", sales: 3900 },
-  { month: "Feb", sales: 4500 },
-  { month: "Mar", sales: 5200 },
-  { month: "Apr", sales: 2100 },
-];
+const BLANK_FORM = {
+  title: "", slug: "", description: "",
+  base_price: "", currency_code: "USD",
+  specs: [], status: "active", category: "",
+};
 
 // ── Star Rating ──
 const StarRating = ({ rating }) => (
@@ -60,15 +54,20 @@ const StarRating = ({ rating }) => (
 // ── Status Badge ──
 const StatusBadge = ({ status }) => {
   const colors = {
-    Active: { bg: "#e6f4ea", color: "#007600" },
-    "Low Stock": { bg: "#fff8e1", color: "#f0c14b" },
-    "Out of Stock": { bg: "#fce8e6", color: "#cc0c39" },
-    Pending: { bg: "#fff8e1", color: "#e47911" },
-    Shipped: { bg: "#e8f0fe", color: "#1a73e8" },
-    Delivered: { bg: "#e6f4ea", color: "#007600" },
-    Cancelled: { bg: "#fce8e6", color: "#cc0c39" },
+    active: { bg: "#e6f4ea", color: "#007600" },
+    inactive: { bg: "#fce8e6", color: "#cc0c39" },
+    pending: { bg: "#fff8e1", color: "#e47911" },
+    confirmed: { bg: "#e8f0fe", color: "#1a73e8" },
+    processing: { bg: "#e8f0fe", color: "#1a73e8" },
+    shipped: { bg: "#e8f0fe", color: "#1a73e8" },
+    delivered: { bg: "#e6f4ea", color: "#007600" },
+    cancelled: { bg: "#fce8e6", color: "#cc0c39" },
+    refunded: { bg: "#f5f5f5", color: "#555" },
+    unpaid: { bg: "#fff8e1", color: "#e47911" },
+    paid: { bg: "#e6f4ea", color: "#007600" },
+    failed: { bg: "#fce8e6", color: "#cc0c39" },
   };
-  const style = colors[status] || { bg: "#f5f5f5", color: "#555" };
+  const style = colors[status?.toLowerCase()] || { bg: "#f5f5f5", color: "#555" };
   return (
     <span className="sd__badge" style={{ backgroundColor: style.bg, color: style.color }}>
       {status}
@@ -83,11 +82,7 @@ const BarChart = ({ data }) => {
     <div className="sd__chart">
       {data.map((d, i) => (
         <div key={i} className="sd__chart-bar-wrapper">
-          <div
-            className="sd__chart-bar"
-            style={{ height: `${(d.sales / max) * 100}%` }}
-            title={`$${d.sales}`}
-          />
+          <div className="sd__chart-bar" style={{ height: `${(d.sales / max) * 100}%` }} title={`$${d.sales}`} />
           <span className="sd__chart-label">{d.month}</span>
         </div>
       ))}
@@ -95,52 +90,279 @@ const BarChart = ({ data }) => {
   );
 };
 
-// ── Main Component ──
+const monthlySales = [
+  { month: "Oct", sales: 3200 }, { month: "Nov", sales: 4100 },
+  { month: "Dec", sales: 6800 }, { month: "Jan", sales: 3900 },
+  { month: "Feb", sales: 4500 }, { month: "Mar", sales: 5200 },
+  { month: "Apr", sales: 2100 },
+];
+
+// ════════════════════════════════════════
+// MAIN COMPONENT
+// ════════════════════════════════════════
 const SellerDashboard = () => {
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState("home");
+
+  const [seller, setSeller] = useState({ name: "", email: "" });
+
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productsError, setProductsError] = useState(null);
   const [productSearch, setProductSearch] = useState("");
+
+  const [showForm, setShowForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [form, setForm] = useState(BLANK_FORM);
+  const [imageFile, setImageFile] = useState(null);
+  const [formLoading, setFormLoading] = useState(false);
+  const [formError, setFormError] = useState(null);
+
+  const [inventory, setInventory] = useState([]);
+
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersError, setOrdersError] = useState(null);
   const [orderSearch, setOrderSearch] = useState("");
-  const [showAddProduct, setShowAddProduct] = useState(false);
-  const [newProduct, setNewProduct] = useState({
-    name: "", category: "", price: "", stock: "",
-  });
+
+  const [settingsForm, setSettingsForm] = useState({ username: "", phone: "" });
+  const [settingsSaving, setSettingsSaving] = useState(false);
+  const [settingsMsg, setSettingsMsg] = useState("");
 
   const navItems = [
     { id: "home", label: "Home", icon: "" },
     { id: "inventory", label: "Inventory", icon: "" },
     { id: "orders", label: "Orders", icon: "" },
     { id: "reports", label: "Reports", icon: "" },
-    { id: "performance", label: "Performance", icon: "" },
     { id: "settings", label: "Settings", icon: "" },
   ];
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(productSearch.toLowerCase())
-  );
+  useEffect(() => {
+    const payload = getTokenPayload();
+    if (!payload) { navigate("/login"); return; }
+    getProfile().then((data) => {
+      if (data.username || data.email) {
+        setSeller({ name: data.username || "Seller", email: data.email || "" });
+        setSettingsForm({ username: data.username || "", phone: data.phone || "" });
+      }
+    });
+  }, []);
 
+  const fetchProducts = useCallback(async () => {
+    setProductsLoading(true);
+    setProductsError(null);
+    try {
+      const payload = getTokenPayload();
+      const data = await getProducts(payload?.user_id ? { seller_id: payload.user_id } : {});
+      setProducts(Array.isArray(data) ? data : []);
+    } catch {
+      setProductsError("Failed to load products.");
+    } finally {
+      setProductsLoading(false);
+    }
+  }, []);
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const data = await getCategories();
+      if (Array.isArray(data)) setCategories(flattenCategories(data));
+    } catch {}
+  }, []);
+
+  const fetchInventory = useCallback(async () => {
+    try {
+      const data = await getInventory();
+      setInventory(Array.isArray(data) ? data : []);
+    } catch {}
+  }, []);
+
+  const fetchOrders = useCallback(async () => {
+    setOrdersLoading(true);
+    setOrdersError(null);
+    try {
+      const data = await getOrders();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch {
+      setOrdersError("Failed to load orders.");
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeSection === "inventory") { fetchProducts(); fetchCategories(); fetchInventory(); }
+    if (activeSection === "orders") fetchOrders();
+    if (activeSection === "home") { fetchProducts(); fetchOrders(); fetchInventory(); }
+    if (activeSection === "reports") { fetchProducts(); fetchOrders(); }
+  }, [activeSection]);
+
+  const getStock = (productId) => {
+    const entries = inventory.filter((inv) => inv.product_id === productId);
+    return entries.reduce((sum, inv) => sum + inv.quantity_on_hand, 0);
+  };
+
+  const lowStockCount = inventory.filter(
+    (inv) => inv.quantity_on_hand <= inv.reorder_threshold
+  ).length;
+
+  const pendingOrders = orders.filter((o) => o.status === "pending").length;
+  const totalRevenue = orders
+    .filter((o) => o.status === "delivered")
+    .reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
+
+  const openAddForm = () => {
+    setEditingProduct(null);
+    setForm(BLANK_FORM);
+    setImageFile(null);
+    setFormError(null);
+    setShowForm(true);
+  };
+
+  const openEditForm = (product) => {
+    setEditingProduct(product);
+    setForm({
+      title: product.title || "",
+      slug: product.slug || "",
+      description: product.description || "",
+      base_price: product.base_price || "",
+      currency_code: product.currency_code || "USD",
+      specs: Object.entries(product.specs || {}).map(([key, value]) => ({ key, value })),
+      status: product.status || "active",
+      category: product.category?.category_id || product.category || "",
+    });
+    setImageFile(null);
+    setFormError(null);
+    setShowForm(true);
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => {
+      const updated = { ...prev, [name]: value };
+      if (name === "title" && !editingProduct) updated.slug = slugify(value);
+      return updated;
+    });
+  };
+
+  const addSpecRow = () => setForm((p) => ({ ...p, specs: [...p.specs, { key: "", value: "" }] }));
+  const updateSpec = (i, field, value) => setForm((p) => {
+    const specs = [...p.specs];
+    specs[i] = { ...specs[i], [field]: value };
+    return { ...p, specs };
+  });
+  const removeSpec = (i) => setForm((p) => ({ ...p, specs: p.specs.filter((_, j) => j !== i) }));
+  const specsToObject = (arr) => arr.reduce((acc, { key, value }) => {
+    if (key.trim()) acc[key.trim()] = value;
+    return acc;
+  }, {});
+
+  const handleSubmit = async () => {
+    setFormLoading(true);
+    setFormError(null);
+    const payload = {
+      title: form.title,
+      slug: form.slug,
+      description: form.description,
+      base_price: parseFloat(form.base_price),
+      currency_code: form.currency_code,
+      specs: specsToObject(form.specs),
+      status: form.status,
+      category: form.category || null,
+    };
+    try {
+      const result = editingProduct
+        ? await updateProduct(editingProduct.product_id, payload)
+        : await createProduct(payload);
+      if (result.product_id) {
+        if (imageFile) {
+          const imgResult = await uploadProductImage(result.product_id, imageFile, { is_primary: true });
+          if (!imgResult.image_id) showToast("Product saved but image upload failed.", "warning");
+        }
+        showToast(editingProduct ? "Product updated successfully!" : "Product created successfully!", "success");
+        setShowForm(false);
+        fetchProducts();
+      } else {
+        const msg = Object.values(result).flat().join(" ") || "Failed to save product.";
+        setFormError(msg);
+        showToast(msg, "error");
+      }
+    } catch {
+      setFormError("Network error. Please try again.");
+      showToast("Network error. Please try again.", "error");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleDelete = async (productId) => {
+    if (!window.confirm("Deactivate this product?")) return;
+    try {
+      await deleteProduct(productId);
+      showToast("Product deactivated.", "success");
+      fetchProducts();
+    } catch {
+      showToast("Failed to deactivate product.", "error");
+    }
+  };
+
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm("Cancel this order?")) return;
+    try {
+      await cancelOrder(orderId, { reason: "Cancelled by seller" });
+      showToast("Order cancelled.", "success");
+      fetchOrders();
+    } catch {
+      showToast("Failed to cancel order.", "error");
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    setSettingsSaving(true);
+    setSettingsMsg("");
+    try {
+      const data = await updateProfile({
+        username: settingsForm.username,
+        phone: settingsForm.phone,
+      });
+      if (data.username) {
+        setSeller((prev) => ({ ...prev, name: data.username }));
+        setSettingsMsg("Saved successfully.");
+        showToast("Account settings saved!", "success");
+      } else {
+        setSettingsMsg("Failed to save changes.");
+        showToast("Failed to save changes.", "error");
+      }
+    } catch {
+      setSettingsMsg("Network error. Please try again.");
+      showToast("Network error. Please try again.", "error");
+    } finally {
+      setSettingsSaving(false);
+      setTimeout(() => setSettingsMsg(""), 3000);
+    }
+  };
+
+  const filteredProducts = products.filter((p) =>
+    p.title?.toLowerCase().includes(productSearch.toLowerCase())
+  );
   const filteredOrders = orders.filter((o) =>
-    o.customer.toLowerCase().includes(orderSearch.toLowerCase()) ||
-    o.id.toLowerCase().includes(orderSearch.toLowerCase())
+    String(o.order_id).includes(orderSearch) ||
+    String(o.customer_id).includes(orderSearch)
   );
 
   return (
     <div className="sd">
-
       <div className="sd__layout">
 
         {/* Sidebar */}
         <aside className="sd__sidebar">
           <div className="sd__sidebar-profile">
-            <div className="sd__sidebar-avatar">
-              {sellerData.name.charAt(0)}
-            </div>
+            <div className="sd__sidebar-avatar">{seller.name?.charAt(0) || "S"}</div>
             <div>
-              <p className="sd__sidebar-name">{sellerData.name}</p>
-              <p className="sd__sidebar-email">{sellerData.email}</p>
+              <p className="sd__sidebar-name">{seller.name || "Seller"}</p>
+              <p className="sd__sidebar-email">{seller.email}</p>
             </div>
           </div>
-
           <nav className="sd__sidebar-nav">
             {navItems.map((item) => (
               <button
@@ -153,16 +375,12 @@ const SellerDashboard = () => {
               </button>
             ))}
           </nav>
-
           <div className="sd__sidebar-health">
             <p className="sd__health-label">Account Health</p>
             <div className="sd__health-bar-wrapper">
-              <div
-                className="sd__health-bar"
-                style={{ width: `${sellerData.accountHealth}%` }}
-              />
+              <div className="sd__health-bar" style={{ width: "92%" }} />
             </div>
-            <p className="sd__health-score">{sellerData.accountHealth}/100</p>
+            <p className="sd__health-score">92/100</p>
           </div>
         </aside>
 
@@ -172,56 +390,40 @@ const SellerDashboard = () => {
           {/* ── HOME ── */}
           {activeSection === "home" && (
             <div className="sd__section">
-              <h2 className="sd__section-title">Welcome back, {sellerData.name}! 👋</h2>
-
-              {/* Summary Cards */}
+              <h2 className="sd__section-title">Welcome back, {seller.name || "Seller"}! 👋</h2>
               <div className="sd__cards">
                 {[
-                  { label: "Today's Sales", value: `$${sellerData.todaySales.toFixed(2)}`, icon: "💰", color: "#f0c14b" },
-                  { label: "Total Revenue", value: `$${sellerData.totalSales.toFixed(2)}`, icon: "📈", color: "#007600" },
-                  { label: "Total Orders", value: sellerData.totalOrders, icon: "🛒", color: "#1a73e8" },
-                  { label: "Pending Orders", value: sellerData.pendingOrders, icon: "⏳", color: "#e47911" },
-                  { label: "Total Products", value: sellerData.totalProducts, icon: "📦", color: "#6b21a8" },
-                  { label: "Low Stock", value: sellerData.lowStock, icon: "⚠️", color: "#cc0c39" },
+                  { label: "Total Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: "📈", color: "#007600" },
+                  { label: "Total Orders", value: orders.length, icon: "🛒", color: "#1a73e8" },
+                  { label: "Pending Orders", value: pendingOrders, icon: "⏳", color: "#e47911" },
+                  { label: "Total Products", value: products.length, icon: "📦", color: "#6b21a8" },
+                  { label: "Low Stock", value: lowStockCount, icon: "⚠️", color: "#cc0c39" },
                 ].map((card) => (
                   <div key={card.label} className="sd__card">
-                    <div className="sd__card-icon" style={{ color: card.color }}>
-                      {card.icon}
-                    </div>
+                    <div className="sd__card-icon" style={{ color: card.color }}>{card.icon}</div>
                     <div>
                       <p className="sd__card-label">{card.label}</p>
-                      <p className="sd__card-value" style={{ color: card.color }}>
-                        {card.value}
-                      </p>
+                      <p className="sd__card-value" style={{ color: card.color }}>{card.value}</p>
                     </div>
                   </div>
                 ))}
               </div>
-
-              {/* Sales Chart */}
               <div className="sd__chart-section">
                 <h3 className="sd__subsection-title">Sales Overview (Last 7 Months)</h3>
                 <BarChart data={monthlySales} />
               </div>
-
-              {/* Recent Orders */}
               <div className="sd__recent">
                 <h3 className="sd__subsection-title">Recent Orders</h3>
                 <table className="sd__table">
                   <thead>
-                    <tr>
-                      <th>Order ID</th>
-                      <th>Customer</th>
-                      <th>Amount</th>
-                      <th>Status</th>
-                    </tr>
+                    <tr><th>Order ID</th><th>Customer ID</th><th>Amount</th><th>Status</th></tr>
                   </thead>
                   <tbody>
                     {orders.slice(0, 3).map((order) => (
-                      <tr key={order.id}>
-                        <td className="sd__order-id">{order.id}</td>
-                        <td>{order.customer}</td>
-                        <td>${order.amount.toFixed(2)}</td>
+                      <tr key={order.order_id}>
+                        <td className="sd__order-id">#{order.order_id}</td>
+                        <td>{order.customer_id}</td>
+                        <td>{parseFloat(order.total_amount).toFixed(2)} {order.currency_code}</td>
                         <td><StatusBadge status={order.status} /></td>
                       </tr>
                     ))}
@@ -236,94 +438,115 @@ const SellerDashboard = () => {
             <div className="sd__section">
               <div className="sd__section-header">
                 <h2 className="sd__section-title">Inventory</h2>
-                <button
-                  className="sd__btn sd__btn--primary"
-                  onClick={() => setShowAddProduct(!showAddProduct)}
-                >
-                  + Add Product
-                </button>
+                <button className="sd__btn sd__btn--primary" onClick={openAddForm}>+ Add Product</button>
               </div>
 
-              {/* Add Product Form */}
-              {showAddProduct && (
+              {showForm && (
                 <div className="sd__add-form">
-                  <h3 className="sd__subsection-title">Add New Product</h3>
+                  <h3 className="sd__subsection-title">{editingProduct ? "Edit Product" : "Add New Product"}</h3>
+                  {formError && <div className="sd__form-error">{formError}</div>}
                   <div className="sd__form-grid">
-                    {[
-                      { label: "Product Name", key: "name", type: "text" },
-                      { label: "Category", key: "category", type: "text" },
-                      { label: "Price ($)", key: "price", type: "number" },
-                      { label: "Stock Quantity", key: "stock", type: "number" },
-                    ].map((field) => (
-                      <div key={field.key} className="sd__form-field">
-                        <label>{field.label}</label>
-                        <input
-                          type={field.type}
-                          value={newProduct[field.key]}
-                          onChange={(e) =>
-                            setNewProduct({ ...newProduct, [field.key]: e.target.value })
-                          }
-                          className="sd__input"
-                          placeholder={field.label}
-                        />
+                    <div className="sd__form-field">
+                      <label>Title *</label>
+                      <input name="title" value={form.title} onChange={handleFormChange} className="sd__input" placeholder="Product title" />
+                    </div>
+                    <div className="sd__form-field">
+                      <label>Slug *</label>
+                      <input name="slug" value={form.slug} onChange={handleFormChange} className="sd__input" placeholder="auto-generated" />
+                    </div>
+                    <div className="sd__form-field">
+                      <label>Base Price *</label>
+                      <input name="base_price" type="number" min="0" step="0.01" value={form.base_price} onChange={handleFormChange} className="sd__input" placeholder="0.00" />
+                    </div>
+                    <div className="sd__form-field">
+                      <label>Currency</label>
+                      <input name="currency_code" maxLength={3} value={form.currency_code} onChange={handleFormChange} className="sd__input" placeholder="USD" />
+                    </div>
+                    <div className="sd__form-field">
+                      <label>Category</label>
+                      <select name="category" value={form.category} onChange={handleFormChange} className="sd__input">
+                        <option value="">— Select category —</option>
+                        {categories.map((cat) => (
+                          <option key={cat.category_id} value={cat.category_id}>{cat.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="sd__form-field">
+                      <label>Status</label>
+                      <select name="status" value={form.status} onChange={handleFormChange} className="sd__input">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="sd__form-field">
+                    <label>Description</label>
+                    <textarea name="description" value={form.description} onChange={handleFormChange} className="sd__input sd__textarea" rows={3} placeholder="Describe the product..." />
+                  </div>
+                  <div className="sd__form-field">
+                    <label>Specifications</label>
+                    {form.specs.map((spec, i) => (
+                      <div key={i} className="sd__spec-row">
+                        <input type="text" placeholder="Key" value={spec.key} onChange={(e) => updateSpec(i, "key", e.target.value)} className="sd__input sd__spec-input" />
+                        <input type="text" placeholder="Value" value={spec.value} onChange={(e) => updateSpec(i, "value", e.target.value)} className="sd__input sd__spec-input" />
+                        <button className="sd__action-btn sd__action-btn--delete" onClick={() => removeSpec(i)}>✕</button>
                       </div>
                     ))}
+                    <button className="sd__btn sd__btn--secondary" onClick={addSpecRow}>+ Add Spec</button>
+                  </div>
+                  <div className="sd__form-field">
+                    <label>Product Image {editingProduct ? "(leave empty to keep current)" : ""}</label>
+                    <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0] || null)} className="sd__input" />
+                    {imageFile && <p className="sd__file-name">Selected: {imageFile.name}</p>}
                   </div>
                   <div className="sd__form-actions">
-                    <button className="sd__btn sd__btn--primary">Save Product</button>
-                    <button
-                      className="sd__btn sd__btn--secondary"
-                      onClick={() => setShowAddProduct(false)}
-                    >
-                      Cancel
+                    <button className="sd__btn sd__btn--primary" onClick={handleSubmit} disabled={formLoading}>
+                      {formLoading ? "Saving..." : editingProduct ? "Save Changes" : "Create Product"}
                     </button>
+                    <button className="sd__btn sd__btn--secondary" onClick={() => setShowForm(false)} disabled={formLoading}>Cancel</button>
                   </div>
                 </div>
               )}
 
-              {/* Search */}
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={productSearch}
-                onChange={(e) => setProductSearch(e.target.value)}
-                className="sd__search"
-              />
+              <input type="text" placeholder="Search products..." value={productSearch} onChange={(e) => setProductSearch(e.target.value)} className="sd__search" />
 
-              {/* Products Table */}
-              <table className="sd__table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Product Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Sales</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProducts.map((p, i) => (
-                    <tr key={p.id}>
-                      <td>{i + 1}</td>
-                      <td className="sd__product-name">{p.name}</td>
-                      <td>{p.category}</td>
-                      <td>${p.price.toFixed(2)}</td>
-                      <td>{p.stock}</td>
-                      <td>{p.sales}</td>
-                      <td><StatusBadge status={p.status} /></td>
-                      <td>
-                        <div className="sd__actions">
-                          <button className="sd__action-btn sd__action-btn--edit">Edit</button>
-                          <button className="sd__action-btn sd__action-btn--delete">Delete</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {productsLoading && <p className="sd__state-msg">Loading products...</p>}
+              {productsError && <p className="sd__state-msg sd__state-msg--error">{productsError}</p>}
+
+              {!productsLoading && !productsError && (
+                <table className="sd__table">
+                  <thead>
+                    <tr><th>#</th><th>Image</th><th>Title</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody>
+                    {filteredProducts.length === 0 ? (
+                      <tr><td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>No products found.</td></tr>
+                    ) : filteredProducts.map((p, i) => (
+                      <tr key={p.product_id}>
+                        <td>{i + 1}</td>
+                        <td>
+                          {p.primary_image
+                            ? <img src={p.primary_image} alt={p.title} style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 6 }} />
+                            : <div style={{ width: 48, height: 48, borderRadius: 6, background: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📦</div>
+                          }
+                        </td>
+                        <td className="sd__product-name">{p.title}</td>
+                        <td>{p.category_name || "—"}</td>
+                        <td>{parseFloat(p.base_price).toFixed(2)} {p.currency_code}</td>
+                        <td>{getStock(p.product_id)}</td>
+                        <td><StatusBadge status={p.status} /></td>
+                        <td>
+                          <div className="sd__actions">
+                            <button className="sd__action-btn sd__action-btn--edit" onClick={() => openEditForm(p)}>Edit</button>
+                            <button className="sd__action-btn sd__action-btn--delete" onClick={() => handleDelete(p.product_id)}>Delete</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 
@@ -331,15 +554,13 @@ const SellerDashboard = () => {
           {activeSection === "orders" && (
             <div className="sd__section">
               <h2 className="sd__section-title">Orders</h2>
-
-              {/* Summary */}
               <div className="sd__cards">
                 {[
                   { label: "Total Orders", value: orders.length, color: "#1a73e8" },
-                  { label: "Pending", value: orders.filter(o => o.status === "Pending").length, color: "#e47911" },
-                  { label: "Shipped", value: orders.filter(o => o.status === "Shipped").length, color: "#1a73e8" },
-                  { label: "Delivered", value: orders.filter(o => o.status === "Delivered").length, color: "#007600" },
-                  { label: "Cancelled", value: orders.filter(o => o.status === "Cancelled").length, color: "#cc0c39" },
+                  { label: "Pending", value: orders.filter((o) => o.status === "pending").length, color: "#e47911" },
+                  { label: "Shipped", value: orders.filter((o) => o.status === "shipped").length, color: "#1a73e8" },
+                  { label: "Delivered", value: orders.filter((o) => o.status === "delivered").length, color: "#007600" },
+                  { label: "Cancelled", value: orders.filter((o) => o.status === "cancelled").length, color: "#cc0c39" },
                 ].map((card) => (
                   <div key={card.label} className="sd__card sd__card--small">
                     <p className="sd__card-label">{card.label}</p>
@@ -347,41 +568,38 @@ const SellerDashboard = () => {
                   </div>
                 ))}
               </div>
+              <input type="text" placeholder="Search by order ID or customer ID..." value={orderSearch} onChange={(e) => setOrderSearch(e.target.value)} className="sd__search" />
 
-              {/* Search */}
-              <input
-                type="text"
-                placeholder="Search by customer or order ID..."
-                value={orderSearch}
-                onChange={(e) => setOrderSearch(e.target.value)}
-                className="sd__search"
-              />
+              {ordersLoading && <p className="sd__state-msg">Loading orders...</p>}
+              {ordersError && <p className="sd__state-msg sd__state-msg--error">{ordersError}</p>}
 
-              {/* Orders Table */}
-              <table className="sd__table">
-                <thead>
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Product</th>
-                    <th>Date</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredOrders.map((order) => (
-                    <tr key={order.id}>
-                      <td className="sd__order-id">{order.id}</td>
-                      <td>{order.customer}</td>
-                      <td className="sd__product-name">{order.product}</td>
-                      <td>{order.date}</td>
-                      <td>${order.amount.toFixed(2)}</td>
-                      <td><StatusBadge status={order.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              {!ordersLoading && !ordersError && (
+                <table className="sd__table">
+                  <thead>
+                    <tr><th>Order ID</th><th>Customer ID</th><th>Items</th><th>Date</th><th>Amount</th><th>Payment</th><th>Status</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.length === 0 ? (
+                      <tr><td colSpan={8} style={{ textAlign: "center", padding: "2rem", color: "#888" }}>No orders found.</td></tr>
+                    ) : filteredOrders.map((order) => (
+                      <tr key={order.order_id}>
+                        <td className="sd__order-id">#{order.order_id}</td>
+                        <td>{order.customer_id}</td>
+                        <td>{order.items_count}</td>
+                        <td>{new Date(order.order_date).toLocaleDateString()}</td>
+                        <td>{parseFloat(order.total_amount).toFixed(2)} {order.currency_code}</td>
+                        <td><StatusBadge status={order.payment_status} /></td>
+                        <td><StatusBadge status={order.status} /></td>
+                        <td>
+                          {["pending", "confirmed"].includes(order.status) && (
+                            <button className="sd__action-btn sd__action-btn--delete" onClick={() => handleCancelOrder(order.order_id)}>Cancel</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </div>
           )}
 
@@ -389,17 +607,15 @@ const SellerDashboard = () => {
           {activeSection === "reports" && (
             <div className="sd__section">
               <h2 className="sd__section-title">Reports</h2>
-
               <div className="sd__reports-grid">
-                {/* Sales Report */}
                 <div className="sd__report-card">
                   <h3 className="sd__subsection-title">📈 Sales Report</h3>
                   <div className="sd__report-rows">
                     {[
-                      { label: "Today", value: `$${sellerData.todaySales.toFixed(2)}` },
-                      { label: "This Week", value: "$1,240.50" },
-                      { label: "This Month", value: "$5,200.00" },
-                      { label: "This Year", value: "$12,450.75" },
+                      { label: "Total Revenue", value: `$${totalRevenue.toFixed(2)}` },
+                      { label: "Total Orders", value: orders.length },
+                      { label: "Delivered", value: orders.filter((o) => o.status === "delivered").length },
+                      { label: "Cancelled", value: orders.filter((o) => o.status === "cancelled").length },
                     ].map((row) => (
                       <div key={row.label} className="sd__report-row">
                         <span>{row.label}</span>
@@ -408,16 +624,14 @@ const SellerDashboard = () => {
                     ))}
                   </div>
                 </div>
-
-                {/* Orders Report */}
                 <div className="sd__report-card">
                   <h3 className="sd__subsection-title">🛒 Orders Report</h3>
                   <div className="sd__report-rows">
                     {[
-                      { label: "Total Orders", value: sellerData.totalOrders },
-                      { label: "Pending", value: sellerData.pendingOrders },
-                      { label: "Delivered", value: orders.filter(o => o.status === "Delivered").length },
-                      { label: "Cancelled", value: orders.filter(o => o.status === "Cancelled").length },
+                      { label: "Total", value: orders.length },
+                      { label: "Pending", value: orders.filter((o) => o.status === "pending").length },
+                      { label: "Processing", value: orders.filter((o) => o.status === "processing").length },
+                      { label: "Shipped", value: orders.filter((o) => o.status === "shipped").length },
                     ].map((row) => (
                       <div key={row.label} className="sd__report-row">
                         <span>{row.label}</span>
@@ -426,105 +640,37 @@ const SellerDashboard = () => {
                     ))}
                   </div>
                 </div>
-
-                {/* Financial Report */}
                 <div className="sd__report-card">
-                  <h3 className="sd__subsection-title">💰 Financial Report</h3>
+                  <h3 className="sd__subsection-title">📦 Inventory Report</h3>
                   <div className="sd__report-rows">
                     {[
-                      { label: "Gross Revenue", value: "$12,450.75" },
-                      { label: "Platform Fees (5%)", value: "-$622.54" },
-                      { label: "Shipping Costs", value: "-$320.00" },
-                      { label: "Net Earnings", value: "$11,508.21" },
+                      { label: "Total Products", value: products.length },
+                      { label: "Active", value: products.filter((p) => p.status === "active").length },
+                      { label: "Inactive", value: products.filter((p) => p.status === "inactive").length },
+                      { label: "Low Stock Items", value: lowStockCount },
                     ].map((row) => (
                       <div key={row.label} className="sd__report-row">
                         <span>{row.label}</span>
-                        <span className={`sd__report-value ${row.value.startsWith("-") ? "sd__report-value--negative" : ""}`}>
-                          {row.value}
-                        </span>
+                        <span className="sd__report-value">{row.value}</span>
                       </div>
                     ))}
                   </div>
                 </div>
-
-                {/* Top Products */}
                 <div className="sd__report-card">
                   <h3 className="sd__subsection-title">🏆 Top Products</h3>
                   <div className="sd__report-rows">
-                    {products
-                      .sort((a, b) => b.sales - a.sales)
-                      .slice(0, 4)
-                      .map((p) => (
-                        <div key={p.id} className="sd__report-row">
-                          <span>{p.name.split(" ").slice(0, 3).join(" ")}...</span>
-                          <span className="sd__report-value">{p.sales} sold</span>
-                        </div>
-                      ))}
+                    {products.slice(0, 4).map((p) => (
+                      <div key={p.product_id} className="sd__report-row">
+                        <span>{p.title?.split(" ").slice(0, 3).join(" ")}...</span>
+                        <span className="sd__report-value"><StatusBadge status={p.status} /></span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
-
-              {/* Sales Chart */}
               <div className="sd__chart-section">
                 <h3 className="sd__subsection-title">Monthly Sales Trend</h3>
                 <BarChart data={monthlySales} />
-              </div>
-            </div>
-          )}
-
-          {/* ── PERFORMANCE ── */}
-          {activeSection === "performance" && (
-            <div className="sd__section">
-              <h2 className="sd__section-title">Performance</h2>
-
-              {/* Account Health */}
-              <div className="sd__health-section">
-                <h3 className="sd__subsection-title">Account Health</h3>
-                <div className="sd__health-cards">
-                  {[
-                    { label: "Order Defect Rate", value: "0.5%", status: "Good", target: "< 1%" },
-                    { label: "Late Shipment Rate", value: "1.2%", status: "Good", target: "< 4%" },
-                    { label: "Cancellation Rate", value: "0.8%", status: "Good", target: "< 2.5%" },
-                    { label: "Valid Tracking Rate", value: "98%", status: "Good", target: "> 95%" },
-                  ].map((metric) => (
-                    <div key={metric.label} className="sd__health-card">
-                      <p className="sd__health-metric-label">{metric.label}</p>
-                      <p className="sd__health-metric-value">{metric.value}</p>
-                      <p className="sd__health-metric-target">Target: {metric.target}</p>
-                      <span className="sd__badge" style={{ backgroundColor: "#e6f4ea", color: "#007600" }}>
-                        {metric.status}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Customer Reviews */}
-              <div className="sd__reviews-section">
-                <h3 className="sd__subsection-title">Customer Reviews</h3>
-                <div className="sd__reviews-summary">
-                  <div className="sd__reviews-avg">
-                    <span className="sd__avg-number">4.3</span>
-                    <StarRating rating={4} />
-                    <span className="sd__avg-total">{reviews.length} reviews</span>
-                  </div>
-                </div>
-                <div className="sd__reviews-list">
-                  {reviews.map((review) => (
-                    <div key={review.id} className="sd__review">
-                      <div className="sd__review-header">
-                        <strong>{review.customer}</strong>
-                        <StarRating rating={review.rating} />
-                        {review.verified && (
-                          <span className="sd__verified">✓ Verified</span>
-                        )}
-                        <span className="sd__review-date">{review.date}</span>
-                      </div>
-                      <p className="sd__review-product">📦 {review.product}</p>
-                      <p className="sd__review-comment">{review.comment}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           )}
@@ -533,27 +679,35 @@ const SellerDashboard = () => {
           {activeSection === "settings" && (
             <div className="sd__section">
               <h2 className="sd__section-title">Settings</h2>
-
               <div className="sd__settings-grid">
-                {/* Account Info */}
                 <div className="sd__settings-card">
                   <h3 className="sd__subsection-title">Account Info</h3>
                   <div className="sd__form-field">
                     <label>Store Name</label>
-                    <input defaultValue={sellerData.name} className="sd__input" />
+                    <input
+                      value={settingsForm.username}
+                      onChange={(e) => setSettingsForm((p) => ({ ...p, username: e.target.value }))}
+                      className="sd__input"
+                    />
                   </div>
                   <div className="sd__form-field">
                     <label>Email</label>
-                    <input defaultValue={sellerData.email} className="sd__input" />
+                    <input value={seller.email} className="sd__input" readOnly />
                   </div>
                   <div className="sd__form-field">
                     <label>Phone Number</label>
-                    <input defaultValue="+237 6XX XXX XXX" className="sd__input" />
+                    <input
+                      value={settingsForm.phone}
+                      onChange={(e) => setSettingsForm((p) => ({ ...p, phone: e.target.value }))}
+                      className="sd__input"
+                      placeholder="+237 6XX XXX XXX"
+                    />
                   </div>
-                  <button className="sd__btn sd__btn--primary">Save Changes</button>
+                  {settingsMsg && <p style={{ fontSize: 13, color: settingsMsg.includes("success") ? "#007600" : "#cc0c39" }}>{settingsMsg}</p>}
+                  <button className="sd__btn sd__btn--primary" onClick={handleSaveSettings} disabled={settingsSaving}>
+                    {settingsSaving ? "Saving..." : "Save Changes"}
+                  </button>
                 </div>
-
-                {/* Payment Settings */}
                 <div className="sd__settings-card">
                   <h3 className="sd__subsection-title">Payment Settings</h3>
                   <div className="sd__form-field">
@@ -569,8 +723,6 @@ const SellerDashboard = () => {
                   </div>
                   <button className="sd__btn sd__btn--primary">Save Changes</button>
                 </div>
-
-                {/* Shipping Settings */}
                 <div className="sd__settings-card">
                   <h3 className="sd__subsection-title">Shipping Settings</h3>
                   <div className="sd__form-field">
@@ -587,17 +739,9 @@ const SellerDashboard = () => {
                   </div>
                   <button className="sd__btn sd__btn--primary">Save Changes</button>
                 </div>
-
-                {/* Notifications */}
                 <div className="sd__settings-card">
                   <h3 className="sd__subsection-title">Notifications</h3>
-                  {[
-                    "New order received",
-                    "Order shipped",
-                    "Low stock alert",
-                    "New customer review",
-                    "Payment received",
-                  ].map((notif) => (
+                  {["New order received", "Order shipped", "Low stock alert", "New customer review", "Payment received"].map((notif) => (
                     <label key={notif} className="sd__toggle-row">
                       <span>{notif}</span>
                       <input type="checkbox" defaultChecked className="sd__toggle" />
@@ -607,6 +751,7 @@ const SellerDashboard = () => {
               </div>
             </div>
           )}
+
         </main>
       </div>
     </div>

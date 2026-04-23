@@ -736,3 +736,6 @@ button:focus-visible,
     border: 1px solid #ddd;
   }
 }
+
+.shop-loading, .shop-error { text-align: center; padding: 60px; font-size: 18px; color: #555; }
+.shop-error { color: #c0392b; }

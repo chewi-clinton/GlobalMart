@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { logout } from "../api";
+import { showToast } from "./Toast";
 import {
   FiMapPin,
   FiChevronDown,
@@ -14,8 +16,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-import "../styles/Header.css";
-
+import "../styles/Header.css"
 const countries = [
   { code: "CM", name: "Cameroon", flag: "🇨🇲" },
   { code: "US", name: "United States", flag: "🇺🇸" },
@@ -145,88 +146,53 @@ const Header = () => {
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
   const [locationSearch, setLocationSearch] = useState("");
   const [profilePanelOpen, setProfilePanelOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("user") || "null"); } catch { return null; }
+  });
+  const [cartCount, setCartCount] = useState(() => {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    return cart.reduce((sum, item) => sum + item.quantity, 0);
+  });
+
+  const syncAuth = useCallback(() => {
+    try {
+      setCurrentUser(JSON.parse(localStorage.getItem("user") || "null"));
+    } catch {
+      setCurrentUser(null);
+    }
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    setCartCount(cart.reduce((sum, item) => sum + item.quantity, 0));
+  }, []);
+
+  useEffect(() => {
+    // "auth-change" fires from login, logout, and clearSession (same tab)
+    window.addEventListener("auth-change", syncAuth);
+    // "storage" fires when another tab changes localStorage
+    window.addEventListener("storage", syncAuth);
+    return () => {
+      window.removeEventListener("auth-change", syncAuth);
+      window.removeEventListener("storage", syncAuth);
+    };
+  }, [syncAuth]);
+
+  const handleLogout = useCallback(async () => {
+    setProfilePanelOpen(false);
+    await logout();
+    localStorage.removeItem("user");
+    window.dispatchEvent(new Event("auth-change"));
+    showToast("Signed out successfully.", "info");
+    navigate("/login");
+  }, [navigate]);
 
   const [userLocation, setUserLocation] = useState({
-    country: "United States",
-    countryCode: "US",
+    country: "Cameroon",
+    countryCode: "CM",
   });
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
   const [selectedCurrency, setSelectedCurrency] = useState(currencies[2]);
 
-  useEffect(() => {
-    detectUserLocation();
-  }, []);
-
-  const detectUserLocation = async () => {
-    try {
-      const response = await fetch("https://ipapi.co/json/");
-      const data = await response.json();
-
-      if (data?.country_code) {
-        const detectedCountry = countries.find(
-          (c) => c.code === data.country_code,
-        );
-        setUserLocation({
-          country: detectedCountry
-            ? detectedCountry.name
-            : data.country_name || "United States",
-          countryCode: data.country_code,
-        });
-
-        const currencyMap = {
-          CM: "XAF",
-          SN: "XOF",
-          CI: "XOF",
-          GH: "GHS",
-          NG: "NGN",
-          KE: "KES",
-          MA: "MAD",
-          ZA: "ZAR",
-          US: "USD",
-          GB: "GBP",
-          CA: "CAD",
-          AU: "AUD",
-          JP: "JPY",
-          CN: "CNY",
-          IN: "INR",
-          BR: "BRL",
-          MX: "MXN",
-          DE: "EUR",
-          FR: "EUR",
-          IT: "EUR",
-          ES: "EUR",
-          NL: "EUR",
-          BE: "EUR",
-          AT: "EUR",
-          PT: "EUR",
-          GR: "EUR",
-          FI: "EUR",
-          IE: "EUR",
-          CH: "CHF",
-          SE: "SEK",
-          NO: "NOK",
-          DK: "DKK",
-          AE: "AED",
-          SA: "SAR",
-          TR: "TRY",
-          RU: "RUB",
-          PL: "PLN",
-          TH: "THB",
-          ID: "IDR",
-          MY: "MYR",
-          PH: "PHP",
-          SG: "SGD",
-          KR: "KRW",
-        };
-
-        const code = currencyMap[data.country_code] || "USD";
-        const detectedCurrency = currencies.find((c) => c.code === code);
-        if (detectedCurrency) setSelectedCurrency(detectedCurrency);
-      }
-    } catch (error) {
-      console.log("Location detection failed");
-    }
-  };
+  // ipapi.co removed (rate-limited and CORS issues in dev).
+  // Default to Cameroon/XAF. User can change manually via the country selector.
 
   useEffect(() => {
     const handleClickOutside = () => {
@@ -487,7 +453,9 @@ const Header = () => {
             onMouseLeave={() => setProfilePanelOpen(false)}
           >
             <div onClick={() => setProfilePanelOpen((prev) => !prev)}>
-              <div className="nav-item__line1">Hello, sign in</div>
+              <div className="nav-item__line1">
+                Hello, {currentUser ? currentUser.username || "User" : "sign in"}
+              </div>
               <div className="nav-item__line2">
                 Account & Lists <FiChevronDown size={12} />
               </div>
@@ -505,24 +473,29 @@ const Header = () => {
                   onMouseLeave={() => setProfilePanelOpen(false)}
                 >
                   <div className="profile-dropdown__btn-group">
-                    <button
-                      className="profile-panel__btn profile-panel__btn--signin"
-                      onClick={() => {
-                        setProfilePanelOpen(false);
-                        navigate("/login");
-                      }}
-                    >
-                      Sign in
-                    </button>
-                    <button
-                      className="profile-panel__btn profile-panel__btn--register"
-                      onClick={() => {
-                        setProfilePanelOpen(false);
-                        navigate("/register");
-                      }}
-                    >
-                      Sign up
-                    </button>
+                    {currentUser ? (
+                      <button
+                        className="profile-panel__btn profile-panel__btn--signin"
+                        onClick={handleLogout}
+                      >
+                        Sign out
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          className="profile-panel__btn profile-panel__btn--signin"
+                          onClick={() => { setProfilePanelOpen(false); navigate("/login"); }}
+                        >
+                          Sign in
+                        </button>
+                        <button
+                          className="profile-panel__btn profile-panel__btn--register"
+                          onClick={() => { setProfilePanelOpen(false); navigate("/register"); }}
+                        >
+                          Sign up
+                        </button>
+                      </>
+                    )}
                   </div>
                   <div className="profile-panel__divider" />
                   <nav className="profile-panel__nav">
@@ -559,9 +532,20 @@ const Header = () => {
             onClick={() => navigate("/cart")}
           >
             <FiShoppingCart className="main-nav__cart-icon" />
-            <span className="main-nav__cart-badge">0</span>
+            <span className="main-nav__cart-badge">{cartCount}</span>
             <span className="nav-item__cart-text">Cart</span>
           </div>
+
+          {/* Logout — visible only when signed in */}
+          {currentUser && (
+            <button
+              className="main-nav__logout-btn"
+              onClick={handleLogout}
+              title="Sign out"
+            >
+              Sign Out
+            </button>
+          )}
 
           <button
             className="main-nav__hamburger"
@@ -610,13 +594,15 @@ const Header = () => {
           </div>
 
           <div className="mobile-menu__divider" />
-          <a
-            href="#"
-            className="mobile-menu__link"
-            onClick={() => navigate("/login")}
-          >
-            Sign In
-          </a>
+          {currentUser ? (
+            <a href="#" className="mobile-menu__link" onClick={handleLogout}>
+              Sign Out ({currentUser.username})
+            </a>
+          ) : (
+            <a href="#" className="mobile-menu__link" onClick={() => navigate("/login")}>
+              Sign In
+            </a>
+          )}
           <a
             href="#"
             className="mobile-menu__link"

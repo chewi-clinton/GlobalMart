@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api";
+import { showToast } from "../components/Toast";
 import logo from "../Assets/logo.png";
 import "../styles/LoginPage.css";
 
@@ -8,14 +9,45 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const data = await login({ email, password });
-  if (data.access) {
-    navigate("/");
-  }
-};
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const data = await login({ email, password });
+
+      if (data.access) {
+        const payload = JSON.parse(atob(data.access.split(".")[1]));
+        const role = payload.role;
+
+        localStorage.setItem("user", JSON.stringify(data.user));
+        // Tell the Header (and any other listener) that auth state changed
+        window.dispatchEvent(new Event("auth-change"));
+        showToast("Signed in successfully!", "success");
+
+        if (role === "seller") {
+          navigate("/seller");
+        } else if (role === "admin") {
+          navigate("/super-admin");
+        } else {
+          navigate("/");
+        }
+      } else {
+        const msg = data.detail || data.error || "Invalid email or password.";
+        setError(msg);
+        showToast(msg, "error");
+      }
+    } catch {
+      setError("Network error. Please try again.");
+      showToast("Network error. Please try again.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="login-page">
@@ -29,7 +61,10 @@ const LoginPage = () => {
       <div className="login-page__card">
         <h1 className="login-page__title">Sign in or create account</h1>
 
+        {error && <p className="login-page__error">{error}</p>}
+
         <form className="login-page__form" onSubmit={handleSubmit}>
+
           {/* Email */}
           <div className="login-page__field">
             <label htmlFor="email" className="login-page__label">
@@ -45,26 +80,25 @@ const LoginPage = () => {
             />
           </div>
 
-          {/* Continue Button */}
-           {/* Password */}
-<div className="login-page__field">
-  <label htmlFor="password" className="login-page__label">
-    Password
-  </label>
-  <input
-    type="password"
-    id="password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    className="login-page__input"
-    required
-  />
-</div>
+          {/* Password */}
+          <div className="login-page__field">
+            <label htmlFor="password" className="login-page__label">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="login-page__input"
+              required
+            />
+          </div>
 
-{/* Continue Button */}
-<button type="submit" className="login-page__submit">
-  Sign in
-</button>
+          {/* Sign in Button */}
+          <button type="submit" className="login-page__submit" disabled={loading}>
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
 
           {/* Terms */}
           <p className="login-page__terms">

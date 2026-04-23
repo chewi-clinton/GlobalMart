@@ -1,107 +1,21 @@
 import React, { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { showToast } from "../components/Toast";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import favouriteAnimation from "../assets/favorite.json";
 import "../styles/FavoritePage.css";
 
-const initialFavorites = [
-  {
-    id: 1,
-    name: "Premium Wireless Headphones",
-    price: 249.99,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=500&fit=crop",
-    category: "Electronics",
-  },
-  {
-    id: 2,
-    name: "Minimalist Watch",
-    price: 189.0,
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop",
-    category: "Accessories",
-  },
-  {
-    id: 3,
-    name: "Leather Travel Bag",
-    price: 329.99,
-    image:
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=600&fit=crop",
-    category: "Travel",
-  },
-  {
-    id: 4,
-    name: "Smart Speaker",
-    price: 129.99,
-    image:
-      "https://images.unsplash.com/photo-1543512214-318c7553f230?w=400&h=400&fit=crop",
-    category: "Electronics",
-  },
-  {
-    id: 5,
-    name: "Designer Sunglasses",
-    price: 175.0,
-    image:
-      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=350&fit=crop",
-    category: "Fashion",
-  },
-  {
-    id: 6,
-    name: "Portable Charger Pro",
-    price: 59.99,
-    image:
-      "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&h=280&fit=crop",
-    category: "Electronics",
-  },
-  {
-    id: 7,
-    name: "Ceramic Plant Pot Set",
-    price: 45.0,
-    image:
-      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=400&h=450&fit=crop",
-    category: "Home",
-  },
-  {
-    id: 8,
-    name: "Vintage Camera",
-    price: 499.99,
-    image:
-      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=400&h=380&fit=crop",
-    category: "Photography",
-  },
-  {
-    id: 9,
-    name: "Organic Coffee Beans",
-    price: 24.99,
-    image:
-      "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&h=320&fit=crop",
-    category: "Food",
-  },
-  {
-    id: 10,
-    name: "Running Shoes Elite",
-    price: 159.99,
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=420&fit=crop",
-    category: "Sports",
-  },
-  {
-    id: 11,
-    name: "Scented Candle Collection",
-    price: 38.0,
-    image:
-      "https://images.unsplash.com/photo-1602028915047-37269d1a73f7?w=400&h=500&fit=crop",
-    category: "Home",
-  },
-  {
-    id: 12,
-    name: "Mechanical Keyboard",
-    price: 149.99,
-    image:
-      "https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?w=400&h=300&fit=crop",
-    category: "Electronics",
-  },
-];
+const addToCart = (product) => {
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const existing = cart.find((item) => item.id === product.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+  localStorage.setItem("cart", JSON.stringify(cart));
+};
 
 // Heart Icon Component
 const HeartIcon = ({ filled, onClick }) => (
@@ -253,7 +167,7 @@ const FavoriteCard = ({ item, index, onRemove, onAddToCart }) => {
       <div className="card-content">
         <span className="card-category">{item.category}</span>
         <h3 className="card-name">{item.name}</h3>
-        <p className="card-price">${item.price.toFixed(2)}</p>
+        <p className="card-price">{item.price.toLocaleString()} {item.currency || ""}</p>
       </div>
     </motion.div>
   );
@@ -261,20 +175,27 @@ const FavoriteCard = ({ item, index, onRemove, onAddToCart }) => {
 
 // Main FavoritesPage Component
 const FavoritesPage = () => {
-  const [favorites, setFavorites] = useState(initialFavorites);
+  const navigate = useNavigate();
+  const [favorites, setFavorites] = useState(() =>
+    JSON.parse(localStorage.getItem("favorites") || "[]")
+  );
 
   const handleRemove = useCallback((itemId) => {
-    setFavorites((prev) => prev.filter((item) => item.id !== itemId));
+    setFavorites((prev) => {
+      const updated = prev.filter((item) => item.id !== itemId);
+      localStorage.setItem("favorites", JSON.stringify(updated));
+      return updated;
+    });
   }, []);
 
   const handleAddToCart = useCallback((item) => {
-    console.log("Added to cart:", item);
-    alert(`"${item.name}" added to cart!`);
+    addToCart(item);
+    showToast(`"${item.name}" added to cart!`, "success");
   }, []);
 
   const handleDiscover = useCallback(() => {
-    alert("Navigating to discover products...");
-  }, []);
+    navigate("/shop");
+  }, [navigate]);
 
   return (
     <div className="favorites-page">

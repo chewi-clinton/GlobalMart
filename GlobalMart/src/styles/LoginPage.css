@@ -225,3 +225,4 @@
     padding: 16px;
   }
 }
+.login-page__error { color: #c0392b; background: #fdecea; border: 1px solid #f5c6cb; border-radius: 4px; padding: 10px 14px; margin-bottom: 12px; font-size: 14px; }

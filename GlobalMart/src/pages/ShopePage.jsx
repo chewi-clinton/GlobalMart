@@ -1,26 +1,57 @@
-import React, { useState, useCallback } from "react";
-import { useRef, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import sorryAnimation from "../assets/sorry.json";
-import { allProducts } from "../data/products";
+import { getProducts, getCategories } from "../api";
+import { showToast } from "../components/Toast";
 import "../styles/ShopPage.css";
 
-const categories = ["All", "Tech", "Fashion", "Sports"];
-const brandOptions = [
-  "AudioMax",
-  "StyleCraft",
-  "TechPro",
-  "SprintMax",
-  "VisionLux",
-  "SoundWave",
-  "FitLife",
-  "TravelGear",
-  "SmartLife",
-];
+// ─── Cart helpers ─────────────────────────────────────────────────────
 
-// Star Rating Component
+const addToCart = (product) => {
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const existing = cart.find((item) => item.id === product.id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+  localStorage.setItem("cart", JSON.stringify(cart));
+};
+
+const toggleFavorite = (product) => {
+  const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  const idx = favs.findIndex((f) => f.id === product.id);
+  if (idx >= 0) {
+    favs.splice(idx, 1);
+  } else {
+    favs.push(product);
+  }
+  localStorage.setItem("favorites", JSON.stringify(favs));
+};
+
+const isFavorited = (productId) => {
+  const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+  return favs.some((f) => f.id === productId);
+};
+
+// ─── Map API product to component shape ───────────────────────────────
+
+const mapProduct = (p) => ({
+  id: p.product_id,
+  name: p.title,
+  price: parseFloat(p.base_price),
+  image: p.primary_image || "https://placehold.co/300x300?text=No+Image",
+  category: p.category_name || "Other",
+  currency: p.currency_code || "XAF",
+  seller_id: p.seller_id || null,
+  slug: p.slug,
+});
+
+// ─── Star Rating ──────────────────────────────────────────────────────
+
 const StarRating = ({ rating }) => {
   const stars = [];
   const fullStars = Math.floor(rating);
@@ -30,7 +61,7 @@ const StarRating = ({ rating }) => {
       stars.push(
         <svg key={i} className="star filled" viewBox="0 0 24 24" fill="#f0c14b">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>,
+        </svg>
       );
     } else if (i === fullStars && hasHalfStar) {
       stars.push(
@@ -45,20 +76,21 @@ const StarRating = ({ rating }) => {
             points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
             fill={`url(#hg-${rating}-${i})`}
           />
-        </svg>,
+        </svg>
       );
     } else {
       stars.push(
         <svg key={i} className="star empty" viewBox="0 0 24 24" fill="#e0e0e0">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>,
+        </svg>
       );
     }
   }
   return <div className="star-rating">{stars}</div>;
 };
 
-// Dual-Thumb Price Range Slider
+// ─── Dual-Thumb Price Range Slider ────────────────────────────────────
+
 const PriceRangeSlider = ({ min, max, values, onChange }) => {
   const rangeRef = useRef(null);
   const minPercent = ((values[0] - min) / (max - min)) * 100;
@@ -70,7 +102,7 @@ const PriceRangeSlider = ({ min, max, values, onChange }) => {
     const handleMouseMove = (moveEvent) => {
       const percent = Math.max(
         0,
-        Math.min(100, ((moveEvent.clientX - rect.left) / rect.width) * 100),
+        Math.min(100, ((moveEvent.clientX - rect.left) / rect.width) * 100)
       );
       const value = Math.round(min + (percent / 100) * (max - min));
       let newValues = [...values];
@@ -89,16 +121,13 @@ const PriceRangeSlider = ({ min, max, values, onChange }) => {
   return (
     <div className="price-range-slider">
       <div className="price-values">
-        <span>${values[0]}</span>
-        <span>${values[1]}</span>
+        <span>{values[0].toLocaleString()}</span>
+        <span>{values[1].toLocaleString()}</span>
       </div>
       <div className="slider-track" ref={rangeRef}>
         <div
           className="slider-fill"
-          style={{
-            left: `${minPercent}%`,
-            width: `${maxPercent - minPercent}%`,
-          }}
+          style={{ left: `${minPercent}%`, width: `${maxPercent - minPercent}%` }}
         />
         <div
           className="slider-thumb"
@@ -115,7 +144,8 @@ const PriceRangeSlider = ({ min, max, values, onChange }) => {
   );
 };
 
-// Particle Burst
+// ─── Particle Burst ───────────────────────────────────────────────────
+
 const ParticleBurst = ({ isActive }) => {
   if (!isActive) return null;
   return (
@@ -134,9 +164,10 @@ const ParticleBurst = ({ isActive }) => {
   );
 };
 
-// Wishlist Heart Button
-const WishlistButton = ({ productId }) => {
-  const [wished, setWished] = useState(false);
+// ─── Wishlist Heart Button ────────────────────────────────────────────
+
+const WishlistButton = ({ product }) => {
+  const [wished, setWished] = useState(() => isFavorited(product.id));
   const [showParticles, setShowParticles] = useState(false);
 
   const handleClick = useCallback(
@@ -146,9 +177,10 @@ const WishlistButton = ({ productId }) => {
         setShowParticles(true);
         setTimeout(() => setShowParticles(false), 700);
       }
+      toggleFavorite(product);
       setWished((w) => !w);
     },
-    [wished],
+    [wished, product]
   );
 
   return (
@@ -172,7 +204,8 @@ const WishlistButton = ({ productId }) => {
   );
 };
 
-// Product Card
+// ─── Product Card ─────────────────────────────────────────────────────
+
 const ProductCard = ({ product, index, onProductClick }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -182,12 +215,7 @@ const ProductCard = ({ product, index, onProductClick }) => {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50, scale: 0.95 }}
-      transition={{
-        type: "spring",
-        stiffness: 280,
-        damping: 25,
-        delay: index * 0.05,
-      }}
+      transition={{ type: "spring", stiffness: 280, damping: 25, delay: index * 0.05 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onProductClick(product)}
@@ -199,52 +227,33 @@ const ProductCard = ({ product, index, onProductClick }) => {
           alt={product.name}
           className="card-image"
           loading="lazy"
+          onError={(e) => { e.target.src = "https://placehold.co/300x300?text=No+Image"; }}
         />
-        {product.originalPrice && (
-          <span className="discount-badge">
-            -{Math.round((1 - product.price / product.originalPrice) * 100)}%
-          </span>
-        )}
-        <WishlistButton productId={product.id} />
+        <WishlistButton product={product} />
       </div>
 
       <div className="card-content">
-        {product.topItem && <span className="top-item-badge">Top Item</span>}
         <h3 className="product-name">{product.name}</h3>
-        <div className="rating-row">
-          <StarRating rating={product.rating} />
-          <span className="review-count">({product.reviews})</span>
-        </div>
         <div className="price-row">
           <span
             className="current-price"
-            style={{
-              textShadow: isHovered ? "0 0 20px rgba(255,153,0,0.5)" : "none",
-            }}
+            style={{ textShadow: isHovered ? "0 0 20px rgba(255,153,0,0.5)" : "none" }}
           >
-            ${product.price.toFixed(2)}
+            {product.price.toLocaleString()} {product.currency}
           </span>
-          {product.originalPrice && (
-            <span className="original-price">
-              ${product.originalPrice.toFixed(2)}
-            </span>
-          )}
         </div>
-        <div className="brand-tag">{product.brand}</div>
+        <div className="brand-tag">{product.category}</div>
         <motion.button
           className={`add-to-cart-btn ${isHovered ? "glow" : ""}`}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            addToCart(product);
+            showToast(`"${product.name}" added to cart!`, "success");
+          }}
         >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="9" cy="21" r="1" />
             <circle cx="20" cy="21" r="1" />
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
@@ -256,21 +265,18 @@ const ProductCard = ({ product, index, onProductClick }) => {
   );
 };
 
-// Filter Sidebar
-const FilterSidebar = ({ filters, setFilters }) => {
-  const [priceRange, setPriceRange] = useState([0, 400]);
-  const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedRating, setSelectedRating] = useState(0);
+// ─── Filter Sidebar ───────────────────────────────────────────────────
 
-  const handleBrandChange = (brand) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand],
-    );
-  };
+const FilterSidebar = ({ filters, setFilters, priceMax }) => {
+  const [priceRange, setPriceRange] = useState([0, priceMax]);
 
   useEffect(() => {
-    setFilters({ priceRange, brands: selectedBrands, rating: selectedRating });
-  }, [priceRange, selectedBrands, selectedRating, setFilters]);
+    setPriceRange([0, priceMax]);
+  }, [priceMax]);
+
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, priceRange }));
+  }, [priceRange, setFilters]);
 
   return (
     <motion.aside
@@ -284,50 +290,16 @@ const FilterSidebar = ({ filters, setFilters }) => {
         <h3 className="filter-heading">Price Range</h3>
         <PriceRangeSlider
           min={0}
-          max={400}
+          max={priceMax}
           values={priceRange}
           onChange={setPriceRange}
         />
       </div>
-      <div className="filter-section">
-        <h3 className="filter-heading">Star Rating</h3>
-        <div className="rating-filters">
-          {[4, 3, 2, 1].map((rating) => (
-            <button
-              key={rating}
-              className={`rating-btn ${selectedRating === rating ? "active" : ""}`}
-              onClick={() =>
-                setSelectedRating(selectedRating === rating ? 0 : rating)
-              }
-            >
-              <StarRating rating={rating} />
-              <span className="rating-label">& Up</span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="filter-section">
-        <h3 className="filter-heading">Brand</h3>
-        <div className="brand-list">
-          {brandOptions.map((brand) => (
-            <label key={brand} className="brand-checkbox">
-              <input
-                type="checkbox"
-                checked={selectedBrands.includes(brand)}
-                onChange={() => handleBrandChange(brand)}
-              />
-              <span className="checkbox-custom"></span>
-              <span className="brand-name">{brand}</span>
-            </label>
-          ))}
-        </div>
-      </div>
       <button
         className="clear-filters-btn"
         onClick={() => {
-          setPriceRange([0, 400]);
-          setSelectedBrands([]);
-          setSelectedRating(0);
+          setPriceRange([0, priceMax]);
+          setFilters({ priceRange: [0, priceMax] });
         }}
       >
         Clear All Filters
@@ -336,31 +308,74 @@ const FilterSidebar = ({ filters, setFilters }) => {
   );
 };
 
-// Main ShopPage
+// ─── Main ShopPage ────────────────────────────────────────────────────
+
 const ShopPage = () => {
   const navigate = useNavigate();
+  const [products, setProducts] = useState([]);
+  const [categories, setCategoriesList] = useState(["All"]);
   const [activeCategory, setActiveCategory] = useState("All");
-  const [filters, setFilters] = useState({
-    priceRange: [0, 400],
-    brands: [],
-    rating: 0,
-  });
+  const [activeCategoryId, setActiveCategoryId] = useState(null);
+  const [categoryMap, setCategoryMap] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [filters, setFilters] = useState({ priceRange: [0, 99999999] });
+
+  const priceMax = products.length
+    ? Math.ceil(Math.max(...products.map((p) => p.price)) / 1000) * 1000
+    : 99999999;
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const data = await getCategories();
+        if (Array.isArray(data)) {
+          const map = {};
+          data.forEach((c) => { map[c.name] = c.category_id; });
+          setCategoryMap(map);
+          setCategoriesList(["All", ...data.map((c) => c.name)]);
+        }
+      } catch {
+        // categories are non-critical
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const params = {};
+        if (activeCategoryId) params.category = activeCategoryId;
+        const data = await getProducts(params);
+        if (Array.isArray(data)) {
+          setProducts(data.map(mapProduct));
+        } else {
+          setError("Failed to load products.");
+        }
+      } catch {
+        setError("Network error. Could not load products.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, [activeCategoryId]);
+
+  const handleCategoryChange = useCallback((category) => {
+    setActiveCategory(category);
+    setActiveCategoryId(category === "All" ? null : categoryMap[category] || null);
+  }, [categoryMap]);
 
   const handleProductClick = useCallback((product) => {
     navigate(`/product/${product.id}`);
   }, [navigate]);
 
-  const filteredProducts = allProducts.filter((product) => {
-    if (activeCategory !== "All" && product.category !== activeCategory)
+  const filteredProducts = products.filter((product) => {
+    if (product.price < filters.priceRange[0] || product.price > filters.priceRange[1])
       return false;
-    if (
-      product.price < filters.priceRange[0] ||
-      product.price > filters.priceRange[1]
-    )
-      return false;
-    if (filters.brands.length > 0 && !filters.brands.includes(product.brand))
-      return false;
-    if (filters.rating > 0 && product.rating < filters.rating) return false;
     return true;
   });
 
@@ -378,7 +393,7 @@ const ShopPage = () => {
               <motion.button
                 key={category}
                 className={`category-pill ${activeCategory === category ? "active" : ""}`}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => handleCategoryChange(category)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -393,52 +408,56 @@ const ShopPage = () => {
         </motion.nav>
 
         <div className="shop-content">
-          <FilterSidebar filters={filters} setFilters={setFilters} />
+          <FilterSidebar
+            filters={filters}
+            setFilters={setFilters}
+            priceMax={priceMax}
+          />
           <main className="product-grid-container">
-            <AnimatePresence mode="wait">
-              {filteredProducts.length > 0 ? (
-                <motion.div
-                  key="grid"
-                  className="product-grid"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <AnimatePresence mode="popLayout">
-                    {filteredProducts.map((product, index) => (
-                      <ProductCard
-                        key={product.id}
-                        product={product}
-                        index={index}
-                        onProductClick={handleProductClick}
-                      />
-                    ))}
-                  </AnimatePresence>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="no-results"
-                  className="no-results"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <div className="no-results-lottie">
-                    <Lottie
-                      animationData={sorryAnimation}
-                      loop={true}
-                      autoplay={true}
-                    />
-                  </div>
-                  <h3>No products found</h3>
-                  <p>
-                    Try adjusting your filters or browse different categories
-                  </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {loading ? (
+              <div className="shop-loading">Loading products...</div>
+            ) : error ? (
+              <div className="shop-error">{error}</div>
+            ) : (
+              <AnimatePresence mode="wait">
+                {filteredProducts.length > 0 ? (
+                  <motion.div
+                    key="grid"
+                    className="product-grid"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {filteredProducts.map((product, index) => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          index={index}
+                          onProductClick={handleProductClick}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="no-results"
+                    className="no-results"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <div className="no-results-lottie">
+                      <Lottie animationData={sorryAnimation} loop autoplay />
+                    </div>
+                    <h3>No products found</h3>
+                    <p>Try adjusting your filters or browse different categories</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
           </main>
         </div>
       </div>
