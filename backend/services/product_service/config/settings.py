@@ -28,6 +28,7 @@ logger.info(f"DATABASE_URL present: {bool(os.environ.get('DATABASE_URL'))}")
 logger.info(f"SECRET_KEY present: {bool(SECRET_KEY)}")
 
 INSTALLED_APPS = [
+    "whitenoise.runserver_nostatic",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -160,7 +162,7 @@ logger.info(f"RABBITMQ_URL present: {bool(RABBITMQ_URL)}")
 REDIS_URL = os.environ.get("REDIS_URL")
 logger.info(f"REDIS_URL present: {bool(REDIS_URL)}")
 
-# ─── Cloudflare R2 (kept but unused now) ──────────────────────────────
+# ─── Cloudflare R2 (kept but unused) ─────────────────────────────────
 CLOUDFLARE_R2_ACCOUNT_ID = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
 CLOUDFLARE_R2_ACCESS_KEY_ID = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
 CLOUDFLARE_R2_SECRET_ACCESS_KEY = os.environ.get("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
@@ -174,6 +176,7 @@ MEDIA_URL = "/media/"
 
 # ─── Static files ─────────────────────────────────────────────────────
 STATIC_URL = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"

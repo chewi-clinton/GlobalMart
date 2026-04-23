@@ -1,13 +1,8 @@
 import os
-import logging
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
-)
+from django.core.wsgi import get_wsgi_application
+from whitenoise import WhiteNoise
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 
-from django.core.wsgi import get_wsgi_application
-
 application = get_wsgi_application()
+application = WhiteNoise(application, static_prefix="/media/", root=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "media"))
