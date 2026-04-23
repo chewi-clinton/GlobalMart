@@ -1,3 +1,12 @@
+# ─── MUST BE AT THE VERY TOP BEFORE OTHER IMPORTS ─────────────────────
+import ssl
+import urllib3.util.ssl_ as urllib3_ssl
+
+# Force lower security level to fix SSLV3_ALERT_HANDSHAKE_FAILURE 
+# with Cloudflare R2 on python:3.11-slim
+urllib3_ssl.DEFAULT_CIPHERS = 'DEFAULT@SECLEVEL=1'
+# ──────────────────────────────────────────────────────────────────────
+
 import boto3
 import uuid
 import os
