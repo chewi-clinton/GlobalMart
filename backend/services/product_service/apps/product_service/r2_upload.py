@@ -1,10 +1,18 @@
 # ─── MUST BE AT THE VERY TOP BEFORE OTHER IMPORTS ─────────────────────
 import ssl
-import urllib3.util.ssl_ as urllib3_ssl
+import functools
 
-# Force lower security level to fix SSLV3_ALERT_HANDSHAKE_FAILURE 
-# with Cloudflare R2 on python:3.11-slim
-urllib3_ssl.DEFAULT_CIPHERS = 'DEFAULT@SECLEVEL=1'
+# urllib3 v2+ ignores DEFAULT_CIPHERS; patch create_default_context instead.
+# Required to fix SSLV3_ALERT_HANDSHAKE_FAILURE with Cloudflare R2 on Python 3.12.
+_orig_create_default_context = ssl.create_default_context
+
+@functools.wraps(_orig_create_default_context)
+def _patched_create_default_context(*args, **kwargs):
+    ctx = _orig_create_default_context(*args, **kwargs)
+    ctx.set_ciphers('DEFAULT@SECLEVEL=1')
+    return ctx
+
+ssl.create_default_context = _patched_create_default_context
 # ──────────────────────────────────────────────────────────────────────
 
 import boto3
