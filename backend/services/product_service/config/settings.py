@@ -115,6 +115,8 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(
         days=int(os.environ.get("JWT_REFRESH_TOKEN_LIFETIME_DAYS", 7))
     ),
+    "SIGNING_KEY": SECRET_KEY,  # ✅ ADD THIS LINE!!!
+    "ALGORITHM": "HS256",       # ✅ ADD THIS LINE TOO!!!
     "ROTATE_REFRESH_TOKENS": False,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
