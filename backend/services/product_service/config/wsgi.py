@@ -1,6 +1,7 @@
 import os
 import ssl
 import logging
+import urllib3  # ← ADD THIS LINE
 import urllib3.util.ssl_ as _urllib3_ssl
 import urllib3.connection as _urllib3_conn
 
