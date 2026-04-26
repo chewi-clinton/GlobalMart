@@ -13,8 +13,8 @@ const CartItemPrice = ({ price, currency }) => {
   return <>{formatPrice(price, currency)}</>;
 };
 
-// Cart Item Component
-const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
+// Cart Item Component — forwardRef so AnimatePresence can attach its ref
+const CartItem = React.forwardRef(({ item, onRemove, onUpdateQuantity, index }, ref) => {
   const handleQuantityChange = (delta) => {
     const newQuantity = item.quantity + delta;
     if (newQuantity >= 1 && newQuantity <= 99) {
@@ -24,6 +24,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
 
   return (
     <motion.div
+      ref={ref}
       className="cart-item"
       initial={{ opacity: 0, x: -50 }}
       animate={{ opacity: 1, x: 0 }}
@@ -98,7 +99,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
       </div>
     </motion.div>
   );
-};
+});
 
 // Order Summary Component
 const OrderSummary = ({ items, onCheckout }) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { placeOrder, initiatePayment } from "../api";
 import { showToast } from "../components/Toast";
+import { useCurrency } from "../context/CurrencyContext";
 import "../styles/PaymentPage.css";
 
 const steps = ["Delivery Address", "Payment Method", "Review Order"];
@@ -10,12 +11,18 @@ const SHIPPING_FEE = 0;
 
 const PaymentPage = () => {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const [currentStep, setCurrentStep] = useState(1);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [promoCode, setPromoCode] = useState("");
-  const [savedAddress, setSavedAddress] = useState(null);
+  const [savedAddress, setSavedAddress] = useState(() => {
+    try {
+      const stored = localStorage.getItem("gm_delivery_address");
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  });
   const [cartItems, setCartItems] = useState([]);
   const [placing, setPlacing] = useState(false);
   const [orderError, setOrderError] = useState("");
@@ -52,6 +59,7 @@ const PaymentPage = () => {
   const handleSaveAddress = (e) => {
     e.preventDefault();
     setSavedAddress(address);
+    localStorage.setItem("gm_delivery_address", JSON.stringify(address));
     setShowAddressForm(false);
   };
 
@@ -79,12 +87,12 @@ const PaymentPage = () => {
         product_id: item.id,
         seller_id: item.seller_id || 1,
         quantity: item.quantity,
-        unit_price: item.price.toFixed(2),
+        unit_price: parseFloat(item.price).toFixed(2),
         ...(item.variant_id ? { variant_id: item.variant_id } : {}),
       })),
       currency_code: currency,
-      shipping_address: shippingAddress,
-      notes: "",
+      // Omit empty strings — DRF CharField rejects "" when allow_blank is False
+      ...(shippingAddress ? { shipping_address: shippingAddress } : {}),
     };
 
     try {
@@ -114,6 +122,7 @@ const PaymentPage = () => {
       });
 
       localStorage.removeItem("cart");
+      window.dispatchEvent(new Event("auth-change")); // sync header cart badge
       showToast(`Order #${orderData.order_id} placed! Payment initiated.`, "success");
       navigate("/", { state: { orderSuccess: true, orderId: orderData.order_id } });
     } catch {
@@ -351,7 +360,7 @@ const PaymentPage = () => {
                       <p className="payment__review-item-qty">Qty: {item.quantity}</p>
                     </div>
                     <p className="payment__review-item-price">
-                      {(item.price * item.quantity).toLocaleString()} {item.currency}
+                      {formatPrice(item.price * item.quantity, item.currency)}
                     </p>
                   </div>
                 ))}
@@ -410,16 +419,16 @@ const PaymentPage = () => {
           <div className="payment__summary-box">
             <div className="payment__summary-row">
               <span>Items ({cartItems.reduce((s, i) => s + i.quantity, 0)}):</span>
-              <span>{itemsTotal.toLocaleString()} {currency}</span>
+              <span>{formatPrice(itemsTotal, currency)}</span>
             </div>
             <div className="payment__summary-row">
               <span>Shipping & handling:</span>
-              <span>{SHIPPING_FEE === 0 ? "FREE" : `${SHIPPING_FEE} ${currency}`}</span>
+              <span>{SHIPPING_FEE === 0 ? "FREE" : formatPrice(SHIPPING_FEE, currency)}</span>
             </div>
             <div className="payment__summary-divider" />
             <div className="payment__summary-total">
               <span>Order total:</span>
-              <span>{parseFloat(orderTotal).toLocaleString()} {currency}</span>
+              <span>{formatPrice(parseFloat(orderTotal), currency)}</span>
             </div>
           </div>
         </div>
