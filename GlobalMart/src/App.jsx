@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 const routerFuture = { v7_startTransition: true, v7_relativeSplatPath: true };
 import "./App.css";
 import { CurrencyProvider } from "./context/CurrencyContext";
+import { AdminRoute, SellerRoute } from "./components/AdminRoute";
 
 import Header from "./components/Header.jsx";
 import Toast from "./components/Toast.jsx";
@@ -60,13 +61,13 @@ function App() {
             />
             <Route path="/favorite" element={<Favorite />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin/warehouse" element={<WarehouseAdmin />} />
+            <Route path="/admin/warehouse" element={<AdminRoute><WarehouseAdmin /></AdminRoute>} />
             <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/admin/customers" element={<CustomerOrderAdmin />} />
+            <Route path="/admin/customers" element={<AdminRoute><CustomerOrderAdmin /></AdminRoute>} />
             <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/payment" element={<PaymentPage />} />
-            <Route path="/seller" element={<SellerDashboard />} />
-            <Route path="/super-admin" element={<SuperAdminDashboard />} />
+            <Route path="/seller" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
+            <Route path="/super-admin" element={<AdminRoute><SuperAdminDashboard /></AdminRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

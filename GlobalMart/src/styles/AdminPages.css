@@ -254,6 +254,28 @@
   color: #fff;
 }
 
+.ap__action-btn--edit {
+  background: #fff8e1;
+  color: #e47911;
+  border-color: #f0c14b;
+}
+
+.ap__action-btn--edit:hover {
+  background: #f0c14b;
+  color: #111;
+}
+
+.ap__action-btn--approve {
+  background: #e6f4ea;
+  color: #007600;
+  border-color: #007600;
+}
+
+.ap__action-btn--approve:hover {
+  background: #007600;
+  color: #fff;
+}
+
 /* Select */
 .ap__select {
   padding: 6px 10px;

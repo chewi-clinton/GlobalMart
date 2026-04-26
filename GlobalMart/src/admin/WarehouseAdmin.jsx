@@ -1,58 +1,90 @@
-import { useState } from 'react'
-import '../styles/AdminPages.css'
+import { useState, useEffect } from "react";
+import { getInventory, adjustStock } from "../api";
+import { showToast } from "../components/Toast";
+import "../styles/AdminPages.css";
 
-const initialProducts = [
-  { id: 1, name: 'Wireless Headphones', category: 'Electronics', stock: 120, price: 59.99, status: 'In Stock' },
-  { id: 2, name: 'Running Shoes', category: 'Footwear', stock: 8, price: 89.99, status: 'Low Stock' },
-  { id: 3, name: 'Coffee Maker', category: 'Appliances', stock: 0, price: 45.00, status: 'Out of Stock' },
-  { id: 4, name: 'Yoga Mat', category: 'Sports', stock: 55, price: 25.00, status: 'In Stock' },
-  { id: 5, name: 'Smartphone Case', category: 'Accessories', stock: 5, price: 12.99, status: 'Low Stock' },
-]
+const stockStatus = (qty, threshold) => {
+  if (qty === 0)              return { label: "Out of Stock", bg: "#fce8e6", color: "#cc0c39" };
+  if (qty <= (threshold || 10)) return { label: "Low Stock",   bg: "#fff8e1", color: "#e47911" };
+  return                           { label: "In Stock",     bg: "#e6f4ea", color: "#007600" };
+};
 
 function WarehouseAdmin() {
-  const [products, setProducts] = useState(initialProducts)
-  const [search, setSearch] = useState('')
-  const [showForm, setShowForm] = useState(false)
-  const [newProduct, setNewProduct] = useState({
-    name: '', category: '', stock: '', price: '', status: 'In Stock'
-  })
+  const [inventory, setInventory] = useState([]);
+  const [search, setSearch]       = useState("");
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState("");
+  const [adjusting, setAdjusting] = useState(null); // inventory_id being adjusted
+  const [adjustDelta, setAdjustDelta] = useState("");
 
-  const totalProducts = products.length
-  const lowStock = products.filter(p => p.status === 'Low Stock').length
-  const outOfStock = products.filter(p => p.status === 'Out of Stock').length
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        const data = await getInventory();
+        if (Array.isArray(data)) {
+          setInventory(data);
+        } else {
+          setError("Failed to load inventory.");
+        }
+      } catch {
+        setError("Network error loading inventory.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchInventory();
+  }, []);
 
-  const filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.category.toLowerCase().includes(search.toLowerCase())
-  )
+  const totalProducts = inventory.length;
+  const lowStock  = inventory.filter((i) => {
+    const s = stockStatus(i.quantity ?? i.stock_quantity ?? 0, i.reorder_threshold);
+    return s.label === "Low Stock";
+  }).length;
+  const outOfStock = inventory.filter((i) => {
+    const qty = i.quantity ?? i.stock_quantity ?? 0;
+    return qty === 0;
+  }).length;
 
-  const handleDelete = (id) => {
-    setProducts(products.filter(p => p.id !== id))
-  }
+  const filtered = inventory.filter((item) => {
+    const q = search.toLowerCase();
+    return (
+      String(item.product_id).includes(q) ||
+      item.product_name?.toLowerCase().includes(q) ||
+      item.sku?.toLowerCase().includes(q) ||
+      item.warehouse_name?.toLowerCase().includes(q)
+    );
+  });
 
-  const handleAdd = () => {
-    if (!newProduct.name || !newProduct.category || !newProduct.stock || !newProduct.price) return
-    const product = {
-      id: products.length + 1,
-      ...newProduct,
-      stock: parseInt(newProduct.stock),
-      price: parseFloat(newProduct.price),
+  const handleAdjust = async (inventoryId) => {
+    const delta = parseInt(adjustDelta, 10);
+    if (isNaN(delta)) { showToast("Enter a valid number.", "error"); return; }
+    try {
+      const updated = await adjustStock(inventoryId, { quantity_change: delta, reason: "Admin adjustment" });
+      if (updated) {
+        setInventory((prev) =>
+          prev.map((item) =>
+            item.inventory_id === inventoryId
+              ? { ...item, quantity: (item.quantity ?? 0) + delta, stock_quantity: (item.stock_quantity ?? 0) + delta }
+              : item
+          )
+        );
+        showToast("Stock adjusted.", "success");
+      } else {
+        showToast("Adjustment failed.", "error");
+      }
+    } catch {
+      showToast("Network error.", "error");
+    } finally {
+      setAdjusting(null);
+      setAdjustDelta("");
     }
-    setProducts([...products, product])
-    setNewProduct({ name: '', category: '', stock: '', price: '', status: 'In Stock' })
-    setShowForm(false)
-  }
+  };
 
-  const statusConfig = (status) => {
-    if (status === 'In Stock') return { bg: '#e6f4ea', color: '#007600' }
-    if (status === 'Low Stock') return { bg: '#fff8e1', color: '#e47911' }
-    return { bg: '#fce8e6', color: '#cc0c39' }
-  }
+  if (loading) return <div className="ap"><p style={{ padding: 24, color: "#888" }}>Loading inventory…</p></div>;
+  if (error)   return <div className="ap"><p style={{ padding: 24, color: "#c0392b" }}>{error}</p></div>;
 
   return (
     <div className="ap">
-
-      {/* Page Title */}
       <div className="ap__header">
         <h2 className="ap__title">Warehouse Admin</h2>
       </div>
@@ -60,12 +92,11 @@ function WarehouseAdmin() {
       {/* Summary Cards */}
       <div className="ap__cards">
         {[
-          { label: 'Total Products', value: totalProducts, icon: '', color: '#1a73e8' },
-          { label: 'Low Stock', value: lowStock, icon: '', color: '#e47911' },
-          { label: 'Out of Stock', value: outOfStock, icon: '', color: '#cc0c39' },
+          { label: "Total Products", value: totalProducts, color: "#1a73e8" },
+          { label: "Low Stock",      value: lowStock,      color: "#e47911" },
+          { label: "Out of Stock",   value: outOfStock,    color: "#cc0c39" },
         ].map((card) => (
           <div key={card.label} className="ap__card">
-            <span className="ap__card-icon" style={{ color: card.color }}>{card.icon}</span>
             <div>
               <p className="ap__card-label">{card.label}</p>
               <p className="ap__card-value" style={{ color: card.color }}>{card.value}</p>
@@ -74,111 +105,86 @@ function WarehouseAdmin() {
         ))}
       </div>
 
-      {/* Search + Add Button */}
+      {/* Search */}
       <div className="ap__toolbar">
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder="Search by product ID, name or SKU…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="ap__search"
         />
-        <button
-          className="ap__btn ap__btn--primary"
-          onClick={() => setShowForm(!showForm)}
-        >
-          + Add Product
-        </button>
       </div>
 
-      {/* Add Product Form */}
-      {showForm && (
-        <div className="ap__form">
-          <h3 className="ap__form-title">Add New Product</h3>
-          <div className="ap__form-grid">
-            {[
-              { placeholder: 'Product Name', key: 'name' },
-              { placeholder: 'Category', key: 'category' },
-              { placeholder: 'Stock Quantity', key: 'stock' },
-              { placeholder: 'Price ($)', key: 'price' },
-            ].map((field) => (
-              <input
-                key={field.key}
-                type="text"
-                placeholder={field.placeholder}
-                value={newProduct[field.key]}
-                onChange={(e) => setNewProduct({ ...newProduct, [field.key]: e.target.value })}
-                className="ap__input"
-              />
-            ))}
-            <select
-              value={newProduct.status}
-              onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value })}
-              className="ap__input"
-            >
-              <option>In Stock</option>
-              <option>Low Stock</option>
-              <option>Out of Stock</option>
-            </select>
-          </div>
-          <div className="ap__form-actions">
-            <button className="ap__btn ap__btn--primary" onClick={handleAdd}>
-              Save Product
-            </button>
-            <button
-              className="ap__btn ap__btn--secondary"
-              onClick={() => setShowForm(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Products Table */}
+      {/* Inventory Table */}
       <div className="ap__table-wrapper">
         <table className="ap__table">
           <thead>
             <tr>
-              {['#', 'Product Name', 'Category', 'Stock', 'Price', 'Status', 'Actions'].map(col => (
+              {["#", "Product ID", "Product", "SKU", "Warehouse", "Qty", "Threshold", "Status", "Adjust Stock"].map((col) => (
                 <th key={col}>{col}</th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {filtered.map((product, index) => {
-              const sc = statusConfig(product.status)
-              return (
-                <tr key={product.id}>
-                  <td className="ap__td-muted">{index + 1}</td>
-                  <td className="ap__td-bold">{product.name}</td>
-                  <td className="ap__td-muted">{product.category}</td>
-                  <td>{product.stock}</td>
-                  <td>${product.price.toFixed(2)}</td>
-                  <td>
-                    <span
-                      className="ap__badge"
-                      style={{ backgroundColor: sc.bg, color: sc.color }}
-                    >
-                      {product.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="ap__action-btn ap__action-btn--delete"
-                      onClick={() => handleDelete(product.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
+            {filtered.length === 0 ? (
+              <tr><td colSpan={9} style={{ textAlign: "center", padding: 24, color: "#888" }}>No inventory found.</td></tr>
+            ) : (
+              filtered.map((item, index) => {
+                const qty       = item.quantity ?? item.stock_quantity ?? 0;
+                const threshold = item.reorder_threshold ?? 10;
+                const sc        = stockStatus(qty, threshold);
+                const id        = item.inventory_id;
+                return (
+                  <tr key={id ?? index}>
+                    <td className="ap__td-muted">{index + 1}</td>
+                    <td className="ap__td-bold">{item.product_id}</td>
+                    <td>{item.product_name || "—"}</td>
+                    <td className="ap__td-muted">{item.sku || "—"}</td>
+                    <td className="ap__td-muted">{item.warehouse_name || item.warehouse_id || "—"}</td>
+                    <td><strong>{qty}</strong></td>
+                    <td className="ap__td-muted">{threshold}</td>
+                    <td>
+                      <span className="ap__badge" style={{ backgroundColor: sc.bg, color: sc.color }}>
+                        {sc.label}
+                      </span>
+                    </td>
+                    <td>
+                      {adjusting === id ? (
+                        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                          <input
+                            type="number"
+                            placeholder="±qty"
+                            value={adjustDelta}
+                            onChange={(e) => setAdjustDelta(e.target.value)}
+                            className="ap__input"
+                            style={{ width: 70 }}
+                          />
+                          <button className="ap__action-btn ap__action-btn--approve" onClick={() => handleAdjust(id)}>
+                            Save
+                          </button>
+                          <button className="ap__action-btn" onClick={() => { setAdjusting(null); setAdjustDelta(""); }}>
+                            ✕
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="ap__action-btn ap__action-btn--edit"
+                          onClick={() => { setAdjusting(id); setAdjustDelta(""); }}
+                        >
+                          Adjust
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
     </div>
-  )
+  );
 }
 
-export default WarehouseAdmin
+export default WarehouseAdmin;
