@@ -67,7 +67,7 @@ const s = {
 };
 
 // ── Single category slider section ────────────────────────────────────────────
-const CategorySection = ({ title, products, navigate }) => {
+const CategorySection = ({ title, categoryId, products, navigate }) => {
   const [index, setIndex] = useState(0);
   const visible = 5;
 
@@ -123,7 +123,7 @@ const CategorySection = ({ title, products, navigate }) => {
         </button>
       </div>
 
-      <button style={s.link} onClick={() => navigate("/shop")}>
+      <button style={s.link} onClick={() => navigate(`/shop?category=${categoryId}`)}>
         See all →
       </button>
     </div>
@@ -209,6 +209,7 @@ const BestSellerSlider = () => {
         <CategorySection
           key={group.categoryId}
           title={`Best Sellers in ${group.title}`}
+          categoryId={group.categoryId}
           products={group.products}
           navigate={navigate}
         />

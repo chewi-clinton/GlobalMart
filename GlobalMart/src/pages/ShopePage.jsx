@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import sorryAnimation from "../assets/sorry.json";
@@ -314,6 +314,7 @@ const FilterSidebar = ({ filters, setFilters, priceMax }) => {
 
 const ShopPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { formatPrice } = useCurrency();
   const [products, setProducts] = useState([]);
   const [categories, setCategoriesList] = useState(["All"]);
@@ -337,6 +338,15 @@ const ShopPage = () => {
           data.forEach((c) => { map[c.name] = c.category_id; });
           setCategoryMap(map);
           setCategoriesList(["All", ...data.map((c) => c.name)]);
+
+          const urlId = parseInt(searchParams.get("category"));
+          if (urlId) {
+            const matched = data.find((c) => c.category_id === urlId);
+            if (matched) {
+              setActiveCategory(matched.name);
+              setActiveCategoryId(urlId);
+            }
+          }
         }
       } catch {
         // categories are non-critical

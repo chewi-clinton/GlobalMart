@@ -34,7 +34,7 @@ function HomePage() {
       <Hero />
 
       <Categories />
-      <Footer />
+      
     </>
   );
 }

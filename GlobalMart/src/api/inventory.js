@@ -7,6 +7,13 @@ export const getInventory = (params = {}) => {
   return request(`${INVENTORY_URL}/${query ? "?" + query : ""}`, { method: "GET" });
 };
 
+export const createInventoryEntry = (data) =>
+  request(`${INVENTORY_URL}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
 export const getInventoryDetail = (inventoryId) =>
   request(`${INVENTORY_URL}/${inventoryId}/`, { method: "GET" });
 

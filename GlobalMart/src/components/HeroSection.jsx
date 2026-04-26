@@ -132,7 +132,7 @@ const Hero = () => {
                     <div
                       key={item.id}
                       className="fashion-item"
-                      onClick={() => navigate("/shop")}
+                      onClick={() => navigate(`/shop?category=${section.categoryId}`)}
                       style={{ cursor: "pointer" }}
                     >
                       <img src={item.image} alt={item.name} />
@@ -149,7 +149,7 @@ const Hero = () => {
               <button
                 className="explore-link"
                 style={{ background: "none", border: "none", padding: 0, cursor: "pointer" }}
-                onClick={() => navigate("/shop")}
+                onClick={() => navigate(`/shop?category=${section.categoryId}`)}
               >
                 Explore more
               </button>

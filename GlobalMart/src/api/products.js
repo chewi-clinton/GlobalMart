@@ -83,3 +83,13 @@ export const uploadProductImage = async (productId, file, options = {}) => {
     body: formData,
   });
 };
+
+export const deleteProductImage = (productId, imageId) =>
+  request(`${PRODUCT_URL}/${productId}/images/${imageId}/`, { method: "DELETE" });
+
+export const setImagePrimary = (productId, imageId) =>
+  request(`${PRODUCT_URL}/${productId}/images/${imageId}/`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ is_primary: true }),
+  });
