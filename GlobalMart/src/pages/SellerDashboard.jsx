@@ -77,12 +77,13 @@ const StatusBadge = ({ status }) => {
 
 // ── Mini Bar Chart ──
 const BarChart = ({ data }) => {
+  if (!data.length) return <p style={{ color: "#888", padding: "20px" }}>No sales data yet.</p>;
   const max = Math.max(...data.map((d) => d.sales));
   return (
     <div className="sd__chart">
       {data.map((d, i) => (
         <div key={i} className="sd__chart-bar-wrapper">
-          <div className="sd__chart-bar" style={{ height: `${(d.sales / max) * 100}%` }} title={`$${d.sales}`} />
+          <div className="sd__chart-bar" style={{ height: `${max > 0 ? (d.sales / max) * 100 : 0}%` }} title={d.sales.toLocaleString()} />
           <span className="sd__chart-label">{d.month}</span>
         </div>
       ))}
@@ -90,12 +91,20 @@ const BarChart = ({ data }) => {
   );
 };
 
-const monthlySales = [
-  { month: "Oct", sales: 3200 }, { month: "Nov", sales: 4100 },
-  { month: "Dec", sales: 6800 }, { month: "Jan", sales: 3900 },
-  { month: "Feb", sales: 4500 }, { month: "Mar", sales: 5200 },
-  { month: "Apr", sales: 2100 },
-];
+// Derive monthly sales from real order data
+const groupOrdersByMonth = (orders) => {
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const map = {};
+  orders.forEach((o) => {
+    if (!o.order_date) return;
+    const key = MONTHS[new Date(o.order_date).getMonth()];
+    map[key] = (map[key] || 0) + parseFloat(o.total_amount || 0);
+  });
+  return MONTHS
+    .filter((m) => map[m] !== undefined)
+    .slice(-7)
+    .map((m) => ({ month: m, sales: map[m] }));
+};
 
 // ════════════════════════════════════════
 // MAIN COMPONENT
@@ -341,6 +350,9 @@ const SellerDashboard = () => {
       setTimeout(() => setSettingsMsg(""), 3000);
     }
   };
+
+  // Derived from real orders — replaces the old hardcoded monthlySales array
+  const monthlySales = groupOrdersByMonth(orders);
 
   const filteredProducts = products.filter((p) =>
     p.title?.toLowerCase().includes(productSearch.toLowerCase())

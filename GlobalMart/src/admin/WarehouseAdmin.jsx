@@ -4,10 +4,14 @@ import { showToast } from "../components/Toast";
 import "../styles/AdminPages.css";
 
 const stockStatus = (qty, threshold) => {
-  if (qty === 0)              return { label: "Out of Stock", bg: "#fce8e6", color: "#cc0c39" };
-  if (qty <= (threshold || 10)) return { label: "Low Stock",   bg: "#fff8e1", color: "#e47911" };
-  return                           { label: "In Stock",     bg: "#e6f4ea", color: "#007600" };
+  const q = qty ?? 0;
+  if (q === 0)                    return { label: "Out of Stock", bg: "#fce8e6", color: "#cc0c39" };
+  if (q <= (threshold ?? 10))     return { label: "Low Stock",   bg: "#fff8e1", color: "#e47911" };
+  return                                 { label: "In Stock",     bg: "#e6f4ea", color: "#007600" };
 };
+
+// Read whichever quantity field the inventory API returns
+const getQty = (item) => item.quantity_on_hand ?? item.quantity ?? item.stock_quantity ?? 0;
 
 function WarehouseAdmin() {
   const [inventory, setInventory] = useState([]);
@@ -36,14 +40,8 @@ function WarehouseAdmin() {
   }, []);
 
   const totalProducts = inventory.length;
-  const lowStock  = inventory.filter((i) => {
-    const s = stockStatus(i.quantity ?? i.stock_quantity ?? 0, i.reorder_threshold);
-    return s.label === "Low Stock";
-  }).length;
-  const outOfStock = inventory.filter((i) => {
-    const qty = i.quantity ?? i.stock_quantity ?? 0;
-    return qty === 0;
-  }).length;
+  const lowStock   = inventory.filter((i) => stockStatus(getQty(i), i.reorder_threshold).label === "Low Stock").length;
+  const outOfStock = inventory.filter((i) => getQty(i) === 0).length;
 
   const filtered = inventory.filter((item) => {
     const q = search.toLowerCase();
@@ -64,7 +62,7 @@ function WarehouseAdmin() {
         setInventory((prev) =>
           prev.map((item) =>
             item.inventory_id === inventoryId
-              ? { ...item, quantity: (item.quantity ?? 0) + delta, stock_quantity: (item.stock_quantity ?? 0) + delta }
+              ? { ...item, quantity_on_hand: (item.quantity_on_hand ?? item.quantity ?? 0) + delta, quantity: (item.quantity ?? 0) + delta }
               : item
           )
         );
@@ -131,7 +129,7 @@ function WarehouseAdmin() {
               <tr><td colSpan={9} style={{ textAlign: "center", padding: 24, color: "#888" }}>No inventory found.</td></tr>
             ) : (
               filtered.map((item, index) => {
-                const qty       = item.quantity ?? item.stock_quantity ?? 0;
+                const qty       = getQty(item);
                 const threshold = item.reorder_threshold ?? 10;
                 const sc        = stockStatus(qty, threshold);
                 const id        = item.inventory_id;
