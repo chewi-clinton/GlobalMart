@@ -208,6 +208,7 @@ const WishlistButton = ({ product }) => {
 // ─── Product Card ─────────────────────────────────────────────────────
 
 const ProductCard = ({ product, index, onProductClick }) => {
+  const { formatPrice } = useCurrency(); // ← fix: pull formatPrice from context
   const [isHovered, setIsHovered] = useState(false);
 
   return (

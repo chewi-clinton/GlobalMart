@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProductDetail } from "../api";
 import { showToast } from "../components/Toast";
+import { useCurrency } from "../context/CurrencyContext";
 import "../styles/ProductDetailPage.css";
 
 // ─── Cart helpers ─────────────────────────────────────────────────────
@@ -86,6 +87,7 @@ const mapProductDetail = (p) => {
 const ProductDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -242,7 +244,7 @@ const ProductDetailPage = () => {
           {/* Price */}
           <div className="pdp__price-row">
             <span className="pdp__price">
-              {product.price.toLocaleString()} {product.currency}
+              {formatPrice(product.price, product.currency)}
             </span>
           </div>
 
@@ -255,7 +257,7 @@ const ProductDetailPage = () => {
         {/* Buy Box */}
         <div className="pdp__buybox">
           <p className="pdp__buybox-price">
-            {product.price.toLocaleString()} {product.currency}
+            {formatPrice(product.price, product.currency)}
           </p>
 
           <p className="pdp__buybox-delivery">
