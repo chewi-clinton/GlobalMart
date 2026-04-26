@@ -540,6 +540,93 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 480px) {
+  .payment__header {
+    padding: 10px 16px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .payment__logo {
+    font-size: 20px;
+  }
+
+  .payment__title {
+    font-size: 15px;
+  }
+
+  /* Allow payment steps to scroll horizontally on small phones */
+  .payment__steps {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .payment__steps::-webkit-scrollbar {
+    display: none;
+  }
+
+  .payment__step {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .payment__step-arrow {
+    font-size: 14px;
+  }
+
+  .payment__body {
+    padding: 0 8px;
+    margin: 16px auto;
+    gap: 14px;
+  }
+
+  .payment__section {
+    padding: 16px;
+  }
+
+  .payment__section-title {
+    font-size: 16px;
+  }
+
+  .payment__address-form {
+    padding: 14px;
+  }
+
+  .payment__promo-input {
+    max-width: 100%;
+  }
+
+  .payment__promo-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .payment__btn--secondary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .payment__header {
+    padding: 8px 12px;
+  }
+
+  .payment__logo {
+    font-size: 18px;
+  }
+
+  .payment__section {
+    padding: 12px;
+  }
+
+  .payment__summary-box {
+    padding: 12px;
+  }
+}
 .payment__review-items { margin-bottom: 16px; }
 .payment__review-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
 .payment__review-img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }

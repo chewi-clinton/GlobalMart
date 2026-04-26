@@ -531,9 +531,10 @@ const Header = () => {
             className="nav-item nav-item--cart"
             onClick={() => navigate("/cart")}
           >
-            <FiShoppingCart className="main-nav__cart-icon" />
-            <span className="main-nav__cart-badge">{cartCount}</span>
-            <span className="nav-item__cart-text">Cart</span>
+            <div className="main-nav__cart-wrapper">
+              <FiShoppingCart className="main-nav__cart-icon" />
+              <span className="main-nav__cart-badge">{cartCount > 99 ? "99+" : cartCount}</span>
+            </div>
           </div>
 
           {/* Logout — visible only when signed in */}

@@ -290,3 +290,44 @@
     align-items: flex-start;
   }
 }
+
+@media (max-width: 480px) {
+  .ap {
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .ap__title {
+    font-size: 18px;
+  }
+
+  .ap__card {
+    min-width: 100%;
+  }
+
+  .ap__card-value {
+    font-size: 22px;
+  }
+
+  .ap__form {
+    padding: 14px;
+  }
+
+  .ap__form-grid {
+    flex-direction: column;
+  }
+
+  .ap__input {
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .ap {
+    padding: 10px;
+  }
+
+  .ap__title {
+    font-size: 16px;
+  }
+}

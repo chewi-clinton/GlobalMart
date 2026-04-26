@@ -367,6 +367,22 @@
   }
 }
 
+@media (max-width: 360px) {
+  .shop-container {
+    padding: 16px 10px 30px;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .category-pill {
+    padding: 7px 14px;
+    font-size: 0.8rem;
+  }
+}
+
 /* ===================================
    Product Card
    =================================== */

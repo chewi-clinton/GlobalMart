@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api";
-import { showToast } from "../components/Toast";
 import logo from "../assets/logo.png";
+import { showToast } from "../components/Toast";
+
 import "../styles/LoginPage.css";
 
 const LoginPage = () => {
@@ -50,8 +51,7 @@ const LoginPage = () => {
 
   return (
     <div className="login-page">
-
-      {/* Logo */}
+    {/* Logo */}
       <div className="login-page__logo-wrapper">
         <img src={logo} alt="GlobalMart" className="login-page__logo" />
       </div>

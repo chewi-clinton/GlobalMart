@@ -430,6 +430,61 @@
   }
 }
 
+@media (max-width: 360px) {
+  .favorites-page {
+    padding: 16px 10px 30px;
+  }
+
+  .favorites-grid {
+    max-width: 100%;
+    column-gap: 0;
+  }
+
+  .favorites-header {
+    margin-bottom: 20px;
+    padding-bottom: 14px;
+  }
+
+  .header-title {
+    font-size: 1.25rem;
+  }
+
+  .header-count {
+    font-size: 0.95rem;
+  }
+
+  .card-content {
+    padding: 12px 14px 14px;
+  }
+
+  .card-name {
+    font-size: 0.875rem;
+  }
+
+  .card-price {
+    font-size: 1rem;
+  }
+
+  .discover-btn {
+    padding: 14px 24px;
+    font-size: 0.95rem;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .empty-lottie {
+    max-width: 220px;
+  }
+
+  .empty-title {
+    font-size: 1.15rem;
+  }
+
+  .empty-message {
+    font-size: 0.875rem;
+  }
+}
+
 /* ===================================
    Touch Devices
    =================================== */

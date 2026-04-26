@@ -715,8 +715,80 @@
 }
 
 @media (max-width: 768px) {
+  /* Convert sidebar to a horizontal scrollable tab bar */
+  .sd__layout {
+    flex-direction: column;
+  }
+
   .sd__sidebar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 48px;
+    z-index: 90;
+    border-right: none;
+    border-bottom: 2px solid #e7e7e7;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    background: #ffffff;
+  }
+
+  .sd__sidebar::-webkit-scrollbar {
     display: none;
+  }
+
+  .sd__sidebar-profile {
+    display: none;
+  }
+
+  .sd__sidebar-health {
+    display: none;
+  }
+
+  .sd__sidebar-nav {
+    flex-direction: row;
+    gap: 0;
+    padding: 0;
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .sd__nav-item {
+    flex-direction: column;
+    padding: 8px 14px;
+    font-size: 11px;
+    gap: 3px;
+    border-radius: 0;
+    white-space: nowrap;
+    width: auto;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    min-height: 52px;
+    justify-content: center;
+  }
+
+  .sd__nav-item--active {
+    border-left: none;
+    border-bottom: 3px solid #f0c14b;
+    background: #fff8e1;
+  }
+
+  .sd__nav-icon {
+    font-size: 18px;
+  }
+
+  .sd__content {
+    padding: 16px;
+  }
+
+  /* Make tables horizontally scrollable */
+  .sd__table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sd__settings-grid {
@@ -733,5 +805,59 @@
 
   .sd__cards {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .sd__topbar {
+    padding: 10px 16px;
+  }
+
+  .sd__topbar-logo {
+    font-size: 18px;
+  }
+
+  .sd__topbar-title {
+    display: none;
+  }
+
+  .sd__topbar-store {
+    font-size: 12px;
+  }
+
+  .sd__topbar-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .sd__section-title {
+    font-size: 18px;
+  }
+
+  .sd__content {
+    padding: 12px;
+  }
+
+  .sd__health-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .sd__chart {
+    gap: 6px;
+  }
+
+  .sd__chart-label {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 360px) {
+  .sd__nav-item {
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+
+  .sd__content {
+    padding: 10px;
   }
 }

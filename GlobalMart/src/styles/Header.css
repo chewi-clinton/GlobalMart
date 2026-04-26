@@ -251,9 +251,16 @@ select {
 /* Cart Specific */
 .nav-item--cart {
   flex-direction: row;
-  align-items: flex-end;
-  gap: 2px;
-  padding-bottom: 10px;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+}
+
+.main-nav__cart-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .main-nav__cart-icon {
@@ -262,18 +269,23 @@ select {
 }
 
 .main-nav__cart-badge {
-  position: relative;
-  top: 10px;
-  left: 22px;
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--amazon-orange);
-}
-
-.nav-item__cart-text {
-  font-size: 14px;
-  font-weight: 700;
-  color: #ffffff;
+  position: absolute;
+  top: -7px;
+  right: -9px;
+  min-width: 20px;
+  height: 20px;
+  background: var(--amazon-orange);
+  color: #111111;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 /* Dropdown Base Styles */
@@ -592,6 +604,14 @@ select {
     display: none;
   }
 
+  .main-nav__logout-btn {
+    display: none;
+  }
+
+  .main-nav__right {
+    margin-left: auto;
+  }
+
   .main-nav__hamburger {
     display: block;
   }
@@ -609,17 +629,58 @@ select {
     font-size: 18px;
   }
 }
+
+@media (max-width: 480px) {
+  .main-nav {
+    padding: 8px 12px;
+    height: 52px;
+    gap: 8px;
+  }
+
+  .main-nav__logo-text {
+    font-size: 16px;
+  }
+
+  .main-nav__cart-icon {
+    font-size: 24px;
+  }
+
+  .main-nav__cart-badge {
+    font-size: 14px;
+    top: 8px;
+    left: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .main-nav {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .main-nav__logo-text {
+    font-size: 14px;
+  }
+}
+
 /* Bottom Navigation Bar */
 .bottom-nav {
   background-color: #232f3e;
   padding: 8px 20px;
   border-top: 1px solid #3a4553;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bottom-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .bottom-nav__content {
   display: flex;
   gap: 20px;
   align-items: center;
+  min-width: max-content;
 }
 
 .bottom-nav__item {
@@ -629,6 +690,7 @@ select {
   border: 1px solid transparent;
   border-radius: 2px;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .bottom-nav__item:hover {
@@ -638,4 +700,27 @@ select {
 
 .bottom-nav__item svg {
   margin-right: 6px;
+}
+
+@media (max-width: 480px) {
+  .bottom-nav {
+    padding: 6px 12px;
+  }
+
+  .bottom-nav__item {
+    font-size: 12px;
+    padding: 5px 8px;
+  }
+
+  .bottom-nav__content {
+    gap: 8px;
+  }
+}
+
+/* Profile dropdown adjustment for small screens */
+@media (max-width: 360px) {
+  .profile-dropdown {
+    width: 280px;
+    right: -10px;
+  }
 }

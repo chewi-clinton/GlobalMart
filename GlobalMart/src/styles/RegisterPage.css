@@ -224,5 +224,32 @@
     box-shadow: none;
     padding: 16px;
   }
+
+  .register-page__logo {
+    height: 80px;
+  }
+}
+
+@media (max-width: 360px) {
+  .register-page {
+    padding: 16px 10px;
+  }
+
+  .register-page__logo {
+    height: 64px;
+  }
+
+  .register-page__card {
+    padding: 14px;
+  }
+
+  .register-page__title {
+    font-size: 1.2rem;
+    margin-bottom: 16px;
+  }
+
+  .register-page__submit {
+    padding: 11px;
+  }
 }
 .register-page__error { color: #c0392b; background: #fdecea; border: 1px solid #f5c6cb; border-radius: 4px; padding: 10px 14px; margin-bottom: 12px; font-size: 14px; }

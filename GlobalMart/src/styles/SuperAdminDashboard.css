@@ -470,11 +470,110 @@
 }
 
 @media (max-width: 768px) {
+  /* Convert sidebar to a horizontal scrollable tab bar */
+  .sa {
+    flex-direction: column;
+  }
+
   .sa__sidebar {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+  }
+
+  .sa__sidebar::-webkit-scrollbar {
     display: none;
+  }
+
+  .sa__sidebar-logo {
+    display: none;
+  }
+
+  .sa__sidebar-footer {
+    display: none;
+  }
+
+  .sa__sidebar-nav {
+    flex-direction: row;
+    gap: 0;
+    padding: 4px;
+    flex: 0 0 auto;
+  }
+
+  .sa__nav-item {
+    flex-direction: column;
+    padding: 8px 14px;
+    font-size: 11px;
+    gap: 3px;
+    border-radius: 4px;
+    white-space: nowrap;
+    width: auto;
+    border-left: none;
+    min-height: 52px;
+    justify-content: center;
+  }
+
+  .sa__nav-item--active {
+    border-left: none;
+    background: #232f3e;
+  }
+
+  .sa__nav-icon {
+    font-size: 18px;
+  }
+
+  .sa__main {
+    padding: 16px;
+  }
+
+  /* Make tables horizontally scrollable */
+  .sa__table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .sa__cards {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .sa__main {
+    padding: 12px;
+  }
+
+  .sa__section-title {
+    font-size: 18px;
+  }
+
+  .sa__nav-item {
+    padding: 7px 12px;
+    font-size: 10px;
+  }
+
+  .sa__chart {
+    gap: 6px;
+  }
+
+  .sa__chart-label {
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 360px) {
+  .sa__main {
+    padding: 10px;
+  }
+
+  .sa__nav-item {
+    padding: 6px 10px;
   }
 }

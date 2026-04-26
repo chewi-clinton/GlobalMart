@@ -515,6 +515,74 @@
   }
 }
 
+@media (max-width: 480px) {
+  .cart-page {
+    padding: 16px 12px;
+  }
+
+  .cart-page-title {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .order-summary {
+    padding: 20px;
+  }
+
+  .checkout-btn {
+    padding: 15px 20px;
+  }
+
+  .security-badges {
+    gap: 12px;
+  }
+
+  .security-badge {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .cart-item {
+    grid-template-columns: 70px 1fr;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .cart-item-name {
+    font-size: 0.9rem;
+  }
+
+  .cart-item-price {
+    font-size: 1rem;
+  }
+
+  .quantity-btn {
+    width: 34px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
+  .quantity-value {
+    width: 38px;
+    height: 34px;
+    font-size: 0.9rem;
+  }
+
+  .remove-btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  .cart-page-title {
+    font-size: 1.3rem;
+  }
+
+  .total-value {
+    font-size: 1.25rem;
+  }
+}
+
 /* ===================================
    Focus & Accessibility
    =================================== */
