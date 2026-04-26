@@ -724,3 +724,135 @@ select {
     right: -10px;
   }
 }
+
+/* ===================================
+   Amazon-Style Left Sidebar
+   =================================== */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 1100;
+  animation: overlayFadeIn 0.2s ease;
+}
+
+@keyframes overlayFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.left-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 320px;
+  max-width: 85vw;
+  height: 100vh;
+  background: #fff;
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.left-sidebar--open {
+  transform: translateX(0);
+}
+
+/* Header */
+.left-sidebar__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--amazon-dark);
+  color: #fff;
+  padding: 16px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.left-sidebar__close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  min-height: auto;
+  min-width: auto;
+}
+
+/* Scrollable body */
+.left-sidebar__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.left-sidebar__body::-webkit-scrollbar {
+  width: 4px;
+}
+.left-sidebar__body::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 2px;
+}
+
+/* Section */
+.left-sidebar__section {
+  border-bottom: 8px solid #f3f3f3;
+  padding-bottom: 6px;
+}
+
+.left-sidebar__section-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f1111;
+  padding: 18px 18px 10px;
+  margin: 0;
+}
+
+/* Item row */
+.left-sidebar__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 18px;
+  font-size: 14px;
+  color: #0f1111;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: auto;
+  min-width: auto;
+}
+
+.left-sidebar__item:hover {
+  background: #f3f3f3;
+}
+
+/* See all toggle */
+.left-sidebar__see-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f1111;
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  min-height: auto;
+  min-width: auto;
+}
+
+.left-sidebar__see-all:hover {
+  background: #f3f3f3;
+}

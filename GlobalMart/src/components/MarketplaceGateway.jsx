@@ -2,69 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "framer-motion";
 import { FaArrowRight } from "react-icons/fa";
 import "../styles/MarketplaceGateway.css";
-import bag from "../assets/bag.png";
-import watch from "../assets/smart_watch.jpg";
-import headphone from "../assets/headphone.jpg";
-import camera from "../assets/camera.jpg";
-import phone from "../assets/smartphone.jpg";
-import giftbox from "../assets/giftbox.jpg";
+import { getProducts } from "../api";
 
-// Same product images from hero section
-const productImages = [
-  {
-    id: 1,
-    image: bag,
-    name: "Premium Bag",
-    price: "$299",
-    badge: "Top Seller",
-    badgeColor: "#f0c14b",
-    seller_tag: "@trendy_finds",
-  },
-  {
-    id: 2,
-    image: watch,
-    name: "Smart Watch",
-    price: "$449",
-    badge: "Good Deals",
-    badgeColor: "#22c55e",
-    seller_tag: "@global_picks",
-  },
-  {
-    id: 3,
-    image: headphone,
-    name: "Wireless Audio",
-    price: "$189",
-    badge: "Recommended",
-    badgeColor: "#3b82f6",
-    seller_tag: null,
-  },
-  {
-    id: 4,
-    image: camera,
-    name: "Camera Pro",
-    price: "$899",
-    badge: "Best Value",
-    badgeColor: "#a855f7",
-    seller_tag: "@tech_hub",
-  },
-  {
-    id: 5,
-    image: phone,
-    name: "Smartphone X",
-    price: "$1,199",
-    badge: "Hot Item",
-    badgeColor: "#ef4444",
-    seller_tag: null,
-  },
-  {
-    id: 6,
-    image: giftbox,
-    name: "Gift Box",
-    price: "$59",
-    badge: "New Arrival",
-    badgeColor: "#06b6d4",
-    seller_tag: "@gift_lovers",
-  },
+const BADGE_PRESETS = [
+  { label: "Top Seller",   color: "#f0c14b" },
+  { label: "Good Deals",   color: "#22c55e" },
+  { label: "Recommended",  color: "#3b82f6" },
+  { label: "Best Value",   color: "#a855f7" },
+  { label: "Hot Item",     color: "#ef4444" },
+  { label: "New Arrival",  color: "#06b6d4" },
 ];
 
 // Animation variants for spring effect
@@ -301,10 +247,30 @@ const CardFan = ({ cards }) => {
 
 const GlobalMartShowcase = () => {
   const gatewayRef = useRef(null);
-  const isGatewayInView = useInView(gatewayRef, {
-    once: true,
-    margin: "-200px",
-  });
+  const isGatewayInView = useInView(gatewayRef, { once: true, margin: "-200px" });
+  const [featuredCards, setFeaturedCards] = useState([]);
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const data = await getProducts();
+        if (!Array.isArray(data)) return;
+        const cards = data.slice(0, 6).map((p, i) => ({
+          id: p.product_id,
+          image: p.primary_image || "https://placehold.co/300x400?text=No+Image",
+          name: p.title,
+          price: `${p.currency_code || "XAF"} ${parseFloat(p.base_price).toLocaleString()}`,
+          badge: BADGE_PRESETS[i % BADGE_PRESETS.length].label,
+          badgeColor: BADGE_PRESETS[i % BADGE_PRESETS.length].color,
+          seller_tag: null,
+        }));
+        setFeaturedCards(cards);
+      } catch (err) {
+        console.error("MarketplaceGateway fetch error:", err);
+      }
+    };
+    fetchFeatured();
+  }, []);
 
   return (
     <section className="showcase">
@@ -383,7 +349,7 @@ const GlobalMartShowcase = () => {
           </div>
 
           {/* Playing Card Fan */}
-          <CardFan cards={productImages} />
+          {featuredCards.length > 0 && <CardFan cards={featuredCards} />}
         </div>
       </div>
     </section>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { logout } from "../api";
+import { logout, getCategories } from "../api";
 import { showToast } from "./Toast";
 import {
   FiMapPin,
@@ -141,6 +141,9 @@ const dropdownVariants = {
 const Header = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCategories, setSidebarCategories] = useState([]);
+  const [showAllDepts, setShowAllDepts] = useState(false);
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
   const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
@@ -183,6 +186,19 @@ const Header = () => {
     showToast("Signed out successfully.", "info");
     navigate("/login");
   }, [navigate]);
+
+  // Fetch categories for sidebar "Shop by Department"
+  useEffect(() => {
+    getCategories()
+      .then((data) => { if (Array.isArray(data)) setSidebarCategories(data); })
+      .catch(() => {});
+  }, []);
+
+  // Lock body scroll when sidebar is open
+  useEffect(() => {
+    document.body.style.overflow = sidebarOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [sidebarOpen]);
 
   const [userLocation, setUserLocation] = useState({
     country: "Cameroon",
@@ -550,76 +566,94 @@ const Header = () => {
 
           <button
             className="main-nav__hamburger"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setSidebarOpen(true)}
           >
-            {mobileMenuOpen ? <FiX /> : <FiMenu />}
+            <FiMenu />
           </button>
         </div>
       </nav>
 
-      {/* Bottom Navigation Bar - Cleaned up */}
+      {/* Bottom Navigation Bar */}
       <div className="bottom-nav">
         <div className="bottom-nav__content">
-          <button className="bottom-nav__item">
+          <button className="bottom-nav__item" onClick={() => setSidebarOpen(true)}>
             <FiMenu /> All
           </button>
-          <button className="bottom-nav__item">Today's Deals</button>
+          <button className="bottom-nav__item" onClick={() => navigate("/shop")}>Today's Deals</button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="mobile-menu mobile-menu--open">
-          {/* ... your existing mobile menu content ... */}
-          <div className="mobile-menu__search">
-            <FiSearch className="mobile-menu__search-icon" />
-            <input
-              type="text"
-              placeholder="Search Global Mart"
-              className="mobile-menu__search-input"
-            />
-          </div>
-
-          <div className="mobile-menu__section-title">Location</div>
-          <div className="mobile-menu__location-grid">
-            {countries.slice(0, 12).map((country) => (
-              <button
-                key={country.code}
-                className={`mobile-menu__location-btn ${userLocation.countryCode === country.code ? "mobile-menu__location-btn--active" : ""}`}
-                onClick={() => handleCountrySelect(country)}
-              >
-                <span className="main-nav__flag">{country.flag}</span>
-                <span>{country.code}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="mobile-menu__divider" />
-          {currentUser ? (
-            <a href="#" className="mobile-menu__link" onClick={handleLogout}>
-              Sign Out ({currentUser.username})
-            </a>
-          ) : (
-            <a href="#" className="mobile-menu__link" onClick={() => navigate("/login")}>
-              Sign In
-            </a>
-          )}
-          <a
-            href="#"
-            className="mobile-menu__link"
-            onClick={() => navigate("/orders")}
-          >
-            Orders
-          </a>
-          <a
-            href="#"
-            className="mobile-menu__link"
-            onClick={() => navigate("/favorite")}
-          >
-            Wishlist
-          </a>
-        </div>
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
       )}
+
+      {/* Amazon-style Left Sidebar */}
+      <div className={`left-sidebar ${sidebarOpen ? "left-sidebar--open" : ""}`}>
+        {/* Sidebar Header */}
+        <div className="left-sidebar__header">
+          <FiUser size={20} />
+          <span>Hello, {currentUser ? currentUser.username || "User" : "Sign in"}</span>
+          <button className="left-sidebar__close" onClick={() => setSidebarOpen(false)}>
+            <FiX size={20} />
+          </button>
+        </div>
+
+        <div className="left-sidebar__body">
+
+          {/* Shop by Department — real categories from API */}
+          <div className="left-sidebar__section">
+            <h3 className="left-sidebar__section-title">Shop by Department</h3>
+            {(showAllDepts ? sidebarCategories : sidebarCategories.slice(0, 4)).map((cat) => (
+              <div
+                key={cat.category_id}
+                className="left-sidebar__item"
+                onClick={() => { navigate("/shop"); setSidebarOpen(false); }}
+              >
+                <span>{cat.name}</span>
+                <FiChevronRight size={14} />
+              </div>
+            ))}
+            {sidebarCategories.length > 4 && (
+              <button
+                className="left-sidebar__see-all"
+                onClick={() => setShowAllDepts((v) => !v)}
+              >
+                {showAllDepts ? "See less" : "See all"}{" "}
+                <FiChevronDown
+                  size={14}
+                  style={{ transform: showAllDepts ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
+                />
+              </button>
+            )}
+          </div>
+
+          {/* Account */}
+          <div className="left-sidebar__section">
+            <h3 className="left-sidebar__section-title">Account</h3>
+            <div className="left-sidebar__item" onClick={() => { navigate("/orders"); setSidebarOpen(false); }}>
+              <span>Returns &amp; Orders</span>
+              <FiChevronRight size={14} />
+            </div>
+            <div className="left-sidebar__item" onClick={() => { navigate("/favorite"); setSidebarOpen(false); }}>
+              <span>Wishlist</span>
+              <FiChevronRight size={14} />
+            </div>
+            {currentUser ? (
+              <div className="left-sidebar__item" onClick={() => { handleLogout(); setSidebarOpen(false); }}>
+                <span>Sign Out</span>
+              </div>
+            ) : (
+              <div className="left-sidebar__item" onClick={() => { navigate("/login"); setSidebarOpen(false); }}>
+                <span>Sign In</span>
+              </div>
+            )}
+          </div>
+
+         
+
+        </div>
+      </div>
     </header>
   );
 };

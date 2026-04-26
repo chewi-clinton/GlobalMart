@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { register } from "../api";
 import { showToast } from "../components/Toast";
-import logo from "../assets/logo.png";
 import "../styles/RegisterPage.css";
 
 const RegisterPage = () => {
@@ -60,11 +59,6 @@ const RegisterPage = () => {
 
   return (
     <div className="register-page">
-
-      {/* Logo */}
-      <div className="register-page__logo-wrapper">
-        <img src={logo} alt="GlobalMart" className="register-page__logo" />
-      </div>
 
       {/* Card */}
       <div className="register-page__card">
