@@ -6,6 +6,7 @@ import Lottie from "lottie-react";
 import sorryAnimation from "../assets/sorry.json";
 import { getProducts, getCategories } from "../api";
 import { showToast } from "../components/Toast";
+import { useCurrency } from "../context/CurrencyContext";
 import "../styles/ShopPage.css";
 
 // ─── Cart helpers ─────────────────────────────────────────────────────
@@ -239,7 +240,7 @@ const ProductCard = ({ product, index, onProductClick }) => {
             className="current-price"
             style={{ textShadow: isHovered ? "0 0 20px rgba(255,153,0,0.5)" : "none" }}
           >
-            {product.price.toLocaleString()} {product.currency}
+            {formatPrice(product.price, product.currency)}
           </span>
         </div>
         <div className="brand-tag">{product.category}</div>
@@ -312,6 +313,7 @@ const FilterSidebar = ({ filters, setFilters, priceMax }) => {
 
 const ShopPage = () => {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const [products, setProducts] = useState([]);
   const [categories, setCategoriesList] = useState(["All"]);
   const [activeCategory, setActiveCategory] = useState("All");

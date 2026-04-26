@@ -4,7 +4,14 @@ import { showToast } from "../components/Toast";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import emptyCartAnimation from "../assets/empty_cart.json";
+import { useCurrency } from "../context/CurrencyContext";
 import "../styles/CartPage.css";
+
+// Price helper — reads from context so it re-renders when currency changes
+const CartItemPrice = ({ price, currency }) => {
+  const { formatPrice } = useCurrency();
+  return <>{formatPrice(price, currency)}</>;
+};
 
 // Cart Item Component
 const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
@@ -47,7 +54,7 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
 
       <div className="cart-item-details">
         <h3 className="cart-item-name">{item.name}</h3>
-        <p className="cart-item-price">{item.price.toLocaleString()} {item.currency || ""}</p>
+        <p className="cart-item-price"><CartItemPrice price={item.price} currency={item.currency} /></p>
       </div>
 
       <div className="cart-item-actions">
@@ -95,8 +102,9 @@ const CartItem = ({ item, onRemove, onUpdateQuantity, index }) => {
 
 // Order Summary Component
 const OrderSummary = ({ items, onCheckout }) => {
+  const { formatPrice, convertAmount } = useCurrency();
+  const baseCurrency = items[0]?.currency || "XAF";
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const currency = items[0]?.currency || "";
   const total = subtotal;
 
   return (
@@ -112,14 +120,14 @@ const OrderSummary = ({ items, onCheckout }) => {
         <span>
           Subtotal ({items.reduce((sum, item) => sum + item.quantity, 0)} items)
         </span>
-        <span className="summary-value">{subtotal.toLocaleString()} {currency}</span>
+        <span className="summary-value">{formatPrice(subtotal, baseCurrency)}</span>
       </div>
 
       <div className="summary-divider"></div>
 
       <div className="summary-row total-row">
         <span>Total</span>
-        <span className="total-value">{total.toLocaleString()} {currency}</span>
+        <span className="total-value">{formatPrice(total, baseCurrency)}</span>
       </div>
 
       <motion.button

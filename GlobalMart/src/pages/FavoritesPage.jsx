@@ -4,6 +4,7 @@ import { showToast } from "../components/Toast";
 import { motion, AnimatePresence } from "framer-motion";
 import Lottie from "lottie-react";
 import favouriteAnimation from "../assets/favorite.json";
+import { useCurrency } from "../context/CurrencyContext";
 import "../styles/FavoritePage.css";
 
 const addToCart = (product) => {
@@ -167,7 +168,7 @@ const FavoriteCard = ({ item, index, onRemove, onAddToCart }) => {
       <div className="card-content">
         <span className="card-category">{item.category}</span>
         <h3 className="card-name">{item.name}</h3>
-        <p className="card-price">{item.price.toLocaleString()} {item.currency || ""}</p>
+        <p className="card-price">{formatPrice(item.price, item.currency || "XAF")}</p>
       </div>
     </motion.div>
   );
@@ -176,6 +177,7 @@ const FavoriteCard = ({ item, index, onRemove, onAddToCart }) => {
 // Main FavoritesPage Component
 const FavoritesPage = () => {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const [favorites, setFavorites] = useState(() =>
     JSON.parse(localStorage.getItem("favorites") || "[]")
   );

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 const routerFuture = { v7_startTransition: true, v7_relativeSplatPath: true };
 import "./App.css";
+import { CurrencyProvider } from "./context/CurrencyContext";
 
 import Header from "./components/Header.jsx";
 import Toast from "./components/Toast.jsx";
@@ -39,6 +40,7 @@ function HomePage() {
 
 function App() {
   return (
+    <CurrencyProvider>
     <Router future={routerFuture}>
       <div className="app-container">
         <Toast />
@@ -71,6 +73,7 @@ function App() {
          <Footer />
       </div>
     </Router>
+    </CurrencyProvider>
   );
 }
 

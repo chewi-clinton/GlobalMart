@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { logout, getCategories } from "../api";
 import { showToast } from "./Toast";
+import { useCurrency } from "../context/CurrencyContext";
 import {
   FiMapPin,
   FiChevronDown,
@@ -140,6 +141,7 @@ const dropdownVariants = {
 
 const Header = () => {
   const navigate = useNavigate();
+  const { selectedCurrency, setCurrency: setContextCurrency } = useCurrency();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCategories, setSidebarCategories] = useState([]);
@@ -205,7 +207,6 @@ const Header = () => {
     countryCode: "CM",
   });
   const [selectedLanguage, setSelectedLanguage] = useState(languages[0]);
-  const [selectedCurrency, setSelectedCurrency] = useState(currencies[2]);
 
   // ipapi.co removed (rate-limited and CORS issues in dev).
   // Default to Cameroon/XAF. User can change manually via the country selector.
@@ -287,7 +288,7 @@ const Header = () => {
 
     const code = currencyMap[country.code] || "USD";
     const newCurrency = currencies.find((c) => c.code === code);
-    if (newCurrency) setSelectedCurrency(newCurrency);
+    if (newCurrency) setContextCurrency(newCurrency);
   };
 
   const getCountryFlag = (countryCode) => {
@@ -446,7 +447,7 @@ const Header = () => {
                   <div
                     key={currency.code}
                     className={`main-nav__dropdown-item ${selectedCurrency.code === currency.code ? "main-nav__dropdown-item--active" : ""}`}
-                    onClick={() => setSelectedCurrency(currency)}
+                    onClick={() => setContextCurrency(currency)}
                   >
                     <span style={{ width: "30px" }}>{currency.symbol}</span>
                     <span>{currency.name}</span>
@@ -566,9 +567,9 @@ const Header = () => {
 
           <button
             className="main-nav__hamburger"
-            onClick={() => setSidebarOpen(true)}
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
           >
-            <FiMenu />
+            {mobileMenuOpen ? <FiX /> : <FiMenu />}
           </button>
         </div>
       </nav>
@@ -583,7 +584,47 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Sidebar Overlay */}
+      {/* Original Mobile Dropdown Menu (top hamburger) */}
+      {mobileMenuOpen && (
+        <div className="mobile-menu mobile-menu--open">
+          <div className="mobile-menu__search">
+            <FiSearch className="mobile-menu__search-icon" />
+            <input
+              type="text"
+              placeholder="Search Global Mart"
+              className="mobile-menu__search-input"
+            />
+          </div>
+
+          <div className="mobile-menu__section-title">Location</div>
+          <div className="mobile-menu__location-grid">
+            {countries.slice(0, 12).map((country) => (
+              <button
+                key={country.code}
+                className={`mobile-menu__location-btn ${userLocation.countryCode === country.code ? "mobile-menu__location-btn--active" : ""}`}
+                onClick={() => handleCountrySelect(country)}
+              >
+                <span className="main-nav__flag">{country.flag}</span>
+                <span>{country.code}</span>
+              </button>
+            ))}
+          </div>
+
+          {currentUser ? (
+            <a href="#" className="mobile-menu__link" onClick={handleLogout}>
+              Sign Out ({currentUser.username})
+            </a>
+          ) : (
+            <a href="#" className="mobile-menu__link" onClick={() => navigate("/login")}>
+              Sign In
+            </a>
+          )}
+          <a href="#" className="mobile-menu__link" onClick={() => navigate("/orders")}>Orders</a>
+          <a href="#" className="mobile-menu__link" onClick={() => navigate("/favorite")}>Wishlist</a>
+        </div>
+      )}
+
+      {/* Sidebar Overlay (bottom nav "All" button) */}
       {sidebarOpen && (
         <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
       )}
