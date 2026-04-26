@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { showToast } from "../components/Toast";
+import { useCurrency } from "../context/CurrencyContext";
 import {
   getProfile,
   updateProfile,
@@ -111,6 +112,7 @@ const groupOrdersByMonth = (orders) => {
 // ════════════════════════════════════════
 const SellerDashboard = () => {
   const navigate = useNavigate();
+  const { formatPrice } = useCurrency();
   const [activeSection, setActiveSection] = useState("home");
 
   const [seller, setSeller] = useState({ name: "", email: "" });
@@ -150,6 +152,7 @@ const SellerDashboard = () => {
   useEffect(() => {
     const payload = getTokenPayload();
     if (!payload) { navigate("/login"); return; }
+    if (payload.role !== "seller" && payload.role !== "admin") { navigate("/"); return; }
     getProfile().then((data) => {
       if (data.username || data.email) {
         setSeller({ name: data.username || "Seller", email: data.email || "" });
@@ -405,7 +408,7 @@ const SellerDashboard = () => {
               <h2 className="sd__section-title">Welcome back, {seller.name || "Seller"}! 👋</h2>
               <div className="sd__cards">
                 {[
-                  { label: "Total Revenue", value: `$${totalRevenue.toFixed(2)}`, icon: "📈", color: "#007600" },
+                  { label: "Total Revenue", value: formatPrice(totalRevenue, "USD"), icon: "📈", color: "#007600" },
                   { label: "Total Orders", value: orders.length, icon: "🛒", color: "#1a73e8" },
                   { label: "Pending Orders", value: pendingOrders, icon: "⏳", color: "#e47911" },
                   { label: "Total Products", value: products.length, icon: "📦", color: "#6b21a8" },
@@ -435,7 +438,7 @@ const SellerDashboard = () => {
                       <tr key={order.order_id}>
                         <td className="sd__order-id">#{order.order_id}</td>
                         <td>{order.customer_id}</td>
-                        <td>{parseFloat(order.total_amount).toFixed(2)} {order.currency_code}</td>
+                        <td>{formatPrice(order.total_amount, order.currency_code)}</td>
                         <td><StatusBadge status={order.status} /></td>
                       </tr>
                     ))}
@@ -545,7 +548,7 @@ const SellerDashboard = () => {
                         </td>
                         <td className="sd__product-name">{p.title}</td>
                         <td>{p.category_name || "—"}</td>
-                        <td>{parseFloat(p.base_price).toFixed(2)} {p.currency_code}</td>
+                        <td>{formatPrice(p.base_price, p.currency_code)}</td>
                         <td>{getStock(p.product_id)}</td>
                         <td><StatusBadge status={p.status} /></td>
                         <td>
@@ -599,7 +602,7 @@ const SellerDashboard = () => {
                         <td>{order.customer_id}</td>
                         <td>{order.items_count}</td>
                         <td>{new Date(order.order_date).toLocaleDateString()}</td>
-                        <td>{parseFloat(order.total_amount).toFixed(2)} {order.currency_code}</td>
+                        <td>{formatPrice(order.total_amount, order.currency_code)}</td>
                         <td><StatusBadge status={order.payment_status} /></td>
                         <td><StatusBadge status={order.status} /></td>
                         <td>
@@ -624,7 +627,7 @@ const SellerDashboard = () => {
                   <h3 className="sd__subsection-title">📈 Sales Report</h3>
                   <div className="sd__report-rows">
                     {[
-                      { label: "Total Revenue", value: `$${totalRevenue.toFixed(2)}` },
+                      { label: "Total Revenue", value: formatPrice(totalRevenue, "USD") },
                       { label: "Total Orders", value: orders.length },
                       { label: "Delivered", value: orders.filter((o) => o.status === "delivered").length },
                       { label: "Cancelled", value: orders.filter((o) => o.status === "cancelled").length },
@@ -731,23 +734,23 @@ const SellerDashboard = () => {
                   </div>
                   <div className="sd__form-field">
                     <label>Mobile Money Number</label>
-                    <input defaultValue="6XX XXX XXX" className="sd__input" />
+                    <input placeholder="e.g. 6XX XXX XXX" className="sd__input" />
                   </div>
                   <button className="sd__btn sd__btn--primary">Save Changes</button>
                 </div>
                 <div className="sd__settings-card">
                   <h3 className="sd__subsection-title">Shipping Settings</h3>
                   <div className="sd__form-field">
-                    <label>Default Shipping Rate ($)</label>
-                    <input defaultValue="9.99" className="sd__input" type="number" />
+                    <label>Default Shipping Rate</label>
+                    <input placeholder="0.00" className="sd__input" type="number" min="0" step="0.01" />
                   </div>
                   <div className="sd__form-field">
-                    <label>Free Shipping Threshold ($)</label>
-                    <input defaultValue="50.00" className="sd__input" type="number" />
+                    <label>Free Shipping Threshold</label>
+                    <input placeholder="0.00" className="sd__input" type="number" min="0" step="0.01" />
                   </div>
                   <div className="sd__form-field">
                     <label>Processing Time (days)</label>
-                    <input defaultValue="2" className="sd__input" type="number" />
+                    <input placeholder="1" className="sd__input" type="number" min="1" />
                   </div>
                   <button className="sd__btn sd__btn--primary">Save Changes</button>
                 </div>
